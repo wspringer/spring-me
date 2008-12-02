@@ -1,0 +1,62 @@
+group template;
+
+sourceTemplate ::= [
+    "Instance" : "sourceInstance",
+    "InstanceReference" : "sourceInstanceReference",
+    "StringRepresentation" : "sourceStringRepresentation",
+    "List" : "sourceList"
+]
+
+template(definitions) ::= <<
+digraph {
+  node[fontname="Helvetica"];
+  <definitions.publicInstances:publicNode();separator="\n">
+  <definitions.instanceSources:anonymousNode();separator="\n">
+}
+>>
+
+publicNode() ::= <<
+<it.id>[label="<it.name>\n:<it.type;format="type">",shape="rectangle",fillcolor=<it.type;format="color">,style=filled];
+<setters(instance=it)>
+<constructorArgs(instance=it)>
+>>
+
+anonymousNode() ::= <<
+<it.id>[label=":<it.type;format="type">",shape="rectangle",fillcolor=<it.type;format="color">,style=filled];
+<setters(instance=it)>
+<constructorArgs(instance=it)>
+>>
+
+constructorArgs(instance) ::= <<
+<instance.constructorArguments:constructorArg(id=instance.id);separator="\n">
+>>
+
+constructorArg(id) ::= <<
+<(sourceTemplate.(it.source.sourceType))(id=id,context=it.source)>
+>>
+
+setters(instance) ::= <<
+<instance.setters:setter(id=instance.id);separator="\n">
+>>
+
+setter(id) ::= <<
+<(sourceTemplate.(it.source.sourceType))(id=id,context=it.source)>
+>>
+
+sourceInstance(id,context) ::= <<
+<id> -> <context.id>; 
+>>
+
+sourceInstanceReference(id,context) ::= <<
+<id> -> <context.referencedId>; 
+>>
+
+sourceList(id,context) ::= <<
+<context.elementSources:member(id=id,context=context);separator="\n">
+>>
+
+sourceStringRepresentation(id,context) ::= <<>>
+
+member(id,context) ::= <<
+<(sourceTemplate.(it.sourceType))(id=id,context=it)>
+>>

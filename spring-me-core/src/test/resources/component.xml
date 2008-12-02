@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean name="teacher1" class="me.springframework.di.spring.Teacher" factory-method="create" destroy-method="killed">
+  	<constructor-arg value="Wilfred Springer"/>
+    <property name="age" value="35"/>
+    <property name="courses">
+      <list>
+        <ref bean="course1"/>
+        <ref bean="course2"/>
+        <bean class="me.springframework.di.spring.Course">
+          <property name="topic" value="C++"/>
+          <property name="students">
+          	<list>
+          		<ref bean="teacher1"/>
+          	</list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+  
+  <bean name="course1" class="me.springframework.di.spring.Course">
+    <property name="topic" value="Java"/>
+  </bean>
+  
+  <bean name="course2" class="me.springframework.di.spring.Course">
+    <property name="topic" value="Erlang"/>
+  </bean>
+  
+</beans>

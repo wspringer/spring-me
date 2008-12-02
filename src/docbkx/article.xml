@@ -1,0 +1,374 @@
+<article>
+  <articleinfo>
+    <title>Spring ME</title>
+    <subtitle>A framework so small, it makes you feel like a giant</subtitle>
+    <author>
+      <firstname>Wilfred</firstname>
+      <surname>Springer</surname>
+    </author>
+    <pubdate>December 1, 2008</pubdate>
+  </articleinfo>
+  <section>
+    <title>Introduction</title>
+    <para>
+      During the last couple of years, Spring has essentially taken
+      over the Enterprise world, by introducing a simplified and
+      coherent programming model, and a powerful dependency injection
+      framework.
+    </para>
+    <para>
+      Unfortunately, if you were working on <trademark>Java
+      ME</trademark>, you were basically out of luck, for various
+      reasons. First of all, 'classic' Spring is totally dependent on
+      reflection, a capability not present in Java ME. But even if it
+      <emphasis>would</emphasis> be present, then the sheer size of
+      the minimal Spring runtime would grow the size of your
+      application beyond any reasonable numbers.
+    </para>
+    <para>
+      That basically leaves the Java ME developers in the dark. In
+      fact, coming from the EE world, it feels awkward to start
+      programming on Java ME. Once you got used to dependency
+      injection, it's hard to do without.
+    </para>
+    <para>
+      However, there is light at the end of the tunnel. This article
+      introduces Spring ME. A framework that <emphasis>does</emphasis>
+      work on Java ME, and moreover has no runtime dependencies
+      <emphasis>at all</emphasis>.
+    </para>
+  </section>
+  <section>
+    <title>How does it work?</title>
+    <para>
+      Now, if 'classic' Spring relies on runtime reflection for
+      dependency injection, Spring ME clearly requires something
+      else. That 'something else' is build time analysis and code
+      generation.
+    </para>
+    <para>
+      The BeanFactories in 'classic' Spring are library-provided
+      classes that use reflection for two purposes. First of all, it
+      is used to gather data about the object graph to
+      instantiate. Secondly, it is used to perform the construction
+      and configuration of these objects.
+    </para>
+    <para>
+      The BeanFactory in Spring ME is quite different. Instead of a
+      class provided by the Spring runtime, it is a class that is
+      generated, addressing the needs of your application
+      explicitly. Instead of using reflection to gather data about the
+      object graph to construct, it relies on 'compile time' source
+      code analysis only. And in order to instantiate the classes, it
+      uses plain old vanilla Java code. 
+    </para>
+    <para>
+      In order to illustrate the difference, <xref
+      linkend="example-spring-classic"/> shows the classic approach to
+      Spring bean construction and configuration. It's a simplified
+      example, and it omits the slew of exceptions that you would
+      need to catch, but you probably get the picture.
+    </para>
+    <example id="example-spring-classic">
+      <title>'Classic' Spring Approach</title>
+      <programlisting><![CDATA[
+Class cl = Class.forName("Person");
+Object instance = cl.newInstance();
+Method meth = cl.getDeclaredMethod("setName");
+method.invoke(instance, new Object[] { "Wilfred Springer" });
+      ]]></programlisting>
+    </example>
+    <para>
+      <xref linkend="example-spring-me"/> illustrates the Spring ME
+      approach. It looks ridiculously simple, and in fact, it
+      is. 
+    </para>
+    <example id="example-spring-me">
+      <title>Spring ME Approach</title>
+      <programlisting><![CDATA[
+Person instance = new Person();
+instance.setName("Wilfred Springer");
+      ]]></programlisting>
+    </example>
+    <para>
+      The important thing to note here is that both examples could be
+      based on the same snippet of Spring configuration, such as the
+      snippet in <xref linkend="example-configuration"/>. The
+      'classic' Spring example interprets it at runtime; Spring ME
+      generates source from it at build time.
+    </para>
+    <example id="example-configuration">
+      <title>Example configuration</title>
+      <programlisting><![CDATA[
+<bean id="..." class="Person">
+  <property name="name" value="Wilfred Springer"/>
+</bean>
+      ]]></programlisting>
+    </example>
+    <para>
+      Now, the smart readers might start wondering where the type
+      information is coming from. After all, the bean configuration
+      does not provide it. How do we know if the value "Wilfred
+      Springer" actually represents a String, and not something else?
+      A primitive int, for instance?<footnote>
+      <para>
+        Note that the code that would have to be generated in <xref
+        linkend="example-spring-me"/> would need to be different if
+        the name property would be an int. I leave it as an exercise
+        to the reader to figure out how it would be different.
+      </para>
+      </footnote> The answer is simple, that data is gathered build
+      time as well, by analyzing the sources.
+    </para>
+  </section>
+  <section>
+    <title>Show me an example</title>
+    <para>
+      In order to understand what this means in reality, let's look at
+      a simple example example first. In this simple example, we
+      define two different classes: Teachers and Courses. A teacher
+      can teach many courses. Each of these courses has a certain
+      topic.
+    </para>
+    <example id="example-teacher-courses">
+      <title>Teacher and Courses</title>
+      <programlisting><![CDATA[class Teacher {
+
+  public void setName(String name);
+  public String getName();
+
+  public void setAge(int age);
+  public void getAge();
+
+  public void setCourses(List<Course> courses);
+  public List<Course> getCourses();
+
+}
+
+class Course {
+  
+  public void setTopic(String topic);
+  public String getTopic();
+
+}]]></programlisting>
+    </example>
+    <para>
+      Now, assume that we are going to create some instances of these
+      classes by defining a teacher (Rudy Rucker), teaching a single
+      course, called "The Fourth Dimension and Howe to Get
+      There". <xref linkend="example-teachers-config"/> illustrates
+      how you could do it. 
+    </para>
+    <example id="example-teachers-config">
+      <title>Spring configuration</title>
+      <programlisting><![CDATA[
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="...">
+  <bean id="someTeacher" class="Teacher">
+    <property name="name" value="Rudy Rucker"/>
+    <property name="courses">
+      <list>
+        <bean class="Course">
+          <property name="topic" 
+                    value="The Fourth Dimension and How to Get There"/>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>
+      ]]></programlisting>
+    </example>
+    <para>
+      Everything you have seen so far is still plain vanilla
+      Spring. Nothing fancy. Same syntax, same POJO approach. But the
+      next step is a Spring ME only step. In order to have BeanFactory
+      capable of dealing with this configuration, we need to
+      <emphasis>generate</emphasis> that BeanFactory.
+    </para>
+    <para>
+      You generate the BeanFactory by calling a Maven plugin. This is
+      what you type on the commandline.
+    </para>
+    <screen>mvn spring-me:generate</screen>
+    <para>
+      Assuming you haven't configured the Maven plugin in your pom.xml
+      yet, you would have to pass three additional arguments. You need
+      to pass the name of the Spring configuration file, the package
+      name and the class name of the BeanFactory you want to generate.
+    </para>
+    <para>
+      ... and this is basically it. The Maven plugin has now generated
+      a source file in
+      <filename>target/generated-sources/spring-me</filename>, and
+      added this source folder to the list of source folders
+      considered for compilation.
+    </para>
+    <para>
+      The BeanFactory that got generated does <emphasis>not</emphasis>
+      implement the BeanFactory interface. That is, it only implements
+      one operation. The one that allows you to pass in a name, and
+      returns the configured instance. Other operations could be added
+      in the future, but this BeanFactory interface fitted our needs
+      just fine. <xref linkend="example-usage"/> shows how to use the
+      BeanFactory generated.
+    </para>
+    <example id="example-usage">
+      <title>Example usage</title>
+      <programlisting><![CDATA[
+BeanFactory factory = new BeanFactory();
+Teacher rudy = (Teacher) factory.getBean("someTeacher");
+assertEquals("Rudy Rucker", rudy.getName());
+assertNotNull(rudy.getCourses());
+assertEquals(1, rudy.getCourses().size());
+assertNotNull(rudy.getCourses().get(0).getTopic());
+      ]]></programlisting>
+    </example>
+  </section>
+  <section>
+    <title>What else is supported?</title>
+    <para>
+      The example given in the previous section is fairly
+      limited. Spring ME may support only a subset of what 'classic'
+      Spring has to offer, but it is significantly more than what is
+      listed in that section. 
+    </para>
+    <para>
+      In order to understand its scope, it is important to know that
+      Spring ME is build on top of classic Spring. Yup, you read that
+      right. The analysis done at build time is partly based on
+      Spring's own BeanDefinition abstractions. So, it reads an XML
+      application context using the implementation of Spring
+      itself. Once the bean definitions have been made available, it
+      is turned into Spring ME's own meta model, and augmented with
+      information extracted from source code and class files.
+    </para>
+    <para>
+      Being built on top of Spring ME has the advantage that some
+      things just happen to work. As an example: Spring ME supports
+      context files imports, allowing you to build a single
+      application context out of several others. There is nothing in
+      Spring ME itself that had to be done to make this work, other
+      than building on the existing Spring API.
+    </para>
+    <para>
+      So, with that out of the way, this is a quick rundown of what
+      Spring ME supports:
+    </para>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Property-based injection;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Constructor-based injection;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Injection of primitives, such as integers, booleans, etc.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Injection of anonymous beans;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Injection of beans based on references;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Injection of lists;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Init and destroy methods;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Lazy initialization and eager initialization;
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      ... and last but not least: Spring ME is capable of leveraging
+      all goodness provided by the Spring IDE: it just works like a
+      charm. Initially, when we started work on Spring ME, we
+      carefully isolated our own meta model from Spring's
+      configuration mechanism, in order to retain the ability to have
+      our own configuration mechanism as well. However, Spring IDE
+      support already makes it fairly unlikely that there will ever
+      be another way of configuring it.
+    </para>
+  </section>
+  <section>
+    <title>What does the future behold?</title>
+    <para>
+      Looking at the list of features given in the previous section,
+      you probably have noticed things that were missing. For
+      instance, Spring ME does <emphasis>not</emphasis> support
+      FactoryBeans <emphasis>yet</emphasis>. Or construction based on
+      other scoping rules. However, most of that
+      <emphasis>can</emphasis> be implemented on top what is available
+      today.
+    </para>
+    <para>
+      So, what about other, more advanced Spring features. Let's
+      briefly visit a few of those. The first thing that comes to mind
+      is AOP support. Spring ME does not have it, and it will
+      <emphasis>never</emphasis> be able to support the runtime
+      weaving capabilities provided by 'classic' Spring. (Java ME does
+      not support the classloader magic that would be required to
+      support it.) However, it <emphasis>might</emphasis> be possible
+      to support compile-time weaving.
+    </para>
+    <para>
+      Another Spring feature that gained significant traction during
+      the last couple of years is annotation-based configuration. Will
+      Spring ME be able to support it? I reckon, it will. Remember,
+      Spring ME creates its own meta-model, based partially on metadata
+      provided by Spring's API, and partially on source- and bytecode
+      analysis. Support for annotations would just require pulling
+      that metadata from another source. The source code generation
+      mechanism would stay the same. 
+    </para>
+    <para>
+      Now, the first official release of Spring ME will not support
+      this. The ambition is to stabilize and document the APIs, add
+      more test coverage, and then ship a first release in Q1 2009.
+    </para>
+  </section>
+  <section>
+    <title>Summary and Conclusions</title>
+    <para>
+      Spring ME is a subset of Spring; it allows you to use the Spring
+      paradigm on Java-based platforms that traditionally had to do
+      without. The name not only refers to the fact that it supports
+      Java ME, but it also refers to the fact that the runtime
+      footprint is <emphasis>extremely small</emphasis>: at this stage
+      - apart from the BeanFactory generated - exactly zero bytes.
+    </para>
+    <para>
+      It is important to stress that Spring ME <emphasis>not
+      only</emphasis> targets Java ME. There are other Java based
+      platforms that could benefit from it as well. GWT comes to
+      mind. And even <trademark>Java SE</trademark> could benefit from
+      it. (I have to admit, I don't like shipping a number of Spring
+      libraries when all I want to do is release a simple commandline
+      tool.)
+    </para>
+    <para>
+      It is not hard to imagine how Spring ME will change the way you
+      build Java ME applications. Spring has significantly influenced
+      the way APIs are structured. Spring ME might be able to do the
+      same to Java ME APIs.
+    </para>
+  </section>
+</article>

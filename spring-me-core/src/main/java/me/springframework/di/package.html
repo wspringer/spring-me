@@ -1,0 +1,27 @@
+<html>
+  <body>
+    <p>
+      An abstraction of a network of wired objects. We needed our own,
+      since Spring's BeanDefinition's don't work well with
+      SpringTemplate, and because we need additional information not
+      provided by BeanDefinitions. Apart from that, having a dedicated
+      abstraction allows us to pull the configuration from other
+      sources as well.
+    </p>
+    <p>
+      The {@link me.springframework.di.Instance Instance} models the
+      <em>definition</em> of an object instance. Instances are
+      configured through constructor arguments or property
+      setters. The {@link me.springframework.di.Instance Instance} provides
+      access to the configuration.
+    </p>
+    <p>
+      Property setters and constructor arguments are both {@link
+      com.tomtom.di.Sink Sinks}. That is, they can be connected to
+      {@link me.springframework.di.Source Sources}. There are different types
+      of sources. The source can be an anonymous instance, a reference
+      to a named instance, a list of objects, or just the String
+      representation of a value.
+    </p>
+  </body>
+</html>

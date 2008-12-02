@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project name="${project.name}">
+
+  <skin>
+    <groupId>nl.flotsam.kubrik</groupId>
+    <artifactId>kubrik-skin-spring</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </skin>
+  <body>
+    <menu name="Documentation">
+      <item name="Introduction"
+            href="article.pdf"/>
+    </menu>
+    <menu ref="modules"/>
+    <menu ref="reports"/>
+  </body>
+  
+</project>

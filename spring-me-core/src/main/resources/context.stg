@@ -1,0 +1,279 @@
+group template;
+
+sourceTemplate ::= [
+    "Instance" : "sourceInstance",
+    "InstanceReference" : "sourceInstanceReference",
+    "StringRepresentation" : "sourceStringRepresentation",
+    "List" : "sourceList"
+]
+
+
+stringConversion ::= [
+    "java.lang.String" : "stringToString",
+    "int" : "stringToIntPrimitive",
+    "long" : "stringToLongPrimitive",
+    "boolean" : "stringToBooleanPrimitive",
+    default : "stringToDefault"
+]
+
+
+template(destination, definitions) ::= <<
+package <destination.packagename>;
+
+/**
+ * An object factory, providing access to a network of wired objects, 
+ * some of them lazily instantiated. You can refer to some objects by 
+ * name. The named objects managed by this class are:
+ *
+ * \<ul>
+<definitions.publicInstances:list();separator="\n"> 
+ * \</ul>
+ * 
+ */
+public class <destination.classname> {
+
+    /**
+     * The singleton maintained by this BeanFactory.
+     */
+    private static <destination.classname> __INSTANCE;
+    
+    <definitions.publicInstances:field();separator="\n">
+  
+    /**
+     * Returns an instance guaranteed to be instantiated once by this class.
+     * 
+     * @return The singleton instance of <destination.classname>
+     */
+    public final static synchronized <destination.classname> getInstance() {
+        if (__INSTANCE == null) {
+            __INSTANCE = new <destination.classname>();
+        }
+        return __INSTANCE;
+    }
+
+    /**
+     * Returns an object by looking it up by its name.
+     *
+     * @return The object with the given name, constructed by the <destination.classname>.
+     * @see <destination.classname>
+     */
+    public synchronized Object getBean(String name) {
+        <definitions.publicInstances:dispatch();separator="\n">
+        return null;
+    }
+
+    <definitions.publicInstances:createLazily();separator="\n">
+    
+    <definitions.instanceSources:create();separator="\n">
+    
+    <definitions.listSources:listCreate();separator="\n">
+
+    /**
+     * "Starts" the <destination.classname>; instances that have been 
+     * configured to be loaded eagerly will be loaded, and their init-methods
+     * will be called. 
+     */
+    public synchronized void start() {
+        <definitions.publicInstances:loadEagerly();separator="\n">
+    }
+    
+    /**
+     * "Stops" the <destination.classname>; instances that have an 
+     * destroy-method defined will get that method invoked.
+     */
+    public synchronized void stop() {
+        <definitions.publicInstances:destroy();separator="\n">
+    }
+    
+    	    
+}
+>>
+
+
+destroy() ::= <<
+<if (it.destroyMethod)>
+<it.name>.<it.destroyMethod>();
+<else>
+// Skipping <it.name>
+<endif>
+>>
+
+
+loadEagerly() ::= <<
+<if (!it.lazyInit)>
+get<it.name;format="className">();
+<else>
+// Skipping <it.name>
+<endif>
+>>
+
+createLazily() ::= <<
+/**
+ * Creates <it>.
+ */
+final private synchronized <it.type> get<it.name;format="className">() {
+    if (<it.name> == null) {
+        <if (it.factoryMethod)>
+        <if (it.factoryInstance)>
+        <it.name> = get<it.factoryInstance;format="className">().<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+        <else>
+        <it.name> = <it.referencedType>.<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+        <endif>
+        <else>
+        <it.name> = new <it.type>(<it.constructorArguments:constructorArgument();separator=", ">);
+        <endif>
+        <it.type> result = <it.name>;
+        <it.setters:setter();separator="\n">
+        <if (it.initMethod)>
+        result.<it.initMethod>();
+        <endif>
+        return result;
+    } else {
+        return <it.name>;
+    }
+}
+>>
+
+list() ::= <<
+ * \<li><it.name> : {@link <it.type>}\</li>
+>>
+
+
+dispatch() ::= <<
+if ("<it.name>".equals(name)) return get<it.name;format="className">();
+>>
+
+
+field() ::= <<
+/**
+ * A cached reference to the bean named "<it.name>".
+ */
+private <it.type> <it.name>;
+
+>>
+
+
+getter() ::= <<
+
+/**
+ * Returns the bean named "<it.name>". 
+ *
+ * @return The bean named "<it.name>".
+ * @see #create<it.id;format="className">()
+ */
+final private <it.type> get<it.name;format="className">() {
+    if (<it.name> == null) {
+         <it.name> = create<it.id;format="className">();
+    }
+    return <it.name>;
+}
+>>
+
+
+create(instance) ::= <<
+
+/**
+ * Creates <it>. 
+ <if (instance.initMethod)>
+ * Will call <instance.initMethod>() after the instance has been created.
+ <endif>
+ * 
+ * @return One of the required instances of {@link <instance.type>}.
+ */
+final private <instance.type> create<instance.id;format="className">() {
+    <if (instance.factoryMethod)>
+    <if (instance.factoryInstance)>
+    <instance.type> result = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
+    <else>
+    <instance.type> result = <instance.type>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
+    <endif>
+    <else>
+    <instance.type> result = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
+    <endif>
+    <instance.setters:setter();separator="\n">
+    <if (instance.initMethod)>
+    result.<instance.initMethod>();
+    <endif>
+    return result;
+}
+>>
+
+
+constructorArgument() ::= <<
+<source(type=it.type,source=it.source)>
+>>
+
+
+setter() ::= <<
+result.set<it.name;format="className">(<source(type=it.type,source=it.source)>);
+>>
+
+
+source(type,source) ::= <<
+<(sourceTemplate.(it.source.sourceType))(type=type,source=source)>
+>>
+
+
+sourceInstance(type,source) ::= <<
+create<source.id;format="className">()
+>>
+
+
+sourceInstanceReference(type,source) ::= <<
+get<source.name;format="className">()
+>>
+
+
+sourceStringRepresentation(type,source) ::= <<
+<(stringConversion.(type))(source=source)>
+>>
+
+
+sourceList(type,source) ::= <<
+create<source.id;format="className">()
+>>
+
+
+stringToString(source) ::= <<
+"<source.value>"
+>>
+
+
+stringToIntPrimitive(source) ::= <<
+<source.value>
+>>
+
+
+stringToLongPrimitive(source) ::= <<
+<source.value>
+>>
+
+
+stringToBooleanPrimitive(source) ::= <<
+<source.value>
+>>
+
+
+stringToDefault() ::= <<
+null
+>>
+
+
+listCreate(instance) ::= <<
+
+/**
+ * Creates <it>.
+ * 
+ * @return A list of objects.
+ */
+final private java.util.Vector create<instance.id;format="className">() {
+    java.util.Vector result = new java.util.Vector();
+    <instance.elementSources:addElement();separator="\n">
+    return result;
+}
+>>
+
+addElement(name) ::= <<
+result.add(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>);
+>>
+

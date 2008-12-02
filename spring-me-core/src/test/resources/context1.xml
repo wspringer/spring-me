@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="object1" class="com.tomtom.spring.me.A" init-method="whatever">
+		<property name="foo" value="wilfred"/>
+		<property name="bar" value="springer"/>
+	</bean>
+	
+	<bean id="object2" class="com.tomtom.spring.me.B">
+		<property name="a" ref="object1"/>
+	</bean>	
+	
+	<bean id="object3" class="com.tomtom.spring.me.C">
+	    <property name="d">
+	    	<bean class="com.tomtom.spring.me.D">
+	    		<constructor-arg 
+	    		index="0" value="2"/>
+	    	</bean>
+	    </property>
+	</bean>
+	
+</beans>
