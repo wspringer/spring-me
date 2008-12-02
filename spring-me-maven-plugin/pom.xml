@@ -8,6 +8,13 @@
   <packaging>maven-plugin</packaging>
   <artifactId>spring-me-maven-plugin</artifactId>
   <name>Spring ME Maven Plugin</name>
+  <description>
+    A Maven plugin for generating a BeanFactory from a Spring
+    application context. In order to work around the limitations on
+    platforms not supporting reflection, this Maven plugin will
+    analyze the sources and dependent jar files to gather all the
+    required information at build time.
+  </description>
   <dependencies>
     <dependency>
       <groupId>me.springframework</groupId>
