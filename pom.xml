@@ -17,10 +17,17 @@
       <name>Wilfred Springer</name>
     </developer>
   </developers>
+  <mailingLists>
+    <mailingList>
+      <name>Users List</name>
+      <post>spring-me@googlegroups.com</post>
+      <archive>http://groups.google.com/group/spring-me</archive>
+    </mailingList>
+  </mailingLists>
   <licenses>
     <license>
       <name>GNU General Public License, version 2, with the Classpath Exception</name>
-      <url>http://preon.sourceforge.net/COPYING</url>
+      <url>http://springframework.me/COPYING</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
