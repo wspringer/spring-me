@@ -5,6 +5,7 @@
   <version>1.0-SNAPSHOT</version>
   <name>Spring ME</name>
   <packaging>pom</packaging>
+  <url>http://springframework.me/</url>
   <description>
     A version of Spring that not only has a very small runtime
     footprint (none), but also is capable of running on small handheld
