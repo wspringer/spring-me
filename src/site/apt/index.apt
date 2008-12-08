@@ -1,0 +1,7 @@
+About Spring ME
+
+  A version of Spring that not only has a very small runtime footprint
+(none), but also is capable of running on small handheld devices,
+since it does not rely on reflection.
+
+  In order to learn more about Spring ME, read {{{http://www.scribd.com/doc/8611209/Spring-ME}this introduction}} online, or click the link on the right sidebar to download the PDF version.

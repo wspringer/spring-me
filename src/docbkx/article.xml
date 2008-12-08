@@ -58,12 +58,20 @@
       code analysis only. And in order to instantiate the classes, it
       uses plain old vanilla Java code. 
     </para>
+    <figure>
+      <title>'Classic' Spring versus Spring ME</title>
+      <mediaobject>
+        <imageobject>
+          <imagedata width="12cm" fileref="src/docbkx/classic-versus-me.png"/>
+        </imageobject>
+      </mediaobject>
+    </figure>
     <para>
-      In order to illustrate the difference, <xref
+      In order to clarify the difference, <xref
       linkend="example-spring-classic"/> shows the classic approach to
       Spring bean construction and configuration. It's a simplified
-      example, and it omits the slew of exceptions that you would
-      need to catch, but you probably get the picture.
+      example, and it omits the slew of exceptions that you would need
+      to catch, but you probably get the picture.
     </para>
     <example id="example-spring-classic">
       <title>'Classic' Spring Approach</title>

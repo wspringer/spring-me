@@ -47,7 +47,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 
 /**
- * A Mojo for generating Java based application contexts.
+ * A Mojo for generating Java based BeanFactories.
  * 
  * @author Wilfred Springer
  * @goal generate
