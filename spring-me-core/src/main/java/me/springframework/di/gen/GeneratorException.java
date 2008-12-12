@@ -34,7 +34,7 @@ package me.springframework.di.gen;
 
 
 /**
- * The exception thrown whenever the {@link CodeGenerator} fails to generate
+ * The exception thrown whenever a generator fails to generate
  * code.
  * 
  * @author Wilfred Springer

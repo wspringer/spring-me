@@ -1,24 +1,24 @@
 /**
  * Copyright (C) 2008 TomTom
- *
+ * 
  * This file is part of Spring ME.
- *
- * Spring ME is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
+ * 
+ * Spring ME is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2, or (at your option) any later version.
- *
+ * 
  * Spring ME is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along with
  * Spring ME; see the file COPYING. If not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
+ * 
  * Linking this library statically or dynamically with other modules is making a
  * combined work based on this library. Thus, the terms and conditions of the
  * GNU General Public License cover the whole combination.
- *
+ * 
  * As a special exception, the copyright holders of this library give you
  * permission to link this library with independent modules to produce an
  * executable, regardless of the license terms of these independent modules, and
@@ -52,13 +52,12 @@ import com.thoughtworks.qdox.model.JavaMethod;
 import com.thoughtworks.qdox.model.JavaParameter;
 
 /**
- * A class complementing the data read from the Spring configuration, adding
- * type data from a collection of source files.
+ * {@linkplain Augmentation Augmentation} based on metadata gathered using QDox.
  * 
  * @author Wilfred Springer (wis)
  * 
  */
-public class QDoxAttributor {
+public class QDoxAugmentation implements Augmentation {
 
     /**
      * The object providing access to the sources.
@@ -77,7 +76,7 @@ public class QDoxAttributor {
      * @param builder
      *            The object providing access to the metadata we need.
      */
-    public QDoxAttributor(JavaDocBuilder builder) {
+    public QDoxAugmentation(JavaDocBuilder builder) {
         this.builder = builder;
     }
 
@@ -99,7 +98,7 @@ public class QDoxAttributor {
      * @param allInstances
      *            An map of {@link MutableInstance}s, indexed by bean id.
      */
-    public void attribute(Map<String, MutableInstance> allInstances) {
+    public void augment(Map<String, MutableInstance> allInstances) {
         for (MutableInstance instance : allInstances.values()) {
             attribute(instance, allInstances);
         }
@@ -114,7 +113,8 @@ public class QDoxAttributor {
      * @param allInstances
      *            All known {@link MutableInstance}s, for resolving references.
      */
-    private void attribute(MutableInstance instance, Map<String, MutableInstance> allInstances) {
+    private void attribute(MutableInstance instance,
+            Map<String, MutableInstance> allInstances) {
         guaranteeType(instance, allInstances);
         logger.logAttributing(instance.getName());
         JavaClass cl = builder.getClassByName(instance.getType());
@@ -131,10 +131,12 @@ public class QDoxAttributor {
         if (instance.getConstructorArguments() != null
                 && instance.getConstructorArguments().size() > 0) {
             logger.logInformConstructorArguments(instance.getName());
-            for (MutableConstructorArgument argument : instance.getConstructorArguments()) {
+            for (MutableConstructorArgument argument : instance
+                    .getConstructorArguments()) {
                 attribute(argument.getSource(), allInstances);
             }
-            List<MutableConstructorArgument> arguments = instance.getConstructorArguments();
+            List<MutableConstructorArgument> arguments = instance
+                    .getConstructorArguments();
             JavaMethod method = null;
 
             // If there is no factory method
@@ -147,19 +149,24 @@ public class QDoxAttributor {
 
                 // If there *is* a factory method, but no factory bean
             } else if (instance.getFactoryInstance() == null) {
-                logger.logFactoryMethod(instance.getName(), instance.getFactoryMethod());
-                method = findMethod(cl, true, instance.getFactoryMethod(), arguments);
+                logger.logFactoryMethod(instance.getName(), instance
+                        .getFactoryMethod());
+                method = findMethod(cl, true, instance.getFactoryMethod(),
+                        arguments);
                 if (method == null) {
                     logger.logNoMatchingFactoryMethod(instance);
                 }
 
                 // If there *is* a factory method, *and* a factory bean
             } else {
-                MutableInstance factoryInstance = allInstances.get(instance.getFactoryInstance());
-                logger.logFactoryBean(instance.getName(), factoryInstance.getName(), instance
-                        .getFactoryMethod());
-                JavaClass factoryClass = builder.getClassByName(factoryInstance.getType());
-                method = findMethod(factoryClass, false, instance.getFactoryMethod(), arguments);
+                MutableInstance factoryInstance = allInstances.get(instance
+                        .getFactoryInstance());
+                logger.logFactoryBean(instance.getName(), factoryInstance
+                        .getName(), instance.getFactoryMethod());
+                JavaClass factoryClass = builder.getClassByName(factoryInstance
+                        .getType());
+                method = findMethod(factoryClass, false, instance
+                        .getFactoryMethod(), arguments);
                 if (method == null) {
                     logger.logNoMatchingFactoryInstanceMethod(instance);
                 }
@@ -178,8 +185,10 @@ public class QDoxAttributor {
      * @param allInstances
      *            All other instances, in order to resolve references.
      */
-    private void guaranteeType(MutableInstance instance, Map<String, MutableInstance> allInstances) {
-        logger.logGuaranteeingTypeKnown(instance.getId(), instance.getType() == null);
+    private void guaranteeType(MutableInstance instance,
+            Map<String, MutableInstance> allInstances) {
+        logger.logGuaranteeingTypeKnown(instance.getId(),
+                instance.getType() == null);
         // In case of no factory method
         if (instance.getFactoryMethod() == null) {
             instance.setType(instance.getReferencedType());
@@ -188,30 +197,35 @@ public class QDoxAttributor {
 
             // In case of a static factory method
             if (instance.getFactoryInstance() == null) {
-                List<MutableConstructorArgument> arguments = instance.getConstructorArguments();
+                List<MutableConstructorArgument> arguments = instance
+                        .getConstructorArguments();
                 if (arguments == null) {
                     arguments = new ArrayList<MutableConstructorArgument>();
                 }
-                JavaClass factoryClass = builder.getClassByName(instance.getReferencedType());
-                JavaMethod method = findMethod(factoryClass, true, instance.getFactoryMethod(),
-                        arguments);
+                JavaClass factoryClass = builder.getClassByName(instance
+                        .getReferencedType());
+                JavaMethod method = findMethod(factoryClass, true, instance
+                        .getFactoryMethod(), arguments);
                 instance.setType(method.getReturns().toString());
 
             } else { // If there is a bean factory
 
                 // Find that factory
-                MutableInstance factoryInstance = allInstances.get(instance.getFactoryInstance());
+                MutableInstance factoryInstance = allInstances.get(instance
+                        .getFactoryInstance());
                 guaranteeType(factoryInstance, allInstances);
-                List<MutableConstructorArgument> arguments = instance.getConstructorArguments();
+                List<MutableConstructorArgument> arguments = instance
+                        .getConstructorArguments();
                 if (arguments == null) {
                     arguments = new ArrayList<MutableConstructorArgument>();
                 }
-                JavaClass factoryClass = builder
-                        .getClassByName(factoryInstance.getReferencedType());
-                JavaMethod method = findMethod(factoryClass, false, instance.getFactoryMethod(),
-                        arguments);
-                logger.logFoundFactory(instance.getId(), factoryInstance.getId(), instance
-                        .getFactoryMethod(), method.getReturns().toString());
+                JavaClass factoryClass = builder.getClassByName(factoryInstance
+                        .getReferencedType());
+                JavaMethod method = findMethod(factoryClass, false, instance
+                        .getFactoryMethod(), arguments);
+                logger.logFoundFactory(instance.getId(), factoryInstance
+                        .getId(), instance.getFactoryMethod(), method
+                        .getReturns().toString());
                 instance.setType(method.getReturns().toString());
             }
         }
@@ -253,9 +267,11 @@ public class QDoxAttributor {
      *            The arguments of the constructor.
      * @return A {@link JavaMethod} representation of that constructor.
      */
-    private JavaMethod findConstructor(JavaClass cl, List<MutableConstructorArgument> arguments) {
+    private JavaMethod findConstructor(JavaClass cl,
+            List<MutableConstructorArgument> arguments) {
         for (JavaMethod method : cl.getMethods()) {
-            if (method.isConstructor() && match(arguments, method.getParameters())) {
+            if (method.isConstructor()
+                    && match(arguments, method.getParameters())) {
                 return method;
             }
         }
@@ -271,10 +287,12 @@ public class QDoxAttributor {
      * @param arguments
      *            The {@link MutableConstructorArgument}s.
      */
-    private void copyTypes(JavaParameter[] parameters, List<MutableConstructorArgument> arguments) {
+    private void copyTypes(JavaParameter[] parameters,
+            List<MutableConstructorArgument> arguments) {
         for (int i = 0; i < parameters.length; i++) {
             arguments.get(i).setType(parameters[i].getType().getValue());
-            arguments.get(i).setPrimitive(parameters[i].getType().isPrimitive());
+            arguments.get(i)
+                    .setPrimitive(parameters[i].getType().isPrimitive());
         }
     }
 
@@ -287,8 +305,10 @@ public class QDoxAttributor {
      *            The parameters.
      * @return A boolean indicating if they match.
      */
-    private boolean match(List<MutableConstructorArgument> arguments, JavaParameter[] parameters) {
-        logger.logComparingArguments(arguments.size(), arguments.size() == parameters.length);
+    private boolean match(List<MutableConstructorArgument> arguments,
+            JavaParameter[] parameters) {
+        logger.logComparingArguments(arguments.size(),
+                arguments.size() == parameters.length);
         return arguments.size() == parameters.length;
     }
 
@@ -300,7 +320,8 @@ public class QDoxAttributor {
      * @param allInstances
      *            All other instances, for resolving references.
      */
-    private void attribute(Source source, Map<String, MutableInstance> allInstances) {
+    private void attribute(Source source,
+            Map<String, MutableInstance> allInstances) {
         switch (source.getSourceType()) {
             case Instance:
                 attribute((MutableInstance) source, allInstances);
@@ -323,7 +344,8 @@ public class QDoxAttributor {
      * @param allInstances
      *            All other {@link MutableInstance}s, for resolving references.
      */
-    private void attribute(MutableListSource source, Map<String, MutableInstance> allInstances) {
+    private void attribute(MutableListSource source,
+            Map<String, MutableInstance> allInstances) {
         for (Source element : source.getElementSources()) {
             attribute(element, allInstances);
         }
@@ -339,7 +361,8 @@ public class QDoxAttributor {
      */
     private void attribute(MutableInstanceReference reference,
             Map<String, MutableInstance> allInstances) {
-        reference.setReferencedId(allInstances.get(reference.getName()).getId());
+        reference
+                .setReferencedId(allInstances.get(reference.getName()).getId());
     }
 
     /**
@@ -375,16 +398,19 @@ public class QDoxAttributor {
          * The system detects that there is no corresponding factory method for
          * this instance.
          * 
-         * @param instance The instance that needs to be created.
+         * @param instance
+         *            The instance that needs to be created.
          * @blammo.message No corresponding factory method for {instance}.
          * @blammo.level error
          */
         void logNoMatchingFactoryMethod(MutableInstance instance);
 
         /**
-         * The system detects that there is no corresponding constructor for this instance.
+         * The system detects that there is no corresponding constructor for
+         * this instance.
          * 
-         * @param instance The instance for which we need a constructor.
+         * @param instance
+         *            The instance for which we need a constructor.
          * @blammo.message No corresponding constructor for {instance}.
          * @blammo.level error
          */
@@ -414,8 +440,8 @@ public class QDoxAttributor {
          * @blammo.message Creating bean {instance} using #{factoryMethod}() on
          *                 instance {factoryInstance}, returning type {type}
          */
-        void logFoundFactory(String instance, String factoryInstance, String factoryMethod,
-                String type);
+        void logFoundFactory(String instance, String factoryInstance,
+                String factoryMethod, String type);
 
         /**
          * The system verifies if the type is known for the given bean.
@@ -455,7 +481,8 @@ public class QDoxAttributor {
          * @blammo.message Bean {name} will be constructed using factory method
          *                 {factoryMethod} on {factoryInstance}
          */
-        void logFactoryBean(String name, String factoryInstance, String factoryMethod);
+        void logFactoryBean(String name, String factoryInstance,
+                String factoryMethod);
 
         /**
          * The system is informing that the specified bean will be constructed

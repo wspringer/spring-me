@@ -38,14 +38,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import me.springframework.di.Configuration;
-import me.springframework.di.base.MutableInstance;
-import me.springframework.di.spring.ConfigurationProducer;
-import me.springframework.di.spring.QDoxAttributor;
-import me.springframework.di.spring.SpringContextLoader;
+import me.springframework.di.spring.QDoxAugmentation;
+import me.springframework.di.spring.SpringConfigurationLoader;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -57,7 +54,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.apache.maven.project.artifact.MavenMetadataSource;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -103,14 +99,12 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     // JavaDoc inherited
     final public void execute() throws MojoExecutionException, MojoFailureException {
         Resource resource = new FileSystemResource(contextFile);
-        XmlBeanFactory factory = new XmlBeanFactory(resource);
-        Map<String, MutableInstance> instances = SpringContextLoader.load(factory);
         JavaDocBuilder builder = createJavaDocBuilder();
-        QDoxAttributor attributor = new QDoxAttributor(builder);
-        attributor.setLoggingKitAdapter(new MavenLoggingKitAdapter(getLog()));
-        attributor.attribute(instances);
-        Configuration config = ConfigurationProducer.produce(instances);
-        process(config);
+        QDoxAugmentation augmentation = new QDoxAugmentation(builder);
+        augmentation.setLoggingKitAdapter(new MavenLoggingKitAdapter(getLog()));
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation);
+        Configuration configuration = loader.load(resource);
+        process(configuration);
     }
 
     /**

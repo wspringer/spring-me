@@ -32,19 +32,14 @@
  */
 package me.springframework.di.spring;
 
-import java.util.Map;
-
 import junit.framework.TestCase;
-
+import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
 import me.springframework.di.InstanceReference;
 import me.springframework.di.PropertySetter;
 import me.springframework.di.Source;
 import me.springframework.di.StringValueSource;
-import me.springframework.di.base.MutableInstance;
-import me.springframework.di.spring.SpringContextLoader;
 
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -52,15 +47,15 @@ import org.springframework.core.io.Resource;
 public class SpringFactoryTest extends TestCase {
 
     public void testLoading() {
+        SpringConfigurationLoader loader = new SpringConfigurationLoader();
         Resource resource = new ClassPathResource("/context1.xml", SpringFactoryTest.class);
-        XmlBeanFactory factory = new XmlBeanFactory(resource);
-        Map<String, MutableInstance> instances = SpringContextLoader.load(factory);
-        assertEquals(3, instances.size());
+        Configuration configuration = loader.load(resource);
+        assertEquals(3, configuration.getPublicInstances().size());
 
-        assertEquals("object1", instances.get("object1").getName());
-        assertEquals("com.tomtom.spring.me.A", instances.get("object1").getReferencedType());
-        assertEquals(2, instances.get("object1").getSetters().size());
-        for (PropertySetter setter : instances.get("object1").getSetters()) {
+        assertEquals("object1", configuration.get("object1").getName());
+        assertEquals("com.tomtom.spring.me.A", configuration.get("object1").getReferencedType());
+        assertEquals(2, configuration.get("object1").getSetters().size());
+        for (PropertySetter setter : configuration.get("object1").getSetters()) {
             assertNotNull(setter.getName());
             if ("foo".equals(setter.getName())) {
                 assertEquals(Source.SourceType.StringRepresentation, setter.getSource()
@@ -75,9 +70,9 @@ public class SpringFactoryTest extends TestCase {
             }
         }
 
-        assertEquals("object2", instances.get("object2").getName());
-        assertEquals("com.tomtom.spring.me.B", instances.get("object2").getReferencedType());
-        for (PropertySetter setter : instances.get("object2").getSetters()) {
+        assertEquals("object2", configuration.get("object2").getName());
+        assertEquals("com.tomtom.spring.me.B", configuration.get("object2").getReferencedType());
+        for (PropertySetter setter : configuration.get("object2").getSetters()) {
             assertNotNull(setter.getName());
             if ("a".equals(setter.getName())) {
                 assertEquals(Source.SourceType.InstanceReference, setter.getSource()
@@ -88,9 +83,9 @@ public class SpringFactoryTest extends TestCase {
             }
         }
 
-        assertEquals("object3", instances.get("object3").getName());
-        assertEquals("com.tomtom.spring.me.C", instances.get("object3").getReferencedType());
-        for (PropertySetter setter : instances.get("object3").getSetters()) {
+        assertEquals("object3", configuration.get("object3").getName());
+        assertEquals("com.tomtom.spring.me.C", configuration.get("object3").getReferencedType());
+        for (PropertySetter setter : configuration.get("object3").getSetters()) {
             assertNotNull(setter.getName());
             if ("d".equals(setter.getName())) {
                 assertEquals(Source.SourceType.Instance, setter.getSource().getSourceType());
@@ -107,12 +102,12 @@ public class SpringFactoryTest extends TestCase {
      * Some lames test for testing the {@link Object#toString()} operation.
      */
     public void testToString() {
+        SpringConfigurationLoader loader = new SpringConfigurationLoader();
         Resource resource = new ClassPathResource("/context1.xml", SpringFactoryTest.class);
-        XmlBeanFactory factory = new XmlBeanFactory(resource);
-        Map<String, MutableInstance> instances = SpringContextLoader.load(factory);
-        assertEquals(3, instances.size());
-        assertEquals("bean object1", instances.get("object1").toString());
-        PropertySetter setter = (PropertySetter) instances.get("object1").getSetters().toArray()[0];
+        Configuration configuration = loader.load(resource);
+        assertEquals(3, configuration.getPublicInstances().size());
+        assertEquals("bean object1", configuration.get("object1").toString());
+        PropertySetter setter = (PropertySetter) configuration.get("object1").getSetters().toArray()[0];
         if ("foo".equals(setter.getName())) {
             assertEquals("the foo property of bean object1", setter.toString());
         } else {

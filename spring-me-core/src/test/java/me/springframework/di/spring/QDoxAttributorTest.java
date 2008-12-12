@@ -35,17 +35,12 @@ package me.springframework.di.spring;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
 
 import junit.framework.TestCase;
-
+import me.springframework.di.Configuration;
 import me.springframework.di.PropertySetter;
 import me.springframework.di.Source;
-import me.springframework.di.base.MutableInstance;
-import me.springframework.di.spring.QDoxAttributor;
-import me.springframework.di.spring.SpringContextLoader;
 
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -56,17 +51,16 @@ public class QDoxAttributorTest extends TestCase {
     public void testAttribution() throws FileNotFoundException, IOException {
         Resource resource = new ClassPathResource("/component.xml",
                 QDoxAttributorTest.class);
-        XmlBeanFactory factory = new XmlBeanFactory(resource);
-        Map<String, MutableInstance> instances = SpringContextLoader.load(factory);
         JavaDocBuilder builder = new JavaDocBuilder();
         builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        QDoxAttributor attributor = new QDoxAttributor(builder);
-        attributor.attribute(instances);
-        assertEquals(3, instances.size());
-        assertNotNull(instances.get("teacher1"));
-        assertNotNull(instances.get("teacher1").getSetters());
-        assertEquals(2, instances.get("teacher1").getSetters().size());
-        for (PropertySetter setter : instances.get("teacher1").getSetters()) {
+        QDoxAugmentation augmentation = new QDoxAugmentation(builder);
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation);
+        Configuration configuration = loader.load(resource);
+        assertEquals(3, configuration.getPublicInstances().size());
+        assertNotNull(configuration.get("teacher1"));
+        assertNotNull(configuration.get("teacher1").getSetters());
+        assertEquals(2, configuration.get("teacher1").getSetters().size());
+        for (PropertySetter setter : configuration.get("teacher1").getSetters()) {
             assertNotNull(setter.getName());
             if ("name".equals(setter.getName())) {
                 assertEquals("java.lang.String", setter.getType());

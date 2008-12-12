@@ -67,7 +67,7 @@ import org.springframework.beans.factory.BeanFactory;
  * @author Wilfred Springer
  * 
  */
-public class ContextGenerator {
+public class BeanFactoryGenerator {
 
     /** The template used to generate code. */
     private final static String TEMPLATE = "/context.stg";
@@ -81,7 +81,7 @@ public class ContextGenerator {
      * @param definitions
      *            The definitions of the object instances wired together.
      * @throws GeneratorException
-     *             If - for some reason - the {@link ContextGenerator} fails to
+     *             If - for some reason - the {@link BeanFactoryGenerator} fails to
      *             generate the desired output.
      */
     public static void generate(Destination destination,
@@ -109,7 +109,7 @@ public class ContextGenerator {
      */
     private static String process(Destination destination,
             Configuration definitions) {
-        InputStream in = ContextGenerator.class.getResourceAsStream(TEMPLATE);
+        InputStream in = BeanFactoryGenerator.class.getResourceAsStream(TEMPLATE);
         Reader reader = new InputStreamReader(in);
         StringTemplateGroup group = new StringTemplateGroup(reader);
         StringTemplate template = group.getInstanceOf("template");

@@ -33,10 +33,13 @@
 package me.springframework.di.gen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import me.springframework.di.Configuration;
+import me.springframework.di.Instance;
 import me.springframework.di.base.MutableConfiguration;
 import me.springframework.di.base.MutableConstructorArgument;
 import me.springframework.di.base.MutableInstance;
@@ -74,11 +77,18 @@ public class DotGeneratorTest extends TestCase {
         instance2.setConstructorArguments(new ArrayList<MutableConstructorArgument>());
         instance2.getConstructorArguments().add(arg);
 
-        configuration = new MutableConfiguration();
-        configuration.getPublicInstances().add(instance1);
-        configuration.getInstanceSources().add(instance2);
+        Map<String,Instance> map = new HashMap<String, Instance>();
+        map.put(instance2.getName(), instance2);
+        configuration = new MutableConfiguration(map);
     }
 
+    public void testConfiguration() {
+        assertNull(configuration.get("1"));
+        assertNotNull(configuration.get("2"));
+        assertEquals(1, configuration.getPublicInstances().size());
+        assertEquals(1, configuration.getInstanceSources().size());
+    }
+    
     public void testGeneration() {
         StyleCatalog catalog = new StyleCatalog() {
 

@@ -36,7 +36,7 @@ import java.io.File;
 import java.io.IOException;
 
 import me.springframework.di.Configuration;
-import me.springframework.di.gen.ContextGenerator;
+import me.springframework.di.gen.BeanFactoryGenerator;
 import me.springframework.di.gen.Destination;
 import me.springframework.di.gen.FileSystemDestination;
 import me.springframework.di.gen.GeneratorException;
@@ -92,7 +92,7 @@ public class ContextGeneratorMojo extends AbstractGeneratorMojo {
         }
         Destination dest = new FileSystemDestination(className, packageName, targetDirectory);
         try {
-            ContextGenerator.generate(dest, config);
+            BeanFactoryGenerator.generate(dest, config);
             getProject().addCompileSourceRoot(targetDirectory.getAbsolutePath());
         } catch (GeneratorException cge) {
             throw new MojoExecutionException("Failed to generate context file.", cge);

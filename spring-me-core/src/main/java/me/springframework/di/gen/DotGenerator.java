@@ -119,7 +119,7 @@ public class DotGenerator {
      * @return The text of the output file.
      */
     public String process(Configuration definitions) {
-        InputStream in = ContextGenerator.class.getResourceAsStream(TEMPLATE);
+        InputStream in = BeanFactoryGenerator.class.getResourceAsStream(TEMPLATE);
         Reader reader = new InputStreamReader(in);
         StringTemplateGroup group = new StringTemplateGroup(reader);
         StringTemplate template = group.getInstanceOf("template");

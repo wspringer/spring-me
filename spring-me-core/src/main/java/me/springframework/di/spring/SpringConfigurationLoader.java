@@ -1,24 +1,24 @@
 /**
  * Copyright (C) 2008 TomTom
- *
+ * 
  * This file is part of Spring ME.
- *
- * Spring ME is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
+ * 
+ * Spring ME is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2, or (at your option) any later version.
- *
+ * 
  * Spring ME is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License along with
  * Spring ME; see the file COPYING. If not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
+ * 
  * Linking this library statically or dynamically with other modules is making a
  * combined work based on this library. Thus, the terms and conditions of the
  * GNU General Public License cover the whole combination.
- *
+ * 
  * As a special exception, the copyright holders of this library give you
  * permission to link this library with independent modules to produce an
  * executable, regardless of the license terms of these independent modules, and
@@ -32,7 +32,6 @@
  */
 package me.springframework.di.spring;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,6 +43,7 @@ import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
+import me.springframework.di.base.MutableConfiguration;
 import me.springframework.di.base.MutableConstructorArgument;
 import me.springframework.di.base.MutableInstance;
 import me.springframework.di.base.MutableInstanceReference;
@@ -51,8 +51,6 @@ import me.springframework.di.base.MutableListSource;
 import me.springframework.di.base.MutablePropertySetter;
 import me.springframework.di.base.MutableSource;
 import me.springframework.di.base.MutableStringValueSource;
-import me.springframework.di.gen.ContextGenerator;
-
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -63,8 +61,8 @@ import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueH
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedList;
-
-import com.thoughtworks.qdox.JavaDocBuilder;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.Resource;
 
 /**
  * A class capable of loading lists of {@link Instance Instances} from a Spring
@@ -72,13 +70,13 @@ import com.thoughtworks.qdox.JavaDocBuilder;
  * {@link #load(BeanDefinitionRegistry)} will still be fairly incomplete. It
  * relies on some other source to complete the metadata required to generate
  * source code using
- * {@link ContextGenerator#generate(me.springframework.di.gen.Destination, Configuration)}
+ * {@link BeanFactoryGenerator#generate(me.springframework.di.gen.Destination, Configuration)}
  * .
  * 
  * @author Wilfred Springer
  * 
  */
-public class SpringContextLoader {
+public class SpringConfigurationLoader {
 
     /**
      * Something for providing artificial ids.
@@ -86,27 +84,38 @@ public class SpringContextLoader {
     private static int counter = 0;
 
     /**
-     * Returns a {@link Map} of {@link MutableInstance MutableInstances},
-     * indexed by name.
-     * 
-     * @param registry
-     *            The {@link BeanDefinitionRegistry} holding the bean
-     *            definitions.
-     * @param sourceDirectory
-     *            The directory containing sources, required for retrieving
-     *            additional metadata.
-     * @return A {@link Map} of {@link MutableInstance MutableInstances}
-     *         representing the root beans defined by the
-     *         {@link ListableBeanFactory}.
+     * The objects responsible for augmenting the model read from Spring
+     * configuration.
      */
-    public static Map<String, MutableInstance> load(
-            BeanDefinitionRegistry registry, File sourceDirectory) {
+    private Augmentation[] augmentations;
+
+    /**
+     * Constructs a new instance, accepting a number of objects to augment the
+     * partial {@link Configuration} constructed from the Spring configuration
+     * files.
+     * 
+     * @param augmentations
+     *            Objects capable of augmenting the partial model constructed
+     *            from the meta data in Spring configuration files.
+     */
+    public SpringConfigurationLoader(Augmentation... augmentations) {
+        this.augmentations = augmentations;
+    }
+
+    /**
+     * Loads a Configuration from a Spring XML based application context.
+     * 
+     * @param resource
+     *            The Spring configuration file defining the beans.
+     * @return A {@link Configuration} representing the graph of wired objects.
+     */
+    public Configuration load(Resource resource) {
+        BeanDefinitionRegistry registry = new XmlBeanFactory(resource);
         Map<String, MutableInstance> instances = load(registry);
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(sourceDirectory);
-        QDoxAttributor attributor = new QDoxAttributor(builder);
-        attributor.attribute(instances);
-        return instances;
+        for (Augmentation augmentation : augmentations) {
+            augmentation.augment(instances);
+        }
+        return createConfiguration(instances);
     }
 
     /**
@@ -120,7 +129,7 @@ public class SpringContextLoader {
      *         representing the root beans defined by the
      *         {@link ListableBeanFactory}.
      */
-    public static Map<String, MutableInstance> load(
+    private static Map<String, MutableInstance> load(
             BeanDefinitionRegistry registry) {
         Map<String, MutableInstance> instances = new HashMap<String, MutableInstance>();
         for (String name : registry.getBeanDefinitionNames()) {
@@ -305,8 +314,10 @@ public class SpringContextLoader {
         /**
          * Constructs a new instance.
          * 
-         * @param index The index of the List element.
-         * @param source The {@link Source} producing the data.
+         * @param index
+         *            The index of the List element.
+         * @param source
+         *            The {@link Source} producing the data.
          */
         public ElementSink(int index, MutableSource source) {
             this.index = index;
@@ -315,6 +326,7 @@ public class SpringContextLoader {
 
         /*
          * (non-Javadoc)
+         * 
          * @see me.springframework.di.Sink#getInstance()
          */
         public Instance getInstance() {
@@ -323,6 +335,7 @@ public class SpringContextLoader {
 
         /*
          * (non-Javadoc)
+         * 
          * @see me.springframework.di.Sink#getSource()
          */
         public Source getSource() {
@@ -331,6 +344,7 @@ public class SpringContextLoader {
 
         /*
          * (non-Javadoc)
+         * 
          * @see me.springframework.di.Typed#getType()
          */
         public String getType() {
@@ -339,6 +353,7 @@ public class SpringContextLoader {
 
         /*
          * (non-Javadoc)
+         * 
          * @see me.springframework.di.Typed#isPrimitive()
          */
         public boolean isPrimitive() {
@@ -347,6 +362,7 @@ public class SpringContextLoader {
 
         /*
          * (non-Javadoc)
+         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
@@ -354,5 +370,18 @@ public class SpringContextLoader {
         }
 
     }
+
+    /**
+     * Returns a {@link Configuration} from the instances passed in.
+     * 
+     * @param instances
+     *            The root instances for which we need a {@link Configuration}.
+     * @return The {@link Configuration} from the instances passed in.
+     */
+    private static Configuration createConfiguration(
+            Map<String, ? extends Instance> instances) {
+        return new MutableConfiguration(instances);
+    }
+
 
 }
