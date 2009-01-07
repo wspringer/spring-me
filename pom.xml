@@ -11,6 +11,10 @@
     footprint (none), but also is capable of running on small handheld
     devices, since it does not rely on reflection.
   </description>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://kenai.com/jira/browse/SPRINGME</url>
+  </issueManagement>
   <developers>
     <developer>
       <id>springerw</id>
