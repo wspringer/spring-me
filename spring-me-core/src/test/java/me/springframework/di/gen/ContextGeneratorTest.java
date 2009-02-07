@@ -49,48 +49,49 @@ import com.thoughtworks.qdox.JavaDocBuilder;
 
 public class ContextGeneratorTest extends TestCase {
 
-    public void testIntegration() throws IOException {
-        Resource resource = new ClassPathResource("/component.xml",
-                ContextGeneratorTest.class);
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(
-                new QDoxAugmentation(builder));
-        Configuration configuration = loader.load(resource);
-        InMemoryDestination dest = new InMemoryDestination();
-        BeanFactoryGenerator generator = new BeanFactoryGenerator();
-        generator.generate(dest, configuration);
-        System.out.println(dest.getAsText());
-    }
+	public void testIntegration() throws IOException {
+		Resource resource = new ClassPathResource("/component.xml",
+				ContextGeneratorTest.class);
+		JavaDocBuilder builder = new JavaDocBuilder();
+		builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
+		SpringConfigurationLoader loader = new SpringConfigurationLoader(
+				new QDoxAugmentation(builder));
+		Configuration configuration = loader.load(resource);
+		InMemoryDestination dest = new InMemoryDestination();
+		BeanFactoryGenerator generator = new BeanFactoryGenerator();
+		generator.generate(dest, configuration,
+				BeanFactoryDetails.NO_RUNTIME_DEPENDENCIES);
+		System.out.println(dest.getAsText());
+	}
 
-    private static class InMemoryDestination implements Destination {
+	private static class InMemoryDestination implements Destination {
 
-        private StringWriter writer = new StringWriter();
+		private StringWriter writer = new StringWriter();
 
-        public String getClassname() {
-            return "BeanFactory";
-        }
+		public String getClassname() {
+			return "BeanFactory";
+		}
 
-        public String getPackagename() {
-            return "com.tomtom.test";
-        }
+		public String getPackagename() {
+			return "com.tomtom.test";
+		}
 
-        public Writer getWriter() throws IOException {
-            return writer;
-        }
+		public Writer getWriter() throws IOException {
+			return writer;
+		}
 
-        public String getAsText() {
-            return writer.toString();
-        }
+		public String getAsText() {
+			return writer.toString();
+		}
 
-    }
+	}
 
-    private File getBaseDir() {
-        String basedir = System.getProperty("basedir");
-        if (basedir == null) {
-            basedir = System.getProperty("user.dir");
-        }
-        return new File(basedir);
-    }
+	private File getBaseDir() {
+		String basedir = System.getProperty("basedir");
+		if (basedir == null) {
+			basedir = System.getProperty("user.dir");
+		}
+		return new File(basedir);
+	}
 
 }

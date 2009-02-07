@@ -48,7 +48,6 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.BeanFactory;
 
-
 /**
  * A generator of source files corresponding to a dependency injection graph.
  * Note that the source from which it will generate a Java source file only
@@ -69,55 +68,64 @@ import org.springframework.beans.factory.BeanFactory;
  */
 public class BeanFactoryGenerator {
 
-    /** The template used to generate code. */
-    private final static String TEMPLATE = "/context.stg";
+	/** The template used to generate code. */
+	private final static String TEMPLATE = "/context.stg";
 
-    /**
-     * Generates a Java source file with everything on board to construct the
-     * application context of an application.
-     * 
-     * @param destination
-     *            An abstraction of where and how to generate the target output.
-     * @param definitions
-     *            The definitions of the object instances wired together.
-     * @throws GeneratorException
-     *             If - for some reason - the {@link BeanFactoryGenerator} fails to
-     *             generate the desired output.
-     */
-    public static void generate(Destination destination,
-            me.springframework.di.Configuration definitions)
-            throws GeneratorException {
-        Writer writer = null;
-        try {
-            writer = destination.getWriter();
-            IOUtils.write(process(destination, definitions), writer);
-        } catch (IOException ioe) {
-            throw new GeneratorException(ioe);
-        } finally {
-            IOUtils.closeQuietly(writer);
-        }
-    }
+	/**
+	 * Generates a Java source file with everything on board to construct the
+	 * application context of an application.
+	 * 
+	 * @param destination
+	 *            An abstraction of where and how to generate the target output.
+	 * @param definitions
+	 *            The definitions of the object instances wired together.
+	 * @param details
+	 *            Some metadata on the BeanFactory to generate.
+	 * @throws GeneratorException
+	 *             If - for some reason - the {@link BeanFactoryGenerator} fails
+	 *             to generate the desired output.
+	 */
+	public static void generate(Destination destination,
+			me.springframework.di.Configuration definitions,
+			BeanFactoryDetails details) throws GeneratorException {
+		Writer writer = null;
+		try {
+			writer = destination.getWriter();
+			IOUtils.write(
+					process(destination, definitions, details),
+					writer);
+		} catch (IOException ioe) {
+			throw new GeneratorException(ioe);
+		} finally {
+			IOUtils.closeQuietly(writer);
+		}
+	}
 
-    /**
-     * Performs the actual work, generating the source code.
-     * 
-     * @param destination
-     *            The target settings for the output.
-     * @param definitions
-     *            A representation of the objects that need to be wired.
-     * @return The sources for wiring the objects together.
-     */
-    private static String process(Destination destination,
-            Configuration definitions) {
-        InputStream in = BeanFactoryGenerator.class.getResourceAsStream(TEMPLATE);
-        Reader reader = new InputStreamReader(in);
-        StringTemplateGroup group = new StringTemplateGroup(reader);
-        StringTemplate template = group.getInstanceOf("template");
-        template.registerRenderer(String.class,
-                new IdentifierAttributeRenderer());
-        template.setAttribute("definitions", definitions);
-        template.setAttribute("destination", destination);
-        return template.toString();
-    }
+	/**
+	 * Performs the actual work, generating the source code.
+	 * 
+	 * @param destination
+	 *            The target settings for the output.
+	 * @param definitions
+	 *            A representation of the objects that need to be wired.
+	 * @param beansExceptionName
+	 *            The RuntimeException subclass corresponding to the
+	 *            BeansException in classic Spring.
+	 * @return The sources for wiring the objects together.
+	 */
+	private static String process(Destination destination,
+			Configuration definitions, BeanFactoryDetails details) {
+		InputStream in = BeanFactoryGenerator.class
+				.getResourceAsStream(TEMPLATE);
+		Reader reader = new InputStreamReader(in);
+		StringTemplateGroup group = new StringTemplateGroup(reader);
+		StringTemplate template = group.getInstanceOf("template");
+		template.registerRenderer(String.class,
+				new IdentifierAttributeRenderer());
+		template.setAttribute("definitions", definitions);
+		template.setAttribute("destination", destination);
+		template.setAttribute("details", details);
+		return template.toString();
+	}
 
 }

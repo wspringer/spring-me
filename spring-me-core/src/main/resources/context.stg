@@ -17,7 +17,7 @@ stringConversion ::= [
 ]
 
 
-template(destination, definitions) ::= <<
+template(destination, definitions, details) ::= <<
 package <destination.packagename>;
 
 /**
@@ -46,7 +46,11 @@ public class <destination.classname> {
      */
     public final static synchronized <destination.classname> getInstance() {
         if (__INSTANCE == null) {
-            __INSTANCE = new <destination.classname>();
+            try {
+                __INSTANCE = new <destination.classname>();
+            } catch(Exception e) {
+                throw new <details.beansExceptionName>(e);
+            }
         }
         return __INSTANCE;
     }
@@ -120,7 +124,11 @@ final private synchronized <it.type> get<it.name;format="className">() {
         <it.name> = <it.referencedType>.<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
         <endif>
         <else>
-        <it.name> = new <it.type>(<it.constructorArguments:constructorArgument();separator=", ">);
+        try {
+            <it.name> = new <it.type>(<it.constructorArguments:constructorArgument();separator=", ">);
+        } catch(Exception e) {
+            throw new <details.beansExceptionName>(e);
+        }
         <endif>
         <it.type> result = <it.name>;
         <it.setters:setter();separator="\n">
@@ -188,7 +196,11 @@ final private <instance.type> create<instance.id;format="className">() {
     <instance.type> result = <instance.type>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
     <endif>
     <else>
-    <instance.type> result = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
+    try {
+        <instance.type> result = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
+    } catch(Exception e) {
+        throw new <details.beansExceptionName>(e);
+    }
     <endif>
     <instance.setters:setter();separator="\n">
     <if (instance.initMethod)>
