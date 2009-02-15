@@ -41,6 +41,10 @@ import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
 
 public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
+    
+    public CodeGeneratorMojoTest() {
+        super("[2.0,)");
+    }
 
     /**
      * Tests everything is ok for builds running directly from source folders
