@@ -1,7 +1,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.tomtom.di.maven.its.itsample</groupId>
-  <artifactId>itsample</artifactId>
+  <groupId>com.tomtom.di.maven.its</groupId>
+  <artifactId>it-spring-me-recursive-dependencies</artifactId>
   <version>1.0</version>
   <dependencies>
     <dependency>
@@ -12,6 +12,14 @@
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>me.springframework</groupId>
         <artifactId>spring-me-maven-plugin</artifactId>

@@ -32,18 +32,20 @@
  */
 package com.tomtom.di.spring;
 
+import java.net.MalformedURLException;
+
 
 public class Person {
 
     private String name;
     
     private int age;
-    
+
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name) throws MalformedURLException {
         this.name = name;
     }
 

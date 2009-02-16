@@ -33,26 +33,18 @@
 package com.tomtom.di.spring;
 
 
-public class Person {
+import java.util.Vector;
 
-    private String name;
-    
-    private int age;
-    
-    public String getName() {
-        return name;
+public class Teacher extends Person {
+
+    private Vector<Course> courses;
+
+    public Vector<Course> getCourses() {
+        return courses;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
+    public void setCourses(Vector<Course> courses) {
+        this.courses = courses;
     }
     
 }

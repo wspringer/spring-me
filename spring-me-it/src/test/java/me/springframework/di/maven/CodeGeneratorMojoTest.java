@@ -40,85 +40,77 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
 
+
 public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
-    
+
     public CodeGeneratorMojoTest() {
         super("[2.0,)");
     }
 
     /**
-     * Tests everything is ok for builds running directly from source folders
-     * only.
+     * Tests everything is ok for builds running directly from source folders only.
      */
     public void testSmokeTest() throws IOException, VerificationException {
-        File testDir = ResourceExtractor.simpleExtractResources(getClass(),
-                "/it-smoke");
+        File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-smoke");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
-        verifier.deleteArtifact("com.tomtom.di.maven.its.itsample", "itsample",
-                "1.0", "jar");
-        verifier.executeGoal("generate-sources");
+        verifier.deleteArtifact("com.tomtom.di.maven.its", "it-spring-me-smoke", "1.0", "jar");
+        verifier.executeGoal("compile");
         verifier.verifyErrorFreeLog();
         verifier.assertFilePresent(fileToString(testDir, "target"));
-        verifier.assertFilePresent(fileToString(testDir,
-                "target/generated-sources"));
-        verifier.assertFilePresent(fileToString(testDir,
-                "target/generated-sources/spring-me"));
-        verifier
-                .assertFilePresent(fileToString(
-                        testDir,
-                        "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
-        verifier.resetStreams();
-    }
-    
-    /**
-     * Tests everything is ok for builds running directly from source folders
-     * only.
-     */
-    public void testCheckedExceptions() throws IOException, VerificationException {
-        File testDir = ResourceExtractor.simpleExtractResources(getClass(),
-                "/it-checked-exceptions");
-        Verifier verifier = new Verifier(testDir.getAbsolutePath());
-        verifier.deleteArtifact("com.tomtom.di.maven.its.itsample", "itsample",
-                "1.0", "jar");
-        verifier.executeGoal("generate-sources");
-        verifier.verifyErrorFreeLog();
-        verifier.assertFilePresent(fileToString(testDir, "target"));
-        verifier.assertFilePresent(fileToString(testDir,
-                "target/generated-sources"));
-        verifier.assertFilePresent(fileToString(testDir,
-                "target/generated-sources/spring-me"));
-        verifier
-                .assertFilePresent(fileToString(
-                        testDir,
-                        "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
         verifier.resetStreams();
     }
 
     /**
-     * Tests everything is ok in case there are dependencies on other libraries,
-     * and those libraries are not yet installed yet. (So we depend on
-     * commons-beanutils, which in turn depends on commons-collections. In our
-     * Spring configuration file we are going to include a dependency on a
-     * instance of a class of commons-collections.)
+     * Tests everything is ok for builds running directly from source folders only.
      */
-    public void testRecursiveDependencies() throws IOException,
-            VerificationException {
-        File testDir = ResourceExtractor.simpleExtractResources(getClass(),
-                "/it-recursive-dependencies");
+    public void testCheckedExceptions() throws IOException, VerificationException {
+        File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-checked-exceptions");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
-        verifier.deleteArtifact("com.tomtom.di.maven.its.itsample", "itsample",
-                "1.0", "jar");
-        verifier.executeGoal("generate-sources");
+        verifier.deleteArtifact("com.tomtom.di.maven.its", "it-spring-me-checked-exceptions", "1.0", "jar");
+        verifier.executeGoal("compile");
         verifier.verifyErrorFreeLog();
         verifier.assertFilePresent(fileToString(testDir, "target"));
-        verifier.assertFilePresent(fileToString(testDir,
-                "target/generated-sources"));
-        verifier.assertFilePresent(fileToString(testDir,
-                "target/generated-sources/spring-me"));
-        verifier
-                .assertFilePresent(fileToString(
-                        testDir,
-                        "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
+        verifier.resetStreams();
+    }
+
+    /**
+     * Tests everything is ok for builds running directly from source folders only.
+     */
+    public void testCheckedExceptionsForProperties() throws IOException, VerificationException {
+        File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-checked-exceptions-properties");
+        Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        verifier.deleteArtifact("com.tomtom.di.maven.its", "it-spring-me-checked-exceptions-properties", "1.0", "jar");
+        verifier.executeGoal("compile");
+        verifier.verifyErrorFreeLog();
+        verifier.assertFilePresent(fileToString(testDir, "target"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
+        verifier.resetStreams();
+    }
+
+    /**
+     * Tests everything is ok in case there are dependencies on other libraries, and those libraries
+     * are not yet installed yet. (So we depend on commons-beanutils, which in turn depends on
+     * commons-collections. In our Spring configuration file we are going to include a dependency on
+     * a instance of a class of commons-collections.)
+     */
+    public void testRecursiveDependencies() throws IOException, VerificationException {
+        File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-recursive-dependencies");
+        Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        verifier.deleteArtifact("com.tomtom.di.maven.its", "it-spring-me-recursive-dependencies", "1.0", "jar");
+        verifier.executeGoal("compile");
+        verifier.verifyErrorFreeLog();
+        verifier.assertFilePresent(fileToString(testDir, "target"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
         verifier.resetStreams();
     }
 

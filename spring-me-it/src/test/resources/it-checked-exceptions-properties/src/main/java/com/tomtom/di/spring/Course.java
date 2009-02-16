@@ -32,27 +32,33 @@
  */
 package com.tomtom.di.spring;
 
+import java.net.MalformedURLException;
+import java.util.List;
 
-public class Person {
 
-    private String name;
+public class Course {
+
+    private String topic;
     
-    private int age;
+    private List<Person> students;
+
+    public Course() throws MalformedURLException {
+    }
     
-    public String getName() {
-        return name;
+    public String getTopic() {
+        return topic;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
-    public int getAge() {
-        return age;
+    public List<Person> getStudents() {
+        return students;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setStudents(List<Person> students) {
+        this.students = students;
     }
     
 }

@@ -1,7 +1,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.tomtom.di.maven.its.itsample</groupId>
-  <artifactId>itsample</artifactId>
+  <groupId>com.tomtom.di.maven.its</groupId>
+  <artifactId>it-spring-me-checked-exceptions</artifactId>
   <version>1.0</version>
   <build>
     <plugins>

@@ -117,25 +117,25 @@ createLazily() ::= <<
  */
 final private synchronized <it.type> get<it.name;format="className">() {
     if (<it.name> == null) {
-        <if (it.factoryMethod)>
-        <if (it.factoryInstance)>
-        <it.name> = get<it.factoryInstance;format="className">().<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
-        <else>
-        <it.name> = <it.referencedType>.<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
-        <endif>
-        <else>
         try {
+            <if (it.factoryMethod)>
+            <if (it.factoryInstance)>
+            <it.name> = get<it.factoryInstance;format="className">().<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <else>
+            <it.name> = <it.referencedType>.<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <endif>
+            <else>
             <it.name> = new <it.type>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <endif>
+            <it.type> result = <it.name>;
+            <it.setters:setter();separator="\n">
+            <if (it.initMethod)>
+            result.<it.initMethod>();
+            <endif>
+            return result;
         } catch(Exception e) {
             throw new <details.beansExceptionName>(e);
         }
-        <endif>
-        <it.type> result = <it.name>;
-        <it.setters:setter();separator="\n">
-        <if (it.initMethod)>
-        result.<it.initMethod>();
-        <endif>
-        return result;
     } else {
         return <it.name>;
     }
@@ -189,24 +189,24 @@ create(instance) ::= <<
  * @return One of the required instances of {@link <instance.type>}.
  */
 final private <instance.type> create<instance.id;format="className">() {
-    <if (instance.factoryMethod)>
-    <if (instance.factoryInstance)>
-    <instance.type> result = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
-    <else>
-    <instance.type> result = <instance.type>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
-    <endif>
-    <else>
     try {
+        <if (instance.factoryMethod)>
+        <if (instance.factoryInstance)>
+        <instance.type> result = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
+        <else>
+        <instance.type> result = <instance.type>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
+        <endif>
+        <else>
         <instance.type> result = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
+        <endif>
+        <instance.setters:setter();separator="\n">
+        <if (instance.initMethod)>
+        result.<instance.initMethod>();
+        <endif>
+        return result;
     } catch(Exception e) {
         throw new <details.beansExceptionName>(e);
     }
-    <endif>
-    <instance.setters:setter();separator="\n">
-    <if (instance.initMethod)>
-    result.<instance.initMethod>();
-    <endif>
-    return result;
 }
 >>
 
