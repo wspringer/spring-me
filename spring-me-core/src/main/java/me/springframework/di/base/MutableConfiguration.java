@@ -35,15 +35,16 @@ package me.springframework.di.base;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
 import me.springframework.di.ListSource;
+import me.springframework.di.MapSource;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
+import me.springframework.di.MapSource.Entry;
 
 public class MutableConfiguration implements Configuration {
 
@@ -51,6 +52,7 @@ public class MutableConfiguration implements Configuration {
     private Set<ListSource> listSources = new HashSet<ListSource>();
     private Set<Instance> publicInstances = new HashSet<Instance>();
     private Map<String, ? extends Instance> instancesByName;
+    private Set<MapSource> mapSources = new HashSet<MapSource>();
 
     public MutableConfiguration(Map<String, ? extends Instance> publicInstances) {
         for (Instance instance : publicInstances.values()) {
@@ -66,6 +68,10 @@ public class MutableConfiguration implements Configuration {
 
     public Set<ListSource> getListSources() {
         return listSources;
+    }
+    
+    public Set<MapSource> getMapSources() {
+        return mapSources;
     }
 
     public Set<Instance> getPublicInstances() {
@@ -97,6 +103,14 @@ public class MutableConfiguration implements Configuration {
                 Instance instance = (Instance) source;
                 instanceSources.add(instance);
                 processInstance(instance);
+                break;
+            case Map:
+                MapSource mapSource = (MapSource) source;
+                mapSources.add(mapSource);
+                for (Entry entry : mapSource.getEntries()) {
+                    processSource(entry.getKey());
+                    processSource(entry.getValue());
+                }
         }
     }
 

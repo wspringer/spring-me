@@ -39,11 +39,18 @@ import me.springframework.di.Sink;
 import me.springframework.di.Source;
 
 
-
+/**
+ * The implementation of the {@link ListSource}.
+ * 
+ * @author Wilfred Springer
+ * 
+ */
 public class MutableListSource extends AbstractTyped implements ListSource, MutableSource {
 
     private List<? extends Source> elementSources;
+
     private String id;
+
     private Sink sink;
 
     public MutableListSource(Sink sink, List<? extends Source> elements) {
@@ -58,19 +65,19 @@ public class MutableListSource extends AbstractTyped implements ListSource, Muta
     public List<? extends Source> getElementSources() {
         return elementSources;
     }
-    
+
     public void setElementSources(List<Source> elementSources) {
         this.elementSources = elementSources;
     }
-    
+
     public String getId() {
         return id;
     }
-    
+
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String toString() {
         return "the list of " + sink.toString();
     }

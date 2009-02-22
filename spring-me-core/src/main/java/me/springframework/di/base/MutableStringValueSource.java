@@ -46,6 +46,7 @@ public class MutableStringValueSource extends AbstractTyped implements
         super();
         this.value = value;
         this.sink = sink;
+        this.setType("java.lang.String");
     }
 
     public SourceType getSourceType() {

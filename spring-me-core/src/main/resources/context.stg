@@ -4,7 +4,8 @@ sourceTemplate ::= [
     "Instance" : "sourceInstance",
     "InstanceReference" : "sourceInstanceReference",
     "StringRepresentation" : "sourceStringRepresentation",
-    "List" : "sourceList"
+    "List" : "sourceList",
+    "Map" : "sourceMap"
 ]
 
 
@@ -71,6 +72,8 @@ public class <destination.classname> {
     <definitions.instanceSources:create();separator="\n">
     
     <definitions.listSources:listCreate();separator="\n">
+
+    <definitions.mapSources:mapCreate();separator="\n">
 
     /**
      * "Starts" the <destination.classname>; instances that have been 
@@ -245,6 +248,10 @@ sourceList(type,source) ::= <<
 create<source.id;format="className">()
 >>
 
+sourceMap(type,source) ::= <<
+create<source.id;format="className">()
+>>
+
 
 stringToString(source) ::= <<
 "<source.value>"
@@ -289,3 +296,20 @@ addElement(name) ::= <<
 result.add(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>);
 >>
 
+mapCreate(instance) ::= <<
+
+/**
+ * Creates <it>.
+ * 
+ * @return A map of objects.
+ */
+final private java.util.Hashtable create<instance.id;format="className">() {
+    java.util.Hashmap result = new java.util.Hashmap();
+    <instance.entries:addEntry();separator="\n">
+    return result;
+}
+>>
+
+addEntry() ::= <<
+result.put(<(sourceTemplate.(it.key.sourceType))(type=it.key.type,source=it.key)>, <(sourceTemplate.(it.value.sourceType))(type=it.value.type,source=it.value)>);
+>>

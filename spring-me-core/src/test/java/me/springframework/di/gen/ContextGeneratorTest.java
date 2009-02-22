@@ -50,7 +50,7 @@ import com.thoughtworks.qdox.JavaDocBuilder;
 public class ContextGeneratorTest extends TestCase {
 
 	public void testIntegration() throws IOException {
-		Resource resource = new ClassPathResource("/component.xml",
+		Resource resource = new ClassPathResource("/context3.xml",
 				ContextGeneratorTest.class);
 		JavaDocBuilder builder = new JavaDocBuilder();
 		builder.addSourceTree(new File(getBaseDir(), "src/test/java"));

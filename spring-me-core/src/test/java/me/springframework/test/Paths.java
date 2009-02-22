@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008 TomTom
+ * Copyright (C) 2008 Original authors
  * 
  * This file is part of Spring ME.
  * 
@@ -30,55 +30,65 @@
  * you are not obligated to do so. If you do not wish to do so, delete this
  * exception statement from your version.
  */
-package me.springframework.di;
+package me.springframework.test;
 
-import java.util.Set;
+import java.io.File;
 
 /**
- * A configured collection of instances. (Think Spring application context.)
- * Configurations are expected to be be constructed in various ways. Sometimes
- * through
+ * A helper class, helping to get the right paths both in Eclipse and from the
+ * Maven commandline.
  * 
  * @author Wilfred Springer (wis)
  * 
  */
-public interface Configuration {
+public class Paths {
 
     /**
-     * All public instances. (Instances identified by a name.)
+     * Returns the basedir, regardless of the environment in which the tests are
+     * run.
      * 
-     * @return All public instances.
+     * @return The basedir, regardless of the environment in which the tests are
+     *         executed.
      */
-    Set<Instance> getPublicInstances();
+    private static File getBasedir() {
+
+        // Let's see if it's set. (Normally what Surefire will do.)
+        String basedir = System.getProperty("basedir");
+
+        if (basedir == null) {
+
+            // So, Maven didn't set it. Let's assume Eclipse.
+            basedir = System.getProperty("user.dir");
+        }
+        return new File(basedir);
+    }
 
     /**
-     * Returns all sources producing lists.
+     * Returns the File object representing the location of the file identified
+     * by the relative path passed in.
      * 
-     * @return All sources producing lists.
+     * @param relativePath
+     *            The relative path of the file for which we need a {@link File}
+     *            object. (Relative compared to the basedir.)
+     * @return The File object representing the location of the file identified
+     *         by the relative path passed in.
      */
-    Set<ListSource> getListSources();
+    public static File getFile(String relativePath) {
+        return new File(getBasedir(), relativePath);
+    }
 
     /**
-     * Returns all sources producing instances
+     * Returns the absolute path representing the location of the file
+     * identified by the relative path passed in.
      * 
-     * @return All sources producing instances.
+     * @param relativePath
+     *            The relative path of the file for which we need a {@link File}
+     *            object. (Relative compared to the basedir.)
+     * @return The absolute path representing the location of the file
+     *         identified by the relative path passed in.
      */
-    Set<Instance> getInstanceSources();
+    public static String getPath(String relativePath) {
+        return getFile(relativePath).getAbsolutePath();
+    }
 
-    /**
-     * Returns all sources producing maps.
-     * 
-     * @return All sources producing maps.
-     */
-    Set<MapSource> getMapSources();
-    
-    /**
-     * Return the an instance by its name.
-     * 
-     * @param name
-     *            The name of the instance.
-     * @return The corresponding instance, or <code>null</code>.
-     */
-    Instance get(String name);
-    
 }

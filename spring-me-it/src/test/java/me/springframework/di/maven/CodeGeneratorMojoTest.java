@@ -82,6 +82,22 @@ public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
     /**
      * Tests everything is ok for builds running directly from source folders only.
      */
+    public void testMaps() throws IOException, VerificationException {
+        File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-maps");
+        Verifier verifier = new Verifier(testDir.getAbsolutePath());
+        verifier.deleteArtifact("com.tomtom.di.maven.its", "it-spring-me-maps", "1.0", "jar");
+        verifier.executeGoal("compile");
+        verifier.verifyErrorFreeLog();
+        verifier.assertFilePresent(fileToString(testDir, "target"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me"));
+        verifier.assertFilePresent(fileToString(testDir, "target/generated-sources/spring-me/com/tomtom/di/maven/its/itsample/BeanFactory.java"));
+        verifier.resetStreams();
+    }
+
+    /**
+     * Tests everything is ok for builds running directly from source folders only.
+     */
     public void testCheckedExceptionsForProperties() throws IOException, VerificationException {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-checked-exceptions-properties");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());

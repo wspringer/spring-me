@@ -36,11 +36,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import me.springframework.di.MapSource;
 import me.springframework.di.Source;
 import me.springframework.di.base.MutableConstructorArgument;
 import me.springframework.di.base.MutableInstance;
 import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
+import me.springframework.di.base.MutableMapSource;
 import me.springframework.di.base.MutablePropertySetter;
 
 import com.agilejava.blammo.BlammoLoggerFactory;
@@ -329,8 +331,12 @@ public class QDoxAugmentation implements Augmentation {
             case List:
                 attribute((MutableListSource) source, allInstances);
                 break;
+            case Map:
+                attribute((MutableMapSource) source, allInstances);
+                break;
             case InstanceReference:
                 attribute((MutableInstanceReference) source, allInstances);
+                break;
             case StringRepresentation:
             default:
         }
@@ -348,6 +354,22 @@ public class QDoxAugmentation implements Augmentation {
             Map<String, MutableInstance> allInstances) {
         for (Source element : source.getElementSources()) {
             attribute(element, allInstances);
+        }
+    }
+
+    /**
+     * Completes metadata for the {@link MutableListSource} passed in.
+     * 
+     * @param source
+     *            The {@link MutableListSource} that needs to be completed.
+     * @param allInstances
+     *            All other {@link MutableInstance}s, for resolving references.
+     */
+    private void attribute(MutableMapSource source,
+            Map<String, MutableInstance> allInstances) {
+        for (MapSource.Entry entry : source.getEntries()) {
+            attribute(entry.getKey(), allInstances);
+            attribute(entry.getValue(), allInstances);
         }
     }
 

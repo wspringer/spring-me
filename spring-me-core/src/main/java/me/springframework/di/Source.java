@@ -72,7 +72,12 @@ public interface Source extends Typed {
         /**
          * A list of values / references.
          */
-        List
+        List,
+        
+        /**
+         * A map of entries.
+         */
+        Map;
 
     };
 

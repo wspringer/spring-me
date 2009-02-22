@@ -1,24 +1,24 @@
 /**
- * Copyright (C) 2008 TomTom
- * 
+ * Copyright (C) 2009 Original authors
+ *
  * This file is part of Spring ME.
- * 
- * Spring ME is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ *
+ * Spring ME is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2, or (at your option) any later version.
- * 
+ *
  * Spring ME is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * Spring ME; see the file COPYING. If not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
+ *
  * Linking this library statically or dynamically with other modules is making a
  * combined work based on this library. Thus, the terms and conditions of the
  * GNU General Public License cover the whole combination.
- * 
+ *
  * As a special exception, the copyright holders of this library give you
  * permission to link this library with independent modules to produce an
  * executable, regardless of the license terms of these independent modules, and
@@ -32,53 +32,46 @@
  */
 package me.springframework.di;
 
-import java.util.Set;
+import java.util.List;
+
 
 /**
- * A configured collection of instances. (Think Spring application context.)
- * Configurations are expected to be be constructed in various ways. Sometimes
- * through
+ * A type of {@link Source} producing a map of elements.
  * 
- * @author Wilfred Springer (wis)
+ * @author Wilfred Springer
  * 
  */
-public interface Configuration {
+public interface MapSource extends Source {
 
     /**
-     * All public instances. (Instances identified by a name.)
+     * A list of {@link Source Sources}, in which every {@link Source} represents an item in the
+     * list to be injected.
      * 
-     * @return All public instances.
+     * @return A {@link List} of {@link Source Sources}, in which every {link Source} represents an
+     *         item in the list.
      */
-    Set<Instance> getPublicInstances();
+    List<Entry> getEntries();
 
     /**
-     * Returns all sources producing lists.
+     * The interface implemented by objects representing entries in the map.
      * 
-     * @return All sources producing lists.
      */
-    Set<ListSource> getListSources();
+    public static interface Entry {
 
-    /**
-     * Returns all sources producing instances
-     * 
-     * @return All sources producing instances.
-     */
-    Set<Instance> getInstanceSources();
+        /**
+         * Returns the {@link Source} producing the key.
+         * 
+         * @return The {@link Source} holding the object producing the key.
+         */
+        Source getKey();
 
-    /**
-     * Returns all sources producing maps.
-     * 
-     * @return All sources producing maps.
-     */
-    Set<MapSource> getMapSources();
-    
-    /**
-     * Return the an instance by its name.
-     * 
-     * @param name
-     *            The name of the instance.
-     * @return The corresponding instance, or <code>null</code>.
-     */
-    Instance get(String name);
-    
+        /**
+         * Returns the {@link Source} producing the value.
+         * 
+         * @return The {@link Source} holding the object producing the value.
+         */
+        Source getValue();
+
+    }
+
 }
