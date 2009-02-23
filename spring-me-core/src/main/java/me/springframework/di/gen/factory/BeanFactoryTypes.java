@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008 TomTom
+ * Copyright (C) 2008 Original authors
  *
  * This file is part of Spring ME.
  *
@@ -30,41 +30,71 @@
  * you are not obligated to do so. If you do not wish to do so, delete this
  * exception statement from your version.
  */
-package me.springframework.di.gen;
-
-import java.io.IOException;
-import java.io.Writer;
+package me.springframework.di.gen.factory;
 
 /**
- * An abstraction of the target output.
  * 
  * @author Wilfred Springer
  * 
  */
-public interface Destination {
+public enum BeanFactoryTypes implements BeanFactoryType {
 
     /**
-     * Returns the class name of the Java source file generated.
-     * 
-     * @return The class name of the Java source file generated.
+     * A minimal bean factory, targeting Java ME.
      */
-    String getClassname();
+    MinimalJavaME("java.lang.RuntimeException", "java.util.Vector", "java.util.Hashtable"),
 
     /**
-     * Returns the package name of the Java source file generated.
-     * 
-     * @return The package name of the Java source file generated.
+     * A minimal bean factory, targetting Java SE.  
      */
-    String getPackagename();
+    MinimalJavaSE("java.lang.RuntimeException", "java.util.ArrayList", "java.util.HashMap");
 
     /**
-     * Returns the {@link Writer} to which the output should be written.
-     * 
-     * @return The {@link Writer} to which all output must be generated.
-     * @throws IOException
-     *             If - for some reason - the object fails to create the
-     *             {@link Writer}.
+     * @see BeanFactoryType#getBeansExceptionName()
      */
-    Writer getWriter() throws IOException;
+    private String beansExceptionName;
+
+    /**
+     * @see BeanFactoryType#getListImplementationName()
+     */
+    private String listImplementationName;
+
+    /**
+     * @see BeanFactoryType#getMapImplementationName()
+     */
+    private String mapImplementationName;
+
+    private BeanFactoryTypes(String beansExceptionName, String listImplementationName, String mapImplementationName) {
+        this.beansExceptionName = beansExceptionName;
+        this.listImplementationName = listImplementationName;
+        this.mapImplementationName = mapImplementationName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see me.springframework.di.gen.factory.BeanFactoryType#getBeanFactoryExceptionName()
+     */
+    public String getBeansExceptionName() {
+        return beansExceptionName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see me.springframework.di.gen.factory.BeanFactoryType#getListImplementationName()
+     */
+    public String getListImplementationName() {
+        return listImplementationName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see me.springframework.di.gen.factory.BeanFactoryType#getMapImplementationName()
+     */
+    public String getMapImplementationName() {
+        return mapImplementationName;
+    }
 
 }

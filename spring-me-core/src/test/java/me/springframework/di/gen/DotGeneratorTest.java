@@ -44,8 +44,8 @@ import me.springframework.di.base.MutableConfiguration;
 import me.springframework.di.base.MutableConstructorArgument;
 import me.springframework.di.base.MutableInstance;
 import me.springframework.di.base.MutablePropertySetter;
-import me.springframework.di.gen.DotGenerator;
-import me.springframework.di.gen.DotGenerator.StyleCatalog;
+import me.springframework.di.gen.dot.DotGenerator;
+import me.springframework.di.gen.dot.DotGenerator.StyleCatalog;
 
 import junit.framework.TestCase;
 

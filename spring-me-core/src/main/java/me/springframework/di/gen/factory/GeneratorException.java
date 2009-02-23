@@ -30,46 +30,31 @@
  * you are not obligated to do so. If you do not wish to do so, delete this
  * exception statement from your version.
  */
-package me.springframework.di.gen;
+package me.springframework.di.gen.factory;
+
 
 /**
- * An object containing some details about the BeanFactory to generate.
+ * The exception thrown whenever a generator fails to generate
+ * code.
  * 
  * @author Wilfred Springer
  * 
  */
-public class BeanFactoryDetails {
-	
-	public final static BeanFactoryDetails NO_RUNTIME_DEPENDENCIES = new BeanFactoryDetails();
-	
-	static {
-		NO_RUNTIME_DEPENDENCIES.setBeansExceptionName("java.lang.RuntimeException");
-	}
+public class GeneratorException extends RuntimeException {
 
-	/**
-	 * The name of the RuntimeException subclass to act as a BeansException
-	 * alternative.
-	 */
-	private String beansExceptionName;
+    /**
+     * Constructs a new instance, accepting a root cause.
+     * 
+     * @param cause
+     *            The root cause of the exception.
+     */
+    public GeneratorException(Throwable cause) {
+        super(cause);
+    }
 
-	/**
-	 * Returns the name of the RuntimeException subclass to act as a
-	 * BeansException alternative.
-	 */
-	public String getBeansExceptionName() {
-		return beansExceptionName;
-	}
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 4298217520585377671L;
 
-	/**
-	 * Sets the name of the RuntimeException subclass to act as a BeansException
-	 * alternative.
-	 * 
-	 * @param beansExceptionName
-	 *            The name of the RuntimeException subclass to act as a
-	 *            BeansException alternative.
-	 */
-	public void setBeansExceptionName(String beansExceptionName) {
-		this.beansExceptionName = beansExceptionName;
-	}
-	
 }

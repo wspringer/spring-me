@@ -37,9 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.springframework.di.Configuration;
-import me.springframework.di.gen.DotGenerator;
-import me.springframework.di.gen.GeneratorException;
-import me.springframework.di.gen.DotGenerator.StyleCatalog;
+import me.springframework.di.gen.dot.DotGenerator;
+import me.springframework.di.gen.dot.DotGenerator.StyleCatalog;
+import me.springframework.di.gen.factory.GeneratorException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

@@ -39,6 +39,9 @@ import java.io.Writer;
 
 import junit.framework.TestCase;
 import me.springframework.di.Configuration;
+import me.springframework.di.gen.factory.BeanFactoryGenerator;
+import me.springframework.di.gen.factory.BeanFactoryTypes;
+import me.springframework.di.gen.factory.Destination;
 import me.springframework.di.spring.QDoxAugmentation;
 import me.springframework.di.spring.SpringConfigurationLoader;
 
@@ -60,7 +63,7 @@ public class ContextGeneratorTest extends TestCase {
 		InMemoryDestination dest = new InMemoryDestination();
 		BeanFactoryGenerator generator = new BeanFactoryGenerator();
 		generator.generate(dest, configuration,
-				BeanFactoryDetails.NO_RUNTIME_DEPENDENCIES);
+				BeanFactoryTypes.MinimalJavaSE);
 		System.out.println(dest.getAsText());
 	}
 

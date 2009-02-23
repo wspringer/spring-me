@@ -30,31 +30,41 @@
  * you are not obligated to do so. If you do not wish to do so, delete this
  * exception statement from your version.
  */
-package me.springframework.di.gen;
+package me.springframework.di.gen.factory;
 
+import java.io.IOException;
+import java.io.Writer;
 
 /**
- * The exception thrown whenever a generator fails to generate
- * code.
+ * An abstraction of the target output.
  * 
  * @author Wilfred Springer
  * 
  */
-public class GeneratorException extends RuntimeException {
+public interface Destination {
 
     /**
-     * Constructs a new instance, accepting a root cause.
+     * Returns the class name of the Java source file generated.
      * 
-     * @param cause
-     *            The root cause of the exception.
+     * @return The class name of the Java source file generated.
      */
-    public GeneratorException(Throwable cause) {
-        super(cause);
-    }
+    String getClassname();
 
     /**
+     * Returns the package name of the Java source file generated.
      * 
+     * @return The package name of the Java source file generated.
      */
-    private static final long serialVersionUID = 4298217520585377671L;
+    String getPackagename();
+
+    /**
+     * Returns the {@link Writer} to which the output should be written.
+     * 
+     * @return The {@link Writer} to which all output must be generated.
+     * @throws IOException
+     *             If - for some reason - the object fails to create the
+     *             {@link Writer}.
+     */
+    Writer getWriter() throws IOException;
 
 }

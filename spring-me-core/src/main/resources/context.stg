@@ -18,7 +18,7 @@ stringConversion ::= [
 ]
 
 
-template(destination, definitions, details) ::= <<
+template(destination, definitions, beanFactoryType) ::= <<
 package <destination.packagename>;
 
 /**
@@ -50,7 +50,7 @@ public class <destination.classname> {
             try {
                 __INSTANCE = new <destination.classname>();
             } catch(Exception e) {
-                throw new <details.beansExceptionName>(e);
+                throw new <beanFactoryType.beansExceptionName>(e);
             }
         }
         return __INSTANCE;
@@ -137,7 +137,7 @@ final private synchronized <it.type> get<it.name;format="className">() {
             <endif>
             return result;
         } catch(Exception e) {
-            throw new <details.beansExceptionName>(e);
+            throw new <beanFactoryType.beansExceptionName>(e);
         }
     } else {
         return <it.name>;
@@ -208,7 +208,7 @@ final private <instance.type> create<instance.id;format="className">() {
         <endif>
         return result;
     } catch(Exception e) {
-        throw new <details.beansExceptionName>(e);
+        throw new <beanFactoryType.beansExceptionName>(e);
     }
 }
 >>
@@ -285,8 +285,8 @@ listCreate(instance) ::= <<
  * 
  * @return A list of objects.
  */
-final private java.util.Vector create<instance.id;format="className">() {
-    java.util.Vector result = new java.util.Vector();
+final private <beanFactoryType.listImplementationName> create<instance.id;format="className">() {
+    <beanFactoryType.listImplementationName> result = new <beanFactoryType.listImplemetationName>();
     <instance.elementSources:addElement();separator="\n">
     return result;
 }
@@ -303,8 +303,8 @@ mapCreate(instance) ::= <<
  * 
  * @return A map of objects.
  */
-final private java.util.Hashtable create<instance.id;format="className">() {
-    java.util.Hashmap result = new java.util.Hashmap();
+final private <beanFactoryType.mapImplementationName> create<instance.id;format="className">() {
+    <beanFactoryType.mapImplementationName> result = new <beanFactoryType.mapImplementationName>();
     <instance.entries:addEntry();separator="\n">
     return result;
 }

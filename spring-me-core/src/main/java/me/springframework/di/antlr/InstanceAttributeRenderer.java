@@ -32,7 +32,7 @@
  */
 package me.springframework.di.antlr;
 
-import me.springframework.di.gen.DotGenerator.StyleCatalog;
+import me.springframework.di.gen.dot.DotGenerator.StyleCatalog;
 
 import org.antlr.stringtemplate.AttributeRenderer;
 

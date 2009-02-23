@@ -52,7 +52,7 @@ import me.springframework.di.base.MutableMapSource;
 import me.springframework.di.base.MutablePropertySetter;
 import me.springframework.di.base.MutableSource;
 import me.springframework.di.base.MutableStringValueSource;
-import me.springframework.di.gen.BeanFactoryGenerator;
+import me.springframework.di.gen.factory.BeanFactoryGenerator;
 
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
