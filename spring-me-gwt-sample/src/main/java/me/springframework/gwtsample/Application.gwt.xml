@@ -1,0 +1,17 @@
+<module>
+
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User' />
+
+  <!--  inherit css based theme -->
+  <inherits name='com.google.gwt.user.theme.standard.Standard' />
+  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+  <!-- Specify the app entry point class.                         -->
+  <entry-point class='me.springframework.gwtsample.client.Application' />
+
+  <!-- Specify the application specific style sheet.              -->
+  <stylesheet src='Application.css' />
+
+</module>
