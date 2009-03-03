@@ -11,6 +11,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
+ * 
+ * @author Wojciech Mlynarczyk (wmlynar@gmail.com)
  */
 public class Application implements EntryPoint {
 
