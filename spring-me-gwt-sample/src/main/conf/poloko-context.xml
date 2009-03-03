@@ -7,5 +7,89 @@
   <bean id="testBean" class="java.lang.String">
     <constructor-arg value="Hello GWT Spring ME"/>
   </bean>
+
+  <!-- APPLICATION STATES -->
+
+  <bean id="addressStateHolder" class="me.springframework.gwtsample.client.util.Holder">
+    <constructor-arg>
+      <bean class="me.springframework.gwtsample.client.state.AddressState"/>
+    </constructor-arg>
+  </bean>
+  
+  <bean id="mainStateHolder" class="me.springframework.gwtsample.client.util.Holder">
+    <constructor-arg>
+      <bean class="me.springframework.gwtsample.client.state.MainState"/>
+    </constructor-arg>
+  </bean>
+  
+  <bean id="resultStateHolder" class="me.springframework.gwtsample.client.util.Holder">
+    <constructor-arg>
+      <bean class="me.springframework.gwtsample.client.state.ResultState"/>
+    </constructor-arg>
+  </bean>
+
+  <!-- MAIN VIEW -->  
+  
+  <bean id="mainView" class="me.springframework.gwtsample.client.act.MainView" init-method="init">
+    <property name="mainStateHolder" ref="mainStateHolder" />
+    <property name="inputWidget" ref="addressInputView"/>
+    <property name="selectionWidget" ref="addressSelectionView"/>
+    <property name="mapWidget" ref="mapView"/>
+    <property name="resultWidget" ref="resultView"/>
+    <property name="descritpionWidget" ref="descriptionView"/>
+  </bean>
+  
+  <!-- INPUT VIEW -->  
+  
+  <bean id="addressInputView" class="me.springframework.gwtsample.client.act.AddressInputView" init-method="init">
+    <property name="addressStateHolder" ref="addressStateHolder" />
+    <property name="addressInputActivity" ref="addressInputActivity" />
+  </bean>
+  
+  <bean id="addressInputActivity" class="me.springframework.gwtsample.client.act.AddressInputActivity">
+    <property name="addressStateHolder" ref="addressStateHolder" />
+    <property name="mainStateHolder" ref="mainStateHolder" />
+    <property name="addressSelectionActivity" ref="addressSelectionActivity" />
+  </bean>
+  
+  <!-- SELECTION VIEW -->  
+  
+  <bean id="addressSelectionView" class="me.springframework.gwtsample.client.act.AddressSelectionView" init-method="init">
+    <property name="addressStateHolder" ref="addressStateHolder" />
+    <property name="addressSelectionActivity" ref="addressSelectionActivity" />
+  </bean>
+  
+  <bean id="addressSelectionActivity" class="me.springframework.gwtsample.client.act.AddressSelectionActivity" >
+    <property name="addressStateHolder" ref="addressStateHolder" />
+    <property name="mainStateHolder" ref="mainStateHolder" />
+    <property name="resultStateHolder" ref="resultStateHolder" />
+    <property name="addressInputActivity" ref="addressInputActivity" />
+    <property name="resultActivity" ref="resultActivity" />
+  </bean>
+  
+  <!-- DESCRIPTION VIEW -->
+  
+  <bean id="descriptionView" class="me.springframework.gwtsample.client.act.DescriptionView" init-method="init">
+    <property name="resultActivity" ref="resultActivity" />
+  </bean>
+  
+  <!-- MAP VIEW -->
+  
+  <bean id="mapView" class="me.springframework.gwtsample.client.act.MapView" init-method="init">
+    <property name="addressStateHolder" ref="addressStateHolder" />
+  </bean>
+  
+  <!-- REULT VIEW -->
+  
+  <bean id="resultView" class="me.springframework.gwtsample.client.act.ResultView" init-method="init">
+    <property name="resultStateHolder" ref="resultStateHolder" />
+  </bean>  
+  
+  <bean id="resultActivity" class="me.springframework.gwtsample.client.act.ResultActivity" >
+    <property name="resultStateHolder" ref="resultStateHolder" />
+    <property name="mainStateHolder" ref="mainStateHolder" />
+    <property name="addressInputActivity" ref="addressInputActivity" />
+  </bean>
+  
   
 </beans>
