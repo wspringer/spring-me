@@ -286,7 +286,7 @@ listCreate(instance) ::= <<
  * @return A list of objects.
  */
 final private <beanFactoryType.listImplementationName> create<instance.id;format="className">() {
-    <beanFactoryType.listImplementationName> result = new <beanFactoryType.listImplemetationName>();
+    <beanFactoryType.listImplementationName> result = new <beanFactoryType.listImplementationName>();
     <instance.elementSources:addElement();separator="\n">
     return result;
 }
