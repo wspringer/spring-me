@@ -103,13 +103,18 @@ public class AutowiringAugmentation implements Augmentation {
                 }
             }
             // autowire the instance itself
-            if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_NAME
-                    || instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_TYPE) {
-                attributeProperties(instance, allInstances);
-            } else if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR
-                    && instance.getConstructorArguments() != null) {
-                attributeConstructor(instance, allInstances);
-            }
+            attribute(instance, allInstances);
+        }
+    }
+
+    private void attribute(final MutableInstance instance,
+            final Map<String, MutableInstance> allInstances) {
+        if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_NAME
+                || instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_TYPE) {
+            attributeProperties(instance, allInstances);
+        } else if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR
+                && instance.getConstructorArguments() != null) {
+            attributeConstructor(instance, allInstances);
         }
     }
 
@@ -324,13 +329,7 @@ public class AutowiringAugmentation implements Augmentation {
     private void attribute(final Source source, final Map<String, MutableInstance> allInstances) {
         switch (source.getSourceType()) {
             case Instance:
-                if (((MutableInstance) source).getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_NAME
-                        || ((MutableInstance) source).getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_TYPE) {
-                    attributeProperties((MutableInstance) source, allInstances);
-                } else if (((MutableInstance) source).getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR
-                        && ((MutableInstance) source).getConstructorArguments() != null) {
-                    attributeConstructor((MutableInstance) source, allInstances);
-                }
+                attribute((MutableInstance) source, allInstances);
                 break;
             case List:
                 attribute((MutableListSource) source, allInstances);
