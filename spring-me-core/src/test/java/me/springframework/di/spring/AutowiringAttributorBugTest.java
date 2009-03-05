@@ -1,24 +1,24 @@
 /**
  * Copyright (C) 2008 TomTom
- * 
+ *
  * This file is part of Spring ME.
- * 
- * Spring ME is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
+ *
+ * Spring ME is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2, or (at your option) any later version.
- * 
+ *
  * Spring ME is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * Spring ME; see the file COPYING. If not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
+ *
  * Linking this library statically or dynamically with other modules is making a
  * combined work based on this library. Thus, the terms and conditions of the
  * GNU General Public License cover the whole combination.
- * 
+ *
  * As a special exception, the copyright holders of this library give you
  * permission to link this library with independent modules to produce an
  * executable, regardless of the license terms of these independent modules, and
@@ -30,61 +30,40 @@
  * you are not obligated to do so. If you do not wish to do so, delete this
  * exception statement from your version.
  */
-package me.springframework.di.gen;
+package me.springframework.di.spring;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 
 import junit.framework.TestCase;
 import me.springframework.di.Configuration;
-import me.springframework.di.gen.factory.BeanFactoryGenerator;
-import me.springframework.di.gen.factory.BeanFactoryTypes;
-import me.springframework.di.gen.factory.Destination;
-import me.springframework.di.spring.QDoxAugmentation;
-import me.springframework.di.spring.SpringConfigurationLoader;
+import me.springframework.di.base.MutableInstance;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
 
-public class ContextGeneratorTest extends TestCase {
+public class AutowiringAttributorBugTest extends TestCase {
 
-    public void testIntegration() throws IOException {
-        Resource resource = new ClassPathResource("/context3.xml", ContextGeneratorTest.class);
-        JavaDocBuilder builder = new JavaDocBuilder();
+    public void testAttributionByName() throws FileNotFoundException, IOException {
+        final Resource resource = new ClassPathResource("/autowiring-bug1.xml",
+                AutowiringAttributorBugTest.class);
+        final JavaDocBuilder builder = new JavaDocBuilder();
         builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(new QDoxAugmentation(
-                builder));
-        Configuration configuration = loader.load(resource);
-        InMemoryDestination dest = new InMemoryDestination();
-        BeanFactoryGenerator generator = new BeanFactoryGenerator();
-        generator.generate(dest, configuration, BeanFactoryTypes.MinimalJavaSE);
-        System.out.println(dest.getAsText());
-    }
+        final QDoxAugmentation augmentation = new QDoxAugmentation(builder);
+        final AutowiringAugmentation augmentation2 = new AutowiringAugmentation(builder);
+        final SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation,
+                augmentation2);
+        final Configuration configuration = loader.load(resource);
 
-    public static class InMemoryDestination implements Destination {
+        MutableInstance anon = (MutableInstance) configuration.get("holder1")
+                .getConstructorArguments().get(0).getSource();
 
-        private StringWriter writer = new StringWriter();
-
-        public String getClassname() {
-            return "BeanFactory";
-        }
-
-        public String getPackagename() {
-            return "com.tomtom.test";
-        }
-
-        public Writer getWriter() throws IOException {
-            return writer;
-        }
-
-        public String getAsText() {
-            return writer.toString();
-        }
-
+        // test that nothing is assigned
+        assertNull(anon.getConstructorArguments());
+        assertTrue(anon.getSetters().isEmpty());
     }
 
     private File getBaseDir() {

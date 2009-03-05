@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd" >
+
+  <description>
+    Tests the bug that occured in this configuration.
+    Tests that anonymous beans inside holders are not autowired.
+  </description>
+
+  <bean id="testBean" class="java.lang.String">
+    <constructor-arg>
+      <value type="java.lang.String">aaa</value>
+    </constructor-arg>
+  </bean>
+  
+  <bean id="holder1" class="me.springframework.di.spring.Bean5">
+    <constructor-arg>
+      <bean class="me.springframework.di.spring.Bean4" />
+    </constructor-arg>
+  </bean>
+
+</beans>

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 import me.springframework.di.Configuration;
+import me.springframework.di.spring.AutowiringAugmentation;
 import me.springframework.di.spring.QDoxAugmentation;
 import me.springframework.di.spring.SpringConfigurationLoader;
 
@@ -102,7 +103,8 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
         JavaDocBuilder builder = createJavaDocBuilder();
         QDoxAugmentation augmentation = new QDoxAugmentation(builder);
         augmentation.setLoggingKitAdapter(new MavenLoggingKitAdapter(getLog()));
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation);
+        AutowiringAugmentation autowire = new AutowiringAugmentation(builder);
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation, autowire);
         Configuration configuration = loader.load(resource);
         process(configuration);
     }

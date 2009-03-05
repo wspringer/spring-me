@@ -38,7 +38,6 @@ import java.util.Set;
 import me.springframework.di.Instance;
 import me.springframework.di.Sink;
 
-
 public class MutableInstance extends AbstractTyped implements Instance, MutableSource {
 
     private List<MutableConstructorArgument> constructorArguments;
@@ -52,6 +51,8 @@ public class MutableInstance extends AbstractTyped implements Instance, MutableS
     private boolean lazyInit;
     private Sink sink;
     private String destroyMethod;
+    boolean autowireCandidate;
+    int autowireMode;
 
     public MutableInstance(String name) {
         this.name = name;
@@ -153,8 +154,24 @@ public class MutableInstance extends AbstractTyped implements Instance, MutableS
     public void setDestroyMethod(String destroyMethod) {
         this.destroyMethod = destroyMethod;
     }
-    
+
     public String getDestroyMethod() {
         return destroyMethod;
+    }
+
+    public boolean isAutowireCandidate() {
+        return autowireCandidate;
+    }
+
+    public void setAutowireCandidate(boolean autowireCandidate) {
+        this.autowireCandidate = autowireCandidate;
+    }
+
+    public int getAutowireMode() {
+        return autowireMode;
+    }
+
+    public void setAutowireMode(int autowireMode) {
+        this.autowireMode = autowireMode;
     }
 }
