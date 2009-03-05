@@ -112,8 +112,7 @@ public class AutowiringAugmentation implements Augmentation {
         if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_NAME
                 || instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_TYPE) {
             attributeProperties(instance, allInstances);
-        } else if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR
-                && instance.getConstructorArguments() != null) {
+        } else if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR) {
             attributeConstructor(instance, allInstances);
         }
     }
@@ -208,8 +207,10 @@ public class AutowiringAugmentation implements Augmentation {
             arguments.clear();
 
             int i = 0;
+            int numArgs = instance.getConstructorArguments() == null ? 0 : instance
+                    .getConstructorArguments().size();
             parametersearch: for (final JavaParameter parameter : constructor.getParameters()) {
-                if (i < instance.getConstructorArguments().size()) {
+                if (i < numArgs) {
                     final MutableConstructorArgument arg = instance.getConstructorArguments()
                             .get(i);
                     arg.setType(parameter.getType().getValue());
@@ -282,7 +283,8 @@ public class AutowiringAugmentation implements Augmentation {
         if (instance.getFactoryMethod() == null) {
 
             for (final JavaMethod method : cl.getMethods()) {
-                if (method.isConstructor() && matches(arguments, method.getParameters())) {
+                if (method.isConstructor()
+                        && (arguments == null || matches(arguments, method.getParameters()))) {
                     constructors.add(method);
                 }
             }
@@ -304,7 +306,6 @@ public class AutowiringAugmentation implements Augmentation {
     private boolean matches(final List<MutableConstructorArgument> arguments,
             final JavaParameter[] parameters) {
         int i;
-        final int j;
         if (parameters.length < arguments.size()) {
             return false;
         }

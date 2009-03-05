@@ -51,34 +51,74 @@ import com.thoughtworks.qdox.JavaDocBuilder;
 public class AutowiringAttributorTest extends TestCase {
 
     public void testAttributionByName() throws FileNotFoundException, IOException {
-        attributionPropertyTester("/autowiring-woj1.xml", 4);
+        Configuration configuration = configurationLoader("/autowiring-woj1.xml");
+        commonPropertyTester(configuration, 4);
     }
 
     public void testAttributionByType() throws FileNotFoundException, IOException {
-        attributionPropertyTester("/autowiring-woj2.xml", 4);
+        Configuration configuration = configurationLoader("/autowiring-woj2.xml");
+        commonPropertyTester(configuration, 4);
     }
 
     public void testAttributionDefaultAutowire() throws FileNotFoundException, IOException {
-        attributionPropertyTester("/autowiring-woj3.xml", 4);
+        Configuration configuration = configurationLoader("/autowiring-woj3.xml");
+        commonPropertyTester(configuration, 4);
     }
 
     public void testAttributionTwoTypesFail() throws FileNotFoundException, IOException {
         try {
-            attributionPropertyTester("/autowiring-woj4.xml", 5);
+            Configuration configuration = configurationLoader("/autowiring-woj4.xml");
             fail();
         } catch (final Exception e) {
         }
     }
 
     public void testAttributionNoCandidate() throws FileNotFoundException, IOException {
-        attributionPropertyTester("/autowiring-woj5.xml", 5);
+        Configuration configuration = configurationLoader("/autowiring-woj5.xml");
+        commonPropertyTester(configuration, 5);
     }
 
     public void testAttributionConstructor() throws FileNotFoundException, IOException {
-        attributionConstructorTester("/autowiring-woj6.xml", 4);
+        Configuration configuration = configurationLoader("/autowiring-woj6.xml");
+
+        assertEquals(4, configuration.getPublicInstances().size());
+        assertNotNull(configuration.get("bean1"));
+        assertNotNull(configuration.get("bean1").getConstructorArguments());
+        assertEquals(4, configuration.get("bean1").getConstructorArguments().size());
+        assertEquals("me.springframework.di.spring.Bean2", configuration.get("bean1")
+                .getConstructorArguments().get(2).getType());
+        assertEquals("me.springframework.di.spring.Bean3", configuration.get("bean1")
+                .getConstructorArguments().get(3).getType());
+
+        // check that types are the same as in not-autowired reference
+        //        for (int i = 0; i < 4; i++) {
+        //            assertEquals(configuration.get("beanr").getConstructorArguments().get(i).getType(),
+        //                    configuration.get("bean1").getConstructorArguments().get(i).getType());
+        //        }
+
+        final List<? extends ConstructorArgument> cr = configuration.get("beanr")
+                .getConstructorArguments();
+        final List<? extends ConstructorArgument> c1 = configuration.get("beanr")
+                .getConstructorArguments();
+
+        // check that arguments refer to the same objects as in not-autowired reference
+        for (int i = 2; i < 4; i++) {
+            assertEquals(((MutableInstanceReference) cr.get(i).getSource()).getName(),
+                    ((MutableInstanceReference) c1.get(i).getSource()).getName());
+            assertEquals(((MutableInstanceReference) cr.get(i).getSource()).getReferencedId(),
+                    ((MutableInstanceReference) c1.get(i).getSource()).getReferencedId());
+        }
     }
 
-    private void attributionPropertyTester(final String fileName, final int num) {
+    public void testAttributionConstructorNoParams() throws FileNotFoundException, IOException {
+        Configuration configuration = configurationLoader("/autowiring-woj7.xml");
+
+        assertNotNull(configuration.get("bean6"));
+        assertNotNull(configuration.get("bean6").getConstructorArguments());
+        assertEquals(1, configuration.get("bean6").getConstructorArguments().size());
+    }
+
+    private Configuration configurationLoader(final String fileName) {
         final Resource resource = new ClassPathResource(fileName, AutowiringAttributorTest.class);
         final JavaDocBuilder builder = new JavaDocBuilder();
         builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
@@ -88,16 +128,29 @@ public class AutowiringAttributorTest extends TestCase {
                 augmentation2);
         final Configuration configuration = loader.load(resource);
 
+        // printout
+        //        final InMemoryDestination dest = new InMemoryDestination();
+        //        final BeanFactoryGenerator generator = new BeanFactoryGenerator();
+        //        generator.generate(dest, configuration, BeanFactoryTypes.MinimalJavaSE);
+        //        System.out.println(dest.getAsText());
+
+        return configuration;
+    }
+
+    private void commonPropertyTester(final Configuration configuration, final int num) {
         assertEquals(num, configuration.getPublicInstances().size());
         assertNotNull(configuration.get("bean1"));
         assertNotNull(configuration.get("bean1").getSetters());
         assertEquals(2, configuration.get("bean1").getSetters().size());
+
+        // check that properties refer to the same objects as in not-autowired reference
         for (final PropertySetter setter : configuration.get("bean1").getSetters()) {
             assertNotNull(setter.getName());
             if ("bean2".equals(setter.getName())) {
                 assertEquals("me.springframework.di.spring.Bean2", setter.getType());
                 assertFalse(setter.isPrimitive());
 
+                // finad the property in not-autowired reference
                 boolean checked = false;
                 for (final PropertySetter setter2 : configuration.get("beanr").getSetters()) {
                     if ("bean2".equals(setter2.getName())) {
@@ -115,6 +168,7 @@ public class AutowiringAttributorTest extends TestCase {
                 assertEquals("me.springframework.di.spring.Bean3", setter.getType());
                 assertFalse(setter.isPrimitive());
 
+                // finad the property in not-autowired reference
                 boolean checked = false;
                 for (final PropertySetter setter2 : configuration.get("beanr").getSetters()) {
                     if ("bean3".equals(setter2.getName())) {
@@ -132,53 +186,6 @@ public class AutowiringAttributorTest extends TestCase {
                 fail(); // No other properties
             }
         }
-        // printout
-        //        final InMemoryDestination dest = new InMemoryDestination();
-        //        final BeanFactoryGenerator generator = new BeanFactoryGenerator();
-        //        generator.generate(dest, configuration, BeanFactoryTypes.MinimalJavaSE);
-        //        System.out.println(dest.getAsText());
-    }
-
-    private void attributionConstructorTester(final String fileName, final int num) {
-        final Resource resource = new ClassPathResource(fileName, AutowiringAttributorTest.class);
-        final JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        final QDoxAugmentation augmentation = new QDoxAugmentation(builder);
-        final AutowiringAugmentation augmentation2 = new AutowiringAugmentation(builder);
-        final SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation,
-                augmentation2);
-        final Configuration configuration = loader.load(resource);
-
-        assertEquals(num, configuration.getPublicInstances().size());
-        assertNotNull(configuration.get("bean1"));
-        assertNotNull(configuration.get("bean1").getConstructorArguments());
-        assertEquals(4, configuration.get("bean1").getConstructorArguments().size());
-        assertEquals("me.springframework.di.spring.Bean2", configuration.get("bean1")
-                .getConstructorArguments().get(2).getType());
-        assertEquals("me.springframework.di.spring.Bean3", configuration.get("bean1")
-                .getConstructorArguments().get(3).getType());
-        // check all types match
-        //        for (int i = 0; i < 4; i++) {
-        //            assertEquals(configuration.get("beanr").getConstructorArguments().get(i).getType(),
-        //                    configuration.get("bean1").getConstructorArguments().get(i).getType());
-        //        }
-        // check that arguments refer to the same object
-        final List<? extends ConstructorArgument> cr = configuration.get("beanr")
-                .getConstructorArguments();
-        final List<? extends ConstructorArgument> c1 = configuration.get("beanr")
-                .getConstructorArguments();
-
-        for (int i = 2; i < 4; i++) {
-            assertEquals(((MutableInstanceReference) cr.get(i).getSource()).getName(),
-                    ((MutableInstanceReference) c1.get(i).getSource()).getName());
-            assertEquals(((MutableInstanceReference) cr.get(i).getSource()).getReferencedId(),
-                    ((MutableInstanceReference) c1.get(i).getSource()).getReferencedId());
-        }
-        // printout
-        //        final InMemoryDestination dest = new InMemoryDestination();
-        //        final BeanFactoryGenerator generator = new BeanFactoryGenerator();
-        //        generator.generate(dest, configuration, BeanFactoryTypes.MinimalJavaSE);
-        //        System.out.println(dest.getAsText());
     }
 
     private File getBaseDir() {
