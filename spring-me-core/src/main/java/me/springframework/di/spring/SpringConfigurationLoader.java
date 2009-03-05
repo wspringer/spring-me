@@ -257,7 +257,7 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that value.
      */
     private static MutableSource load(Sink sink, TypedStringValue value) {
-        return new MutableStringValueSource(sink, value.getValue());
+        return new MutableStringValueSource(sink, value.getValue(), value.getTargetTypeName());
     }
 
     /**

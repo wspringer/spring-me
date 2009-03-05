@@ -35,18 +35,24 @@ package me.springframework.di.base;
 import me.springframework.di.Sink;
 import me.springframework.di.StringValueSource;
 
-public class MutableStringValueSource extends AbstractTyped implements
-        StringValueSource, MutableSource {
+
+public class MutableStringValueSource extends AbstractTyped implements StringValueSource, MutableSource {
 
     private String value;
+
     private String id;
+
     private Sink sink;
 
-    public MutableStringValueSource(Sink sink, String value) {
+    public MutableStringValueSource(Sink sink, String value, String typeName) {
         super();
         this.value = value;
         this.sink = sink;
-        this.setType("java.lang.String");
+        if (typeName == null) {
+            this.setType("java.lang.String");
+        } else {
+            this.setType(typeName);
+        }
     }
 
     public SourceType getSourceType() {
@@ -68,7 +74,7 @@ public class MutableStringValueSource extends AbstractTyped implements
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String toString() {
         return "the value of " + sink.toString();
     }

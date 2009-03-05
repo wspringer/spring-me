@@ -5,7 +5,9 @@
   default-lazy-init="true">
 
   <bean id="testBean" class="java.lang.String">
-    <constructor-arg value="Hello GWT Spring ME"/>
+    <constructor-arg>
+      <value type="java.lang.String">Hello GWT Spring ME</value>
+    </constructor-arg>
   </bean>
 
   <!-- APPLICATION STATES -->

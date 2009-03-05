@@ -47,5 +47,15 @@ public class MutableConstructorArgument extends AbstractSink implements
     public String toString() {
         return "a constructor argument of " + owner.toString();
     }
+    
+    @Override
+    public String getType() {
+        String type = super.getType();
+        if (type == null) {
+            return getSource().getType();
+        } else {
+            return type;
+        }
+    }
 
 }
