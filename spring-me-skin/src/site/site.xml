@@ -1,0 +1,22 @@
+<project name="Maven">
+  <bannerLeft>
+    <name>Maven</name>
+    <src>http://maven.apache.org/images/apache-maven-project.png</src>
+    <href>http://maven.apache.org/</href>
+  </bannerLeft>
+  <skin>
+    <groupId>com.tomtom.skin</groupId>
+    <artifactId>default-skin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </skin>
+  <bannerRight>
+    <src>http://maven.apache.org/images/maven-small.gif</src>
+  </bannerRight>
+  <body>
+    <menu name="Whatever">
+      <item name="Agilejava" href="http://www.agilejava.com/"/>
+    </menu>
+    <menu ref="reports"/>
+    <menu ref="modules"/>
+  </body>
+</project>
