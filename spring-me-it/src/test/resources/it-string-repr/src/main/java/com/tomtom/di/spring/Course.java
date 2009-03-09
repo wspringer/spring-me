@@ -30,48 +30,31 @@
  * you are not obligated to do so. If you do not wish to do so, delete this
  * exception statement from your version.
  */
-package me.springframework.di.antlr;
+package com.tomtom.di.spring;
 
-import org.antlr.stringtemplate.AttributeRenderer;
+import java.util.List;
 
-/**
- * An {@link AttributeRenderer} capable of turning String values in a certain
- * representation.
- * 
- * @author Wilfred Springer (wis)
- * 
- */
-public class IdentifierAttributeRenderer implements AttributeRenderer {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.antlr.stringtemplate.AttributeRenderer#toString(java.lang.Object)
-     */
-    public String toString(Object obj) {
-        return obj.toString();
+public class Course {
+
+    private String topic;
+    
+    private List<Person> students;
+
+    public String getTopic() {
+        return topic;
     }
 
-    /**
-     * {@inheritDoc} Supports two different format names:
-     * 
-     * <dl>
-     * <dt>"className"</dt>
-     * <dd>Turn the String into a camel-case formatted String, starting with an
-     * uppercase character.
-     * <td>"constant"</dt>
-     * <dd>Turn the String into an all uppercase, underscore-separated String.</dd>
-     * </dl>
-     */
-    public String toString(Object obj, String formatName) {
-        if ("className".equals(formatName)) {
-            return FormattingUtils.toCamelCase(obj.toString(), true);
-        } else if ("constant".equals(formatName)) {
-            return FormattingUtils.toUpperCase(obj.toString());
-        } else {
-            return FormattingUtils.toCamelCase(obj.toString(), false);
-        }
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
+    public List<Person> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Person> students) {
+        this.students = students;
+    }
+    
 }

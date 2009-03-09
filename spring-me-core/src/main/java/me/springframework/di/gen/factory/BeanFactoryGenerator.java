@@ -41,7 +41,7 @@ import java.util.List;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
-import me.springframework.di.antlr.IdentifierAttributeRenderer;
+import me.springframework.di.antlr.JavaAttributeRenderer;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
@@ -105,7 +105,7 @@ public class BeanFactoryGenerator {
         Reader reader = new InputStreamReader(in);
         StringTemplateGroup group = new StringTemplateGroup(reader);
         StringTemplate template = group.getInstanceOf("template");
-        template.registerRenderer(String.class, new IdentifierAttributeRenderer());
+        template.registerRenderer(String.class, new JavaAttributeRenderer());
         template.setAttribute("definitions", definitions);
         template.setAttribute("destination", destination);
         template.setAttribute("beanFactoryType", beanFactoryType);

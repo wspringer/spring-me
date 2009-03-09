@@ -300,6 +300,11 @@ assertNotNull(rudy.getCourses().get(0).getTopic());
           Lazy initialization and eager initialization;
         </para>
       </listitem>
+      <listitem>
+	<para>
+	  Auto-wiring (as of March, 2009)
+	</para>
+      </listitem>
     </itemizedlist>
     <para>
       ... and last but not least: Spring ME is capable of leveraging
@@ -363,10 +368,10 @@ assertNotNull(rudy.getCourses().get(0).getTopic());
       It is important to stress that Spring ME <emphasis>not
       only</emphasis> targets Java ME. There are other Java based
       platforms that could benefit from it as well. GWT comes to
-      mind. And even <trademark>Java SE</trademark> could benefit from
-      it. (I have to admit, I don't like shipping a number of Spring
-      libraries when all I want to do is release a simple commandline
-      tool.)
+      mind. Or JavaCard. And even <trademark>Java SE</trademark> could
+      benefit from it. (I have to admit, I don't like shipping a
+      number of Spring libraries when all I want to do is release a
+      simple commandline tool.)
     </para>
     <para>
       It is not hard to imagine how Spring ME will change the way you
