@@ -67,4 +67,11 @@ public interface BeanFactoryType {
      */
     String getListImplementationName();
 
+    /**
+     * Returns a list of interfaces to be implemented by the bean factory.
+     * 
+     * @return An array of fully qualified interface names to be implemented by the bean factory.
+     */
+    String[] getInterfaceNames();
+
 }

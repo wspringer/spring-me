@@ -40,9 +40,11 @@
     <developerConnection>scm:svn:https://springme.svn.sourceforge.net/svnroot/springme/trunk</developerConnection>
   </scm>
   <modules>
+    <module>spring-me-api</module>
     <module>spring-me-core</module>
     <module>spring-me-maven-plugin</module>
     <module>spring-me-it</module>
+    <module>spring-me-gwt-sample</module>
   </modules>
   <build>
     <pluginManagement>
@@ -170,6 +172,11 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>3.8.2</version>
+      </dependency>
+      <dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring</artifactId>
+	<version>2.5.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

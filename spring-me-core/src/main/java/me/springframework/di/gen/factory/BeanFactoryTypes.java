@@ -45,9 +45,14 @@ public enum BeanFactoryTypes implements BeanFactoryType {
     MinimalJavaME("java.lang.RuntimeException", "java.util.Vector", "java.util.Hashtable"),
 
     /**
-     * A minimal bean factory, targetting Java SE.  
+     * A minimal bean factory, targeting Java SE.
      */
-    MinimalJavaSE("java.lang.RuntimeException", "java.util.ArrayList", "java.util.HashMap");
+    MinimalJavaSE("java.lang.RuntimeException", "java.util.ArrayList", "java.util.HashMap"),
+
+    /**
+     * A minimal bean factory, targeting Java SE.
+     */
+    JavaSEMinimalBeanFactory("me.spring.beans.BeansException", "java.util.ArrayList", "java.util.HashMap", "me.spring.beans.factory.MinimalBeanFactory");
 
     /**
      * @see BeanFactoryType#getBeansExceptionName()
@@ -64,10 +69,16 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     private String mapImplementationName;
 
-    private BeanFactoryTypes(String beansExceptionName, String listImplementationName, String mapImplementationName) {
+    /**
+     * @see BeanFactoryType#getInterfaceNames()
+     */
+    private String[] interfaceNames;
+
+    private BeanFactoryTypes(String beansExceptionName, String listImplementationName, String mapImplementationName, String... interfaceNames) {
         this.beansExceptionName = beansExceptionName;
         this.listImplementationName = listImplementationName;
         this.mapImplementationName = mapImplementationName;
+        this.interfaceNames = interfaceNames;
     }
 
     /*
@@ -95,6 +106,15 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     public String getMapImplementationName() {
         return mapImplementationName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see me.springframework.di.gen.factory.BeanFactoryType#getInterfaceNames()
+     */
+    public String[] getInterfaceNames() {
+        return interfaceNames;
     }
 
 }

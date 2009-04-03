@@ -32,7 +32,6 @@
  */
 package me.springframework.di.spring;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -40,6 +39,7 @@ import junit.framework.TestCase;
 import me.springframework.di.Configuration;
 import me.springframework.di.PropertySetter;
 import me.springframework.di.Source;
+import me.springframework.test.Paths;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -52,7 +52,7 @@ public class QDoxAttributorTest extends TestCase {
         Resource resource = new ClassPathResource("/component.xml",
                 QDoxAttributorTest.class);
         JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
+        builder.addSourceTree(Paths.getFile("src/test/java"));
         QDoxAugmentation augmentation = new QDoxAugmentation(builder);
         SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation);
         Configuration configuration = loader.load(resource);
@@ -75,14 +75,6 @@ public class QDoxAttributorTest extends TestCase {
                 fail(); // Either name or age
             }
         }
-    }
-
-    private File getBaseDir() {
-        String basedir = System.getProperty("basedir");
-        if (basedir == null) {
-            basedir = System.getProperty("user.dir");
-        }
-        return new File(basedir);
     }
 
 }

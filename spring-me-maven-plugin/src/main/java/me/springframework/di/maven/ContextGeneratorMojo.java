@@ -37,6 +37,7 @@ import java.io.IOException;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.gen.factory.BeanFactoryGenerator;
+import me.springframework.di.gen.factory.BeanFactoryType;
 import me.springframework.di.gen.factory.BeanFactoryTypes;
 import me.springframework.di.gen.factory.Destination;
 import me.springframework.di.gen.factory.FileSystemDestination;
@@ -81,22 +82,40 @@ public class ContextGeneratorMojo extends AbstractGeneratorMojo {
      */
     private String packageName;
 
+    /**
+     * The type of bean factory to be generated.
+     * 
+     * @parameter
+     */
+    private BeanFactoryType factoryType = BeanFactoryTypes.MinimalJavaME;
+
     /*
      * (non-Javadoc)
-     * @see me.springframework.di.maven.AbstractSpringConfigMojo#process(com.tomtom.di.Configuration)
+     * 
+     * @see
+     * me.springframework.di.maven.AbstractSpringConfigMojo#process(com.tomtom.di.Configuration)
      */
     public void process(Configuration config) throws MojoExecutionException, MojoFailureException {
+        ensureTargetDirectoryExists();
+        Destination dest = new FileSystemDestination(className, packageName, targetDirectory);
+        try {
+            BeanFactoryGenerator.generate(dest, config, factoryType);
+            getProject().addCompileSourceRoot(targetDirectory.getAbsolutePath());
+        } catch (GeneratorException cge) {
+            throw new MojoExecutionException("Failed to generate bean factory.", cge);
+        }
+    }
+
+    /**
+     * Makes sure the target directory exists.
+     * 
+     * @throws MojoExecutionException If the target directory cannot be created.
+     */
+    private void ensureTargetDirectoryExists() throws MojoExecutionException {
         try {
             FileUtils.forceMkdir(targetDirectory);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to create target directory", e);
-        }
-        Destination dest = new FileSystemDestination(className, packageName, targetDirectory);
-        try {
-            BeanFactoryGenerator.generate(dest, config, BeanFactoryTypes.MinimalJavaME);
-            getProject().addCompileSourceRoot(targetDirectory.getAbsolutePath());
-        } catch (GeneratorException cge) {
-            throw new MojoExecutionException("Failed to generate context file.", cge);
         }
     }
 

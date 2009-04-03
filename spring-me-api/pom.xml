@@ -1,0 +1,18 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>me.springframework</groupId>
+    <artifactId>spring-me</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>spring-me-api</artifactId>
+  <packaging>jar</packaging>
+  <name>Spring ME API</name>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

@@ -19,18 +19,7 @@ public class Application implements EntryPoint {
     public void onModuleLoad() {
         final RootPanel rootPanel = RootPanel.get();
 
-        final PolokoBeanFactory beanFactory = PolokoBeanFactory.getInstance();
-
-        //        final String message = (String) beanFactory.getBean("testBean");
-        //
-        //        final Button clickMeButton = new Button();
-        //        rootPanel.add(clickMeButton);
-        //        clickMeButton.addClickListener(new ClickListener() {
-        //            public void onClick(final Widget arg0) {
-        //                Window.alert(message);
-        //            }
-        //        });
-        //        clickMeButton.setText("Click me");
+        final PolokoBeanFactory beanFactory = new PolokoBeanFactory();
 
         final Widget mainView = (Widget) beanFactory.getBean("mainView");
         rootPanel.add(mainView);

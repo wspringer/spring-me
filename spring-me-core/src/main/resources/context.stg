@@ -17,6 +17,9 @@ stringConversion ::= [
     default : "stringToDefault"
 ]
 
+implementations() ::= <<
+<if(beanFactoryType.interfaceNames)>implements <beanFactoryType.interfaceNames:{<it>};separator="\,"><endif> 
+>>
 
 template(destination, definitions, beanFactoryType) ::= <<
 package <destination.packagename>;
@@ -31,40 +34,27 @@ package <destination.packagename>;
  * \</ul>
  * 
  */
-public class <destination.classname> {
+public class <destination.classname> <implementations()>{
 
-    /**
-     * The singleton maintained by this BeanFactory.
-     */
-    private static <destination.classname> __INSTANCE;
-    
     <definitions.publicInstances:field();separator="\n">
   
-    /**
-     * Returns an instance guaranteed to be instantiated once by this class.
-     * 
-     * @return The singleton instance of <destination.classname>
-     */
-    public final static synchronized <destination.classname> getInstance() {
-        if (__INSTANCE == null) {
-            try {
-                __INSTANCE = new <destination.classname>();
-            } catch(Exception e) {
-                throw new <beanFactoryType.beansExceptionName>(e);
-            }
-        }
-        return __INSTANCE;
-    }
-
+  	/**
+  	 * Constructs an instance of this bean factory.
+  	 */
+  	public <destination.classname>() {
+  	    start();
+  	}
+  
     /**
      * Returns an object by looking it up by its name.
      *
      * @return The object with the given name, constructed by the <destination.classname>.
      * @see <destination.classname>
+     * @throws <beanFactoryType.beansExceptionName> In case of problems creating the bean.
      */
-    public synchronized Object getBean(String name) {
+    public synchronized Object getBean(String name) throws <beanFactoryType.beansExceptionName> {
         <definitions.publicInstances:dispatch();separator="\n">
-        return null;
+        return null; // Keep the compiler happy
     }
 
     <definitions.publicInstances:createLazily();separator="\n">
@@ -80,7 +70,7 @@ public class <destination.classname> {
      * configured to be loaded eagerly will be loaded, and their init-methods
      * will be called. 
      */
-    public synchronized void start() {
+    private void start() {
         <definitions.publicInstances:loadEagerly();separator="\n">
     }
     
@@ -95,7 +85,6 @@ public class <destination.classname> {
     	    
 }
 >>
-
 
 destroy() ::= <<
 <if (it.destroyMethod)>
@@ -162,7 +151,6 @@ field() ::= <<
 private <it.type> <it.name>;
 
 >>
-
 
 getter() ::= <<
 
