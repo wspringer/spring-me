@@ -45,6 +45,7 @@
     <module>spring-me-maven-plugin</module>
     <module>spring-me-it</module>
     <module>spring-me-gwt-sample</module>
+    <module>spring-me-samples</module>
   </modules>
   <build>
     <pluginManagement>

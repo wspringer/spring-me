@@ -1,0 +1,10 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>me.springframework</groupId>
+    <artifactId>spring-me-samples</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>spring-me-sample-api</artifactId>
+  <name>Spring ME Movie API</name>
+</project>

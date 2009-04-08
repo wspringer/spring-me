@@ -5,42 +5,12 @@
     <artifactId>spring-me</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
+  <packaging>pom</packaging>
   <artifactId>spring-me-samples</artifactId>
   <name>Spring ME Samples</name>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>me.springframework</groupId>
-        <artifactId>spring-me-maven-plugin</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <contextFile>${basedir}/src/test/resources/component.xml</contextFile>
-          <className>BeanFactory</className>
-          <packageName>com.tomtom.spring</packageName>
-          <dotFile>${basedir}/target/spring.dot</dotFile>
-          <styles>
-            <style>
-              <expr>((\p{Alpha})*\.)*Te(\p{Alpha})*</expr>
-              <color>green</color>
-            </style>
-          </styles>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <modules>
+    <module>spring-me-sample-api</module>
+    <module>spring-me-sample-j2me</module>
+    <module>spring-me-sample-cmdline</module>
+  </modules>
 </project>

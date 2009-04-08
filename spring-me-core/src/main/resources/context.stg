@@ -11,9 +11,16 @@ sourceTemplate ::= [
 
 stringConversion ::= [
     "java.lang.String" : "stringToString",
+    "java.lang.Boolean" : "stringToBoolean",
+    "java.lang.Byte" : "stringToByte",
+    "java.lang.Short" : "stringToShort",
+    "java.lang.Integer" : "stringToInteger",
+    "java.lang.Long" : "stringToLong",
     "int" : "stringToIntPrimitive",
     "long" : "stringToLongPrimitive",
     "boolean" : "stringToBooleanPrimitive",
+    "float" : "stringToFloatPrimitive",
+    "double" : "stringToDoublePrimitive",
     default : "stringToDefault"
 ]
 
@@ -70,7 +77,7 @@ public class <destination.classname> <implementations()>{
      * configured to be loaded eagerly will be loaded, and their init-methods
      * will be called. 
      */
-    private void start() {
+    private final void start() {
         <definitions.publicInstances:loadEagerly();separator="\n">
     }
     
@@ -78,7 +85,7 @@ public class <destination.classname> <implementations()>{
      * "Stops" the <destination.classname>; instances that have an 
      * destroy-method defined will get that method invoked.
      */
-    public synchronized void stop() {
+    public final void stop() {
         <definitions.publicInstances:destroy();separator="\n">
     }
     
@@ -107,7 +114,7 @@ createLazily() ::= <<
 /**
  * Creates <it>.
  */
-final private synchronized <it.type> get<it.name;format="className">() {
+private final <it.type> get<it.name;format="className">() {
     if (<it.name> == null) {
         try {
             <if (it.factoryMethod)>
@@ -126,7 +133,7 @@ final private synchronized <it.type> get<it.name;format="className">() {
             <endif>
             return result;
         } catch(Exception e) {
-            throw new <beanFactoryType.beansExceptionName>(e);
+            throw new <beanFactoryType.beansExceptionName>(e.getMessage());
         }
     } else {
         return <it.name>;
@@ -160,7 +167,7 @@ getter() ::= <<
  * @return The bean named "<it.name>".
  * @see #create<it.id;format="className">()
  */
-final private <it.type> get<it.name;format="className">() {
+private final <it.type> get<it.name;format="className">() {
     if (<it.name> == null) {
          <it.name> = create<it.id;format="className">();
     }
@@ -179,7 +186,7 @@ create(instance) ::= <<
  * 
  * @return One of the required instances of {@link <instance.type>}.
  */
-final private <instance.type> create<instance.id;format="className">() {
+private final <instance.type> create<instance.id;format="className">() {
     try {
         <if (instance.factoryMethod)>
         <if (instance.factoryInstance)>
@@ -196,7 +203,7 @@ final private <instance.type> create<instance.id;format="className">() {
         <endif>
         return result;
     } catch(Exception e) {
-        throw new <beanFactoryType.beansExceptionName>(e);
+        throw new <beanFactoryType.beansExceptionName>(e.getMessage());
     }
 }
 >>
@@ -250,11 +257,37 @@ stringToIntPrimitive(source) ::= <<
 <source.value>
 >>
 
+stringToBoolean(source) ::= <<
+new Boolean(<source.value>)
+>>
+
+stringToByte(source) ::= <<
+new Byte(<source.value>)
+>>
+
+stringToShort(source) ::= <<
+new Short(<source.value>)
+>>
+
+stringToInteger(source) ::= <<
+new Integer(<source.value>)
+>>
+
+stringToLong(source) ::= <<
+new Long(<source.value>)
+>>
 
 stringToLongPrimitive(source) ::= <<
 <source.value>
 >>
 
+stringToFloatPrimitive(source) ::= <<
+<source.value>
+>>
+
+stringToDoublePrimitive(source) ::= <<
+<source.value>
+>>
 
 stringToBooleanPrimitive(source) ::= <<
 <source.value>
@@ -273,7 +306,7 @@ listCreate(instance) ::= <<
  * 
  * @return A list of objects.
  */
-final private <beanFactoryType.listImplementationName> create<instance.id;format="className">() {
+private final <beanFactoryType.listImplementationName> create<instance.id;format="className">() {
     <beanFactoryType.listImplementationName> result = new <beanFactoryType.listImplementationName>();
     <instance.elementSources:addElement();separator="\n">
     return result;
@@ -281,7 +314,7 @@ final private <beanFactoryType.listImplementationName> create<instance.id;format
 >>
 
 addElement(name) ::= <<
-result.add(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>);
+result.<beanFactoryType.listAppendMethodName>(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>);
 >>
 
 mapCreate(instance) ::= <<
@@ -291,7 +324,7 @@ mapCreate(instance) ::= <<
  * 
  * @return A map of objects.
  */
-final private <beanFactoryType.mapImplementationName> create<instance.id;format="className">() {
+private final <beanFactoryType.mapImplementationName> create<instance.id;format="className">() {
     <beanFactoryType.mapImplementationName> result = new <beanFactoryType.mapImplementationName>();
     <instance.entries:addEntry();separator="\n">
     return result;

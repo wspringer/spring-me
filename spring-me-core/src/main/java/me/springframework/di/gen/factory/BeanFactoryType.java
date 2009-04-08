@@ -66,6 +66,12 @@ public interface BeanFactoryType {
      *         <code>&lt;list/&gt;</code> configuration.
      */
     String getListImplementationName();
+    
+    /**
+     * Returns the name of the method for adding an element to a list.
+     * 
+     */
+    String getListAppendMethodName();
 
     /**
      * Returns a list of interfaces to be implemented by the bean factory.

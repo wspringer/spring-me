@@ -4,7 +4,7 @@ import me.spring.beans.BeansException;
 
 
 /**
- * The most basic interface of a bean factory imaginable.
+ * The most basic interface of a bean factory imaginable. 
  * 
  */
 public interface MinimalBeanFactory {

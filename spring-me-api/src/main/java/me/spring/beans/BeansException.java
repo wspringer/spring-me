@@ -5,7 +5,7 @@ public class BeansException extends RuntimeException {
     private static final long serialVersionUID = 1794130445396635028L;
 
     public BeansException(String message, Throwable cause) {
-        super(message, cause);
+        super(message + ": " + cause.getMessage());
     }
 
     public BeansException(String message) {
@@ -13,7 +13,7 @@ public class BeansException extends RuntimeException {
     }
 
     public BeansException(Throwable cause) {
-        super(cause);
+        super(cause.getMessage());
     }
 
 }
