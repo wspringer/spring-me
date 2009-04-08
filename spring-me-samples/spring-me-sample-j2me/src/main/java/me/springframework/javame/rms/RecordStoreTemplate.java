@@ -23,6 +23,11 @@ public class RecordStoreTemplate {
 
     private Vector defaultSource;
 
+    public Vector query() throws DataAccessException {
+        Assert.notNull(defaultCodec);
+        return query(defaultCodec);
+    }
+
     public Vector query(Codec codec) throws DataAccessException {
         final Vector result = new Vector();
         query(new DecodingRecordCallbackHandler(codec, result));
@@ -64,14 +69,13 @@ public class RecordStoreTemplate {
         Assert.notNull(name);
         RecordStore recordStore = null;
         if (autoCreate) {
-            String[] recordStores = RecordStore.listRecordStores();
             boolean existing = false;
-            int i = 0;
-            while (!existing && i < recordStores.length) {
-                existing = recordStores[i].equals(name);
-                i++;
+            try {
+                recordStore = RecordStore.openRecordStore(name, false);
+                existing = true;
+            } catch (RecordStoreNotFoundException rsnfe) {
+                recordStore = RecordStore.openRecordStore(name, true);
             }
-            recordStore = RecordStore.openRecordStore(name, true);
             if (!existing && defaultSource != null) {
                 populate(recordStore);
             }
@@ -84,6 +88,7 @@ public class RecordStoreTemplate {
     private void populate(RecordStore recordStore) throws RecordStoreNotOpenException, RecordStoreFullException, RecordStoreException {
         Assert.notNull(defaultSource);
         Assert.notNull(defaultCodec);
+        System.out.println("Populating Record Store with " + defaultSource.size() + " elements.");
         Enumeration enumeration = defaultSource.elements();
         while (enumeration.hasMoreElements()) {
             byte[] buffer = defaultCodec.encode(enumeration.nextElement());

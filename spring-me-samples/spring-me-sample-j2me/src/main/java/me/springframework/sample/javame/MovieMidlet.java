@@ -9,7 +9,6 @@ import javax.microedition.lcdui.List;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
-import me.springframework.concurrent.Executors;
 import me.springframework.sample.api.Movie;
 import me.springframework.sample.api.MovieFinder;
 import me.springframework.sample.javame.factory.BeanFactory;
@@ -26,23 +25,17 @@ public class MovieMidlet extends MIDlet {
     }
 
     protected void startApp() throws MIDletStateChangeException {
-        System.err.println("Starting");
-        Executors.displayThreadExecutor(this).execute(new Runnable() {
-            public void run() {
-                MovieFinder finder = (MovieFinder) factory.getBean("movieFinder");
-                Vector movies = finder.findAll();
-                Displayable panel = createPanel(movies);
-                Display.getDisplay(MovieMidlet.this).setCurrent(panel);
-            }
-        });
+        MovieFinder finder = (MovieFinder) factory.getBean("movieFinder");
+        Vector movies = finder.findAll();
+        Display.getDisplay(this).setCurrent(createMoviePanel(movies));
     }
 
-    private static final Displayable createPanel(Vector movies) {
+    private final Displayable createMoviePanel(Vector movies) {
         List displayable = new List("Movies", List.IMPLICIT);
         Enumeration enumeration = movies.elements();
         while (enumeration.hasMoreElements()) {
             Movie movie = (Movie) enumeration.nextElement();
-            displayable.append(movie.getTitle() + "(" + movie.getYear() + ")", null);
+            displayable.append(movie.getTitle() + " (" + movie.getYear() + ")", null);
         }
         return displayable;
     }
