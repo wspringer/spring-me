@@ -41,6 +41,7 @@ import java.util.Set;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
+import me.springframework.di.Scope;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
 import me.springframework.di.base.MutableConfiguration;
@@ -58,6 +59,7 @@ import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
@@ -160,6 +162,12 @@ public class SpringConfigurationLoader {
         instance.setId("source" + counter++);
         instance.setFactoryMethod(definition.getFactoryMethodName());
         instance.setFactoryInstance(definition.getFactoryBeanName());
+        if (ConfigurableBeanFactory.SCOPE_SINGLETON.equals(definition.getScope())) {
+            instance.setScope(Scope.SINGLETON);
+        }
+        if (ConfigurableBeanFactory.SCOPE_PROTOTYPE.equals(definition.getScope())) {
+            instance.setScope(Scope.PROTOTYPE);
+        } 
         if (definition instanceof AbstractBeanDefinition) {
             instance.setInitMethod(((AbstractBeanDefinition) definition).getInitMethodName());
             instance.setDestroyMethod(((AbstractBeanDefinition) definition).getDestroyMethodName());

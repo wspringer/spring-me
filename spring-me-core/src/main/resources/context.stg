@@ -104,41 +104,14 @@ destroy() ::= <<
 
 loadEagerly() ::= <<
 <if (!it.lazyInit)>
+<if (it.singleton)>
 get<it.name;format="className">();
 <else>
 // Skipping <it.name>
 <endif>
->>
-
-createLazily() ::= <<
-/**
- * Creates <it>.
- */
-private final <it.type> get<it.name;format="className">() {
-    if (<it.name> == null) {
-        try {
-            <if (it.factoryMethod)>
-            <if (it.factoryInstance)>
-            <it.name> = get<it.factoryInstance;format="className">().<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
-            <else>
-            <it.name> = <it.referencedType>.<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
-            <endif>
-            <else>
-            <it.name> = new <it.type>(<it.constructorArguments:constructorArgument();separator=", ">);
-            <endif>
-            <it.type> result = <it.name>;
-            <it.setters:setter();separator="\n">
-            <if (it.initMethod)>
-            result.<it.initMethod>();
-            <endif>
-            return result;
-        } catch(Exception e) {
-            throw new <beanFactoryType.beansExceptionName>(e.getMessage());
-        }
-    } else {
-        return <it.name>;
-    }
-}
+<else>
+// Skipping <it.name>
+<endif>
 >>
 
 list() ::= <<
@@ -152,14 +125,14 @@ if ("<it.name>".equals(name)) return get<it.name;format="className">();
 
 
 field() ::= <<
-/**
+<if(it.singleton)>/**
  * A cached reference to the bean named "<it.name>".
  */
 private <it.type> <it.name>;
-
+<endif>
 >>
 
-getter() ::= <<
+createLazily() ::= <<
 
 /**
  * Returns the bean named "<it.name>". 
@@ -168,11 +141,14 @@ getter() ::= <<
  * @see #create<it.id;format="className">()
  */
 private final <it.type> get<it.name;format="className">() {
-    if (<it.name> == null) {
+	<if(it.singleton)>if (<it.name> == null) {
          <it.name> = create<it.id;format="className">();
     }
-    return <it.name>;
+    return <it.name>;<endif>
+    <if(it.prototype)>return create<it.id;format="className">();<endif>
 }
+
+<create(it)>
 >>
 
 

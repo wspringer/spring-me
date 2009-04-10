@@ -36,23 +36,39 @@ import java.util.List;
 import java.util.Set;
 
 import me.springframework.di.Instance;
+import me.springframework.di.Scope;
 import me.springframework.di.Sink;
+
 
 public class MutableInstance extends AbstractTyped implements Instance, MutableSource {
 
     private List<MutableConstructorArgument> constructorArguments;
+
     private String name;
+
     private Set<MutablePropertySetter> propertySetters;
+
     private String id;
+
     private String initMethod;
+
     private String factoryMethod;
+
     private String factoryInstance;
+
     private String referencedType;
+
     private boolean lazyInit;
+
     private Sink sink;
+
     private String destroyMethod;
-    boolean autowireCandidate;
-    int autowireMode;
+
+    private boolean autowireCandidate;
+
+    private int autowireMode;
+
+    private Scope scope = Scope.SINGLETON;
 
     public MutableInstance(String name) {
         this.name = name;
@@ -174,4 +190,21 @@ public class MutableInstance extends AbstractTyped implements Instance, MutableS
     public void setAutowireMode(int autowireMode) {
         this.autowireMode = autowireMode;
     }
+
+    public Scope getScope() {
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+        this.scope = scope;
+    }
+
+    public boolean isPrototype() {
+        return Scope.PROTOTYPE == scope;
+    }
+
+    public boolean isSingleton() {
+        return Scope.SINGLETON == scope;
+    }
+
 }

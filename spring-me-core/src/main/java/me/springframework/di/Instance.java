@@ -35,6 +35,7 @@ package me.springframework.di;
 import java.util.List;
 import java.util.Set;
 
+
 /**
  * The interface to be implemented by a representation of an object instance.
  * 
@@ -45,12 +46,11 @@ public interface Instance extends Source {
 
     /**
      * The type reference by the definition of this instance. In case the
-     * {@link #getFactoryInstance()} and {@link #getFactoryMethod()} are
-     * specified, this does not need to be the same as the type returned by
-     * {@link #getType()}. In case only a {@linkplain #getFactoryMethod()
-     * factory method} was specified, then the {@linkplain #getType() type}
-     * produced is based on the return type of that static factory method on the
-     * type defined by {@linkplain #getReferencedType()}.
+     * {@link #getFactoryInstance()} and {@link #getFactoryMethod()} are specified, this does not
+     * need to be the same as the type returned by {@link #getType()}. In case only a
+     * {@linkplain #getFactoryMethod() factory method} was specified, then the
+     * {@linkplain #getType() type} produced is based on the return type of that static factory
+     * method on the type defined by {@linkplain #getReferencedType()}.
      * 
      * @return The <em>referenced</em> type.
      */
@@ -66,21 +66,18 @@ public interface Instance extends Source {
     /**
      * Returns the property values set on properties defined by this instance.
      * 
-     * @return A {@link Set} of {@link PropertySetter PropertySetters}, one for
-     *         every property set to a certain value.
+     * @return A {@link Set} of {@link PropertySetter PropertySetters}, one for every property set
+     *         to a certain value.
      */
     Set<? extends PropertySetter> getSetters();
 
     /**
-     * Returns constructor arguments to be used while constructing an instance
-     * of this class. Returns <code>null</code> if no constructor arguments are
-     * specified.
+     * Returns constructor arguments to be used while constructing an instance of this class.
+     * Returns <code>null</code> if no constructor arguments are specified.
      * 
-     * @return A {@link List} of {@link ConstructorArgument
-     *         ConstructorArguments}; the position of the
-     *         {@link ConstructorArgument} corresponds to the location of the
-     *         argument in the actual constructor to be used to instantiate this
-     *         instance.
+     * @return A {@link List} of {@link ConstructorArgument ConstructorArguments}; the position of
+     *         the {@link ConstructorArgument} corresponds to the location of the argument in the
+     *         actual constructor to be used to instantiate this instance.
      */
     List<? extends ConstructorArgument> getConstructorArguments();
 
@@ -90,7 +87,7 @@ public interface Instance extends Source {
      * @return The name of an initialization method, if one has been defined.
      */
     String getInitMethod();
-    
+
     /**
      * Returns the name of an destroy method, if one has been defined.
      * 
@@ -99,8 +96,8 @@ public interface Instance extends Source {
     String getDestroyMethod();
 
     /**
-     * Returns the name of the method used to create an instance, or
-     * <code>null</code> if no such factory method is set.
+     * Returns the name of the method used to create an instance, or <code>null</code> if no such
+     * factory method is set.
      * 
      * @return The name of the method used to create an instance.
      */
@@ -119,5 +116,27 @@ public interface Instance extends Source {
      * @return A boolean indicating if the bean should be initialized lazily.
      */
     boolean isLazyInit();
+
+    /**
+     * Returns the scope set for this instance. (Basically, this will influence how often and when
+     * an instance will be created.)
+     * 
+     * @return The scope of the instance.
+     */
+    Scope getScope();
+    
+    /**
+     * Returns <code>true</code> if {@link #getScope()} returns {@link Scope#SINGLETON}.
+     * 
+     * @return <code>true</code> if {@link #getScope()} returns {@link Scope#SINGLETON}.
+     */
+    boolean isSingleton();
+    
+    /**
+     * Returns <code>true</code> if {@link #getScope()} returns {@link Scope#PROTOTYPE}.
+     * 
+     * @return <code>true</code> if {@link #getScope()} returns {@link Scope#PROTOTYPE}.
+     */
+    boolean isPrototype();
 
 }
