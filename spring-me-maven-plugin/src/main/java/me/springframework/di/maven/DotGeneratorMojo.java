@@ -32,7 +32,6 @@
  */
 package me.springframework.di.maven;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,14 +53,6 @@ import org.apache.maven.plugin.MojoFailureException;
 public class DotGeneratorMojo extends AbstractGeneratorMojo {
 
     /**
-     * The output file.
-     * 
-     * @parameter expression="${dotFile}"
-     * @required
-     */
-    private File dotFile;
-
-    /**
      * The styles defined for rendering the diagram.
      * 
      * @parameter
@@ -69,10 +60,10 @@ public class DotGeneratorMojo extends AbstractGeneratorMojo {
     private List<Style> styles = new ArrayList<Style>();
 
     @Override
-    public void process(Configuration config) throws MojoExecutionException, MojoFailureException {
+    public void process(Configuration config, BeanFactory factory) throws MojoExecutionException, MojoFailureException {
         try {
             DotGenerator generator = new DotGenerator(new MojoStyleCatalog());
-            generator.generate(config, dotFile);
+            generator.generate(config, factory.getDotFile());
         } catch (GeneratorException ge) {
             throw new MojoExecutionException("Failed to generate dot output.", ge);
         }
@@ -81,8 +72,6 @@ public class DotGeneratorMojo extends AbstractGeneratorMojo {
     /**
      * A {@link StyleCatalog} that takes its values from the Mojo configuration,
      * based on regular expressions.
-     * 
-     * @author Wilfred Springer (wis)
      * 
      */
     private class MojoStyleCatalog implements StyleCatalog {

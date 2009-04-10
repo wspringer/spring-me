@@ -67,14 +67,6 @@ public class BeanFactoryGeneratorMojo extends AbstractGeneratorMojo {
     private File targetDirectory;
 
     /**
-     * The class name of the bean factory generated.
-     * 
-     * @parameter
-     * @required
-     */
-    private String className;
-
-    /**
      * The type of bean factory to be generated.
      * 
      * @parameter
@@ -87,9 +79,9 @@ public class BeanFactoryGeneratorMojo extends AbstractGeneratorMojo {
      * @see
      * me.springframework.di.maven.AbstractSpringConfigMojo#process(com.tomtom.di.Configuration)
      */
-    public void process(Configuration config) throws MojoExecutionException, MojoFailureException {
+    public void process(Configuration config, BeanFactory factory) throws MojoExecutionException, MojoFailureException {
         ensureTargetDirectoryExists();
-        Destination dest = new FileSystemDestination(className, targetDirectory);
+        Destination dest = new FileSystemDestination(factory.getClassName(), targetDirectory);
         try {
             BeanFactoryGenerator.generate(dest, config, factoryType);
             getProject().addCompileSourceRoot(targetDirectory.getAbsolutePath());

@@ -60,9 +60,9 @@ import org.springframework.core.io.Resource;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
 
+
 /**
- * A base class for all plugins processing a {@link Configuration} loaded from
- * Spring.
+ * A base class for all plugins processing a {@link Configuration} loaded from Spring.
  * 
  * @author Wilfred Springer (wis)
  * 
@@ -90,42 +90,67 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     protected ArtifactFactory artifactFactory;
 
     /**
-     * The Spring XML application context file.
-     * 
      * @parameter
-     * @required
+     */
+    private List<BeanFactoryConfiguration> factories;
+
+    /**
+     * @parameter
+     */
+    private String className;
+
+    /**
+     * @parameter
+     */
+    private File dotFile;
+
+    /**
+     * @parameter
      */
     private File contextFile;
 
     // JavaDoc inherited
     final public void execute() throws MojoExecutionException, MojoFailureException {
-        Resource resource = new FileSystemResource(contextFile);
+        for (BeanFactory factory : getBeanFactories()) {
+            Configuration configuration = load(new FileSystemResource(factory.getContextFile()));
+            process(configuration, factory);
+        }
+    }
+
+    private List<BeanFactory> getBeanFactories() {
+        List<BeanFactory> factories = new ArrayList<BeanFactory>();
+        if (factories != null && factories.size() > 0) {
+            // Treat the other configuration as defaults
+            for (BeanFactoryConfiguration factoryConfig : this.factories) {
+                factories.add(new ChainingBeanFactory(factoryConfig, new MojoBeanFactory()));
+            }
+        } else {
+            factories.add(new MojoBeanFactory());
+        }
+        return factories;
+    }
+
+    private Configuration load(Resource resource) throws MojoExecutionException {
         JavaDocBuilder builder = createJavaDocBuilder();
         QDoxAugmentation augmentation = new QDoxAugmentation(builder);
         augmentation.setLoggingKitAdapter(new MavenLoggingKitAdapter(getLog()));
         AutowiringAugmentation autowire = new AutowiringAugmentation(builder);
         SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation, autowire);
-        Configuration configuration = loader.load(resource);
-        process(configuration);
+        return loader.load(resource);
     }
 
     /**
      * Processes the configuration passed in.
      * 
-     * @param config
-     *            The configuration to be processed.
+     * @param config The configuration to be processed.
      */
-    public abstract void process(Configuration config) throws MojoExecutionException,
-            MojoFailureException;
+    public abstract void process(Configuration config, BeanFactory factory) throws MojoExecutionException, MojoFailureException;
 
     /**
-     * Produces the {@link JavaDocBuilder} used to analyze classes and source
-     * files.
+     * Produces the {@link JavaDocBuilder} used to analyze classes and source files.
      * 
-     * @return The {@link JavaDocBuilder} used to analyze classes and source
-     *         files.
-     * @throws MojoExecutionException
-     *             If we fail to produce the {@link JavaDocBuilder}. (Fail
+     * @return The {@link JavaDocBuilder} used to analyze classes and source files.
+     * @throws MojoExecutionException If we fail to produce the {@link JavaDocBuilder}. (Fail
      *             early.)
      */
     @SuppressWarnings("unchecked")
@@ -135,14 +160,14 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
         // Quick and dirty hack for adding Classloaders with the definitions of
         // classes the sources depend upon.
         try {
-            Set<Artifact> artifacts = MavenMetadataSource.createArtifacts(artifactFactory, project
-                    .getDependencies(), Artifact.SCOPE_RUNTIME, new ArtifactFilter() {
+            Set<Artifact> artifacts = MavenMetadataSource.createArtifacts(artifactFactory, project.getDependencies(), Artifact.SCOPE_RUNTIME,
+                    new ArtifactFilter() {
 
-                public boolean include(Artifact artifact) {
-                    return true;
-                }
+                        public boolean include(Artifact artifact) {
+                            return true;
+                        }
 
-            }, project);
+                    }, project);
             List<URL> urls = new ArrayList<URL>();
             for (Artifact artifact : artifacts) {
                 if (getLog().isDebugEnabled()) {
@@ -151,8 +176,7 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
                 if (Artifact.SCOPE_SYSTEM.equals(artifact.getScope())) {
                     urls.add(artifact.getFile().toURL());
                 } else {
-                    urls.add(new File(localRepository.getBasedir(), localRepository
-                            .pathOf(artifact)).toURL());
+                    urls.add(new File(localRepository.getBasedir(), localRepository.pathOf(artifact)).toURL());
                 }
             }
             URL[] template = new URL[0];
@@ -169,11 +193,26 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     /**
      * A project reference, providing a context for the MOJO execution.
      * 
-     * @return The project reference, providing a context for execution of the
-     *         Mojo.
+     * @return The project reference, providing a context for execution of the Mojo.
      */
     protected MavenProject getProject() {
         return project;
+    }
+
+    private class MojoBeanFactory implements BeanFactory {
+
+        public String getClassName() {
+            return className;
+        }
+
+        public File getDotFile() {
+            return dotFile;
+        }
+
+        public File getContextFile() {
+            return contextFile;
+        }
+        
     }
 
 }
