@@ -21,7 +21,6 @@
       <artifactId>spring-me-sample-api</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
-    <!--
     <dependency>
       <groupId>org.microemu</groupId>
       <artifactId>cldcapi11</artifactId>
@@ -34,7 +33,6 @@
       <version>2.0.3</version>
       <scope>provided</scope>
     </dependency>
-    -->
   </dependencies>
   
   <properties>
@@ -117,10 +115,12 @@
 	    </MIDlet>
 	  </midlets>
 	  <useWtkLibs>false</useWtkLibs>
+	  <!--
 	  <libs>
 	    <lib>${settings.localRepository}/org/microemu/cldcapi11/${me2Version}/cldcapi11-${me2Version}.jar</lib>
 	    <lib>${settings.localRepository}/org/microemu/midpapi20/${me2Version}/midpapi20-${me2Version}.jar</lib>
 	  </libs>
+	  -->
 	  <dependencies>
 	    <dependency>
 	      <groupId>org.microemu</groupId>
