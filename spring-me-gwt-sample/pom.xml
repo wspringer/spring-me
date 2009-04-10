@@ -142,9 +142,7 @@
         <configuration>
           <contextFile>${basedir}/src/main/conf/poloko-context.xml
           </contextFile>
-          <className>PolokoBeanFactory</className>
-          <packageName>me.springframework.gwtsample.client.beanfactory
-          </packageName>
+          <className>me.springframework.gwtsample.client.beanfactory.PolokoBeanFactory</className>
           <dotFile>${basedir}/target/poloko-context.dot
           </dotFile>
         </configuration>

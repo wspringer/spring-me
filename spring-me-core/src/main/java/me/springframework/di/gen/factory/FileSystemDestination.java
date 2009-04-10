@@ -78,6 +78,18 @@ public class FileSystemDestination implements Destination {
         this.packageName = packageName;
         this.basedir = basedir;
     }
+    
+    public FileSystemDestination(String fqn, File basedir) {
+        int i = fqn.lastIndexOf(".");
+        if (i >= 0) {
+            className = fqn.substring(i + 1);
+            packageName = fqn.substring(0, i);
+        } else {
+            className = fqn;
+            packageName = "";
+        }
+        this.basedir = basedir;
+    }
 
     // JavaDoc inherited
     public String getClassname() {

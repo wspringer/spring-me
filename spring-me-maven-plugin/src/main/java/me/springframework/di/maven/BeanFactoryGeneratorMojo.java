@@ -56,7 +56,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * @phase generate-sources
  * @requiresDependencyResolution compile
  */
-public class ContextGeneratorMojo extends AbstractGeneratorMojo {
+public class BeanFactoryGeneratorMojo extends AbstractGeneratorMojo {
 
     /**
      * The directory in which the bean factory source file will be generated.
@@ -75,14 +75,6 @@ public class ContextGeneratorMojo extends AbstractGeneratorMojo {
     private String className;
 
     /**
-     * The package name of the generated class.
-     * 
-     * @parameter
-     * @required
-     */
-    private String packageName;
-
-    /**
      * The type of bean factory to be generated.
      * 
      * @parameter
@@ -97,7 +89,7 @@ public class ContextGeneratorMojo extends AbstractGeneratorMojo {
      */
     public void process(Configuration config) throws MojoExecutionException, MojoFailureException {
         ensureTargetDirectoryExists();
-        Destination dest = new FileSystemDestination(className, packageName, targetDirectory);
+        Destination dest = new FileSystemDestination(className, targetDirectory);
         try {
             BeanFactoryGenerator.generate(dest, config, factoryType);
             getProject().addCompileSourceRoot(targetDirectory.getAbsolutePath());

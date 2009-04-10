@@ -34,8 +34,7 @@
         </executions>
         <configuration>
           <contextFile>src/main/conf/components.xml</contextFile>
-          <className>BeanFactory</className>
-          <packageName>com.tomtom.di.maven.its.itsample</packageName>
+          <className>com.tomtom.di.maven.its.itsample.BeanFactory</className>
         </configuration>
       </plugin>
     </plugins>

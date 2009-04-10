@@ -65,8 +65,7 @@
         </executions>
         <configuration>
           <contextFile>src/main/conf/context.xml</contextFile>
-          <className>BeanFactory</className>
-          <packageName>me.springframework.sample.javame.factory</packageName>
+          <className>me.springframework.sample.javame.factory.BeanFactory</className>
         </configuration>
       </plugin>
       
