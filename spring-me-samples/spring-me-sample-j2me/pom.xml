@@ -6,7 +6,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>spring-me-sample-j2me</artifactId>
-  <name>Spring ME Movie J2ME</name>
+  <name>Spring ME Sample Java ME</name>
   <organization>
     <name>Spring ME</name>
   </organization>
