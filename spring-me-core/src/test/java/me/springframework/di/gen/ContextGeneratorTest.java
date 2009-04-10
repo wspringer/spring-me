@@ -61,7 +61,7 @@ public class ContextGeneratorTest extends TestCase {
         Configuration configuration = loader.load(resource);
         InMemoryDestination dest = new InMemoryDestination();
         BeanFactoryGenerator generator = new BeanFactoryGenerator();
-        generator.generate(dest, configuration, BeanFactoryTypes.MinimalJavaSE);
+        generator.generate(dest, configuration, BeanFactoryTypes.MINIMAL_JAVA_SE);
         System.out.println(dest.getAsText());
     }
 
