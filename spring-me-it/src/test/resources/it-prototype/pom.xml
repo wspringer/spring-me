@@ -1,0 +1,35 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.tomtom.di.maven.its</groupId>
+  <artifactId>it-spring-me-prototype</artifactId>
+  <version>1.0</version>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>me.springframework</groupId>
+        <artifactId>spring-me-maven-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <contextFile>src/main/conf/components.xml</contextFile>
+          <className>com.tomtom.di.maven.its.itsample.BeanFactory</className>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

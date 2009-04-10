@@ -1,0 +1,17 @@
+<movies>
+  <movie>
+    <title>Bye Bye Blue Bird</title>
+    <director>Katrin Ottarsdottir</director>
+    <year>1999</year>
+  </movie>
+  <movie>
+    <title>Into the Wild</title>
+    <director>Sean Penn</director>
+    <year>2007</year>
+  </movie>
+  <movie>
+    <title>Mifune sidste sang</title>
+    <director>Søren Kragh-Jacobsen</director>
+    <year>1999</year>
+  </movie>
+</movies>
