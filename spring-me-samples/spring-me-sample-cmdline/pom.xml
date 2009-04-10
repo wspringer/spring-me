@@ -36,27 +36,13 @@
   </dependencies>
   <build>
     <plugins>
-      <plugin>
-        <groupId>me.springframework</groupId>
-        <artifactId>spring-me-maven-plugin</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-	  <contextFile>src/main/conf/context.xml</contextFile>
-	  <className>me.springframework.sample.cmdline.factory.BeanFactory</className>
-	</configuration>
-      </plugin>
+
       <plugin>
 	<groupId>org.codehaus.mojo</groupId>
 	<version>1.0</version>
 	<artifactId>appassembler-maven-plugin</artifactId>
 	<configuration>
+	  <extraJvmArguments>${extra.arguments}</extraJvmArguments>
 	  <programs>
 	    <program>
 	      <mainClass>me.springframework.sample.cmdline.MoviePrettyPrinter</mainClass>
@@ -75,4 +61,92 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+
+    <!-- SPRING ME -->
+
+    <profile>
+      <id>spring.me</id>
+      <activation>
+	<activeByDefault>true</activeByDefault>
+	<property>
+	  <name>!spring.classic</name>
+	</property>
+      </activation>
+      <build>
+	<plugins>
+	  <plugin>
+	    <groupId>me.springframework</groupId>
+	    <artifactId>spring-me-maven-plugin</artifactId>
+	    <version>1.0-SNAPSHOT</version>
+	    <executions>
+	      <execution>
+		<goals>
+		  <goal>generate</goal>
+		</goals>
+	      </execution>
+	    </executions>
+	    <configuration>
+	      <contextFile>src/main/conf/context.xml</contextFile>
+	      <className>me.springframework.sample.cmdline.factory.BeanFactory</className>
+	      <factoryType>JAVA_SE</factoryType>
+	    </configuration>
+	  </plugin>
+	</plugins>
+      </build>
+      <properties>
+	<extra.arguments>-Dspring.me.factory=me.springframework.sample.cmdline.factory.BeanFactory</extra.arguments>
+      </properties>
+    </profile>
+
+    <!-- SPRING CLASSIC -->
+
+    <profile>
+      <id>spring.classic</id>
+      <activation>
+	<activeByDefault>false</activeByDefault>
+	<property>
+	  <name>spring.classic</name>
+	</property>
+      </activation>
+      <build>
+	<plugins>
+	  <plugin>
+	    <artifactId>maven-antrun-plugin</artifactId>
+	    <executions>
+	      <execution>
+		<goals>
+		  <goal>run</goal>
+		</goals>
+		<phase>process-resources</phase>
+		<configuration>
+		  <tasks>
+		    <copy todir="target/appassembler/etc">
+		      <fileset dir="src/main/conf"/>
+		    </copy>
+		  </tasks>
+		</configuration>
+	      </execution>
+	    </executions>
+	  </plugin>
+	</plugins>
+      </build>
+      <dependencies>
+	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring</artifactId>
+	</dependency>
+	<dependency>
+	  <groupId>me.springframework</groupId>
+	  <artifactId>spring-me-adapter</artifactId>
+	  <version>1.0-SNAPSHOT</version>
+	</dependency>
+      </dependencies>
+      <properties>
+	<extra.arguments>-Dspring.me.factory=me.springframework.adapter.ClassicSpringAdapter -Dspring.me.context=context.xml</extra.arguments>
+      </properties>
+    </profile>
+
+  </profiles>
 </project>

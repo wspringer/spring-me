@@ -42,17 +42,17 @@ public enum BeanFactoryTypes implements BeanFactoryType {
     /**
      * A minimal bean factory, targeting Java ME.
      */
-    MinimalJavaME("java.lang.RuntimeException", "java.util.Vector", "java.util.Hashtable", "addElement"),
+    MINIMAL_JAVA_ME("java.lang.RuntimeException", "java.util.Vector", "java.util.Hashtable", "addElement"),
 
     /**
      * A minimal bean factory, targeting Java SE.
      */
-    MinimalJavaSE("java.lang.RuntimeException", "java.util.ArrayList", "java.util.HashMap", "add"),
+    MINIMAL_JAVA_SE("java.lang.RuntimeException", "java.util.ArrayList", "java.util.HashMap", "add"),
 
     /**
      * A minimal bean factory, targeting Java SE.
      */
-    JavaSEMinimalBeanFactory("me.spring.beans.BeansException", "java.util.ArrayList", "java.util.HashMap", "add",
+    JAVA_SE("me.spring.beans.BeansException", "java.util.ArrayList", "java.util.HashMap", "add",
             "me.spring.beans.factory.MinimalBeanFactory");
 
     /**

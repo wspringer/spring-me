@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.springframework.sample.cmdline.factory.BeanFactory;
+import me.spring.beans.factory.MinimalBeanFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.args4j.Argument;
@@ -37,7 +37,7 @@ public class MoviePrettyPrinter {
     }
     
     public static final void main(String[] args) {
-        BeanFactory factory = new BeanFactory();
+        MinimalBeanFactory factory = new DynamicMinimalBeanFactory();
         MoviePrettyPrinter printer = (MoviePrettyPrinter) factory.getBean("moviePrinter");
         CmdLineParser parser = new CmdLineParser(printer);
         try {

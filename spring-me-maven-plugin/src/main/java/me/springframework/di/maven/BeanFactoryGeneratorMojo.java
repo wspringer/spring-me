@@ -67,11 +67,9 @@ public class BeanFactoryGeneratorMojo extends AbstractGeneratorMojo {
     private File targetDirectory;
 
     /**
-     * The type of bean factory to be generated.
-     * 
      * @parameter
      */
-    private BeanFactoryType factoryType = BeanFactoryTypes.MinimalJavaME;
+    private String factoryType;
 
     /*
      * (non-Javadoc)
@@ -81,9 +79,17 @@ public class BeanFactoryGeneratorMojo extends AbstractGeneratorMojo {
      */
     public void process(Configuration config, BeanFactory factory) throws MojoExecutionException, MojoFailureException {
         ensureTargetDirectoryExists();
+        BeanFactoryType type = BeanFactoryTypes.MINIMAL_JAVA_ME;
+        try {
+            type = BeanFactoryTypes.valueOf(factoryType);
+        } catch (NullPointerException npe) {
+            getLog().warn("Falling back to minimal Java ME type of factory.");
+        } catch (IllegalArgumentException iae) {
+            getLog().warn("Falling back to minimal Java ME type of factory.");
+        }
         Destination dest = new FileSystemDestination(factory.getClassName(), targetDirectory);
         try {
-            BeanFactoryGenerator.generate(dest, config, factoryType);
+            BeanFactoryGenerator.generate(dest, config, type);
             getProject().addCompileSourceRoot(targetDirectory.getAbsolutePath());
         } catch (GeneratorException cge) {
             throw new MojoExecutionException("Failed to generate bean factory.", cge);

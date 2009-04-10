@@ -46,6 +46,7 @@
     <module>spring-me-it</module>
     <module>spring-me-gwt-sample</module>
     <module>spring-me-samples</module>
+    <module>spring-me-adapter</module>
   </modules>
   <build>
     <pluginManagement>
