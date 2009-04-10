@@ -2,7 +2,7 @@ package me.springframework.di.maven;
 
 import java.io.File;
 
-public class BeanFactoryConfiguration implements BeanFactory {
+public class Factory implements BeanFactory {
 
     private File contextFile;
     private String className;

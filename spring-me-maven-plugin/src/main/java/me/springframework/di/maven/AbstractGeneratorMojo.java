@@ -92,7 +92,7 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     /**
      * @parameter
      */
-    private List<BeanFactoryConfiguration> factories;
+    private List<Factory> factories = new ArrayList<Factory>();
 
     /**
      * @parameter
@@ -118,16 +118,16 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     }
 
     private List<BeanFactory> getBeanFactories() {
-        List<BeanFactory> factories = new ArrayList<BeanFactory>();
+        List<BeanFactory> result = new ArrayList<BeanFactory>();
         if (factories != null && factories.size() > 0) {
             // Treat the other configuration as defaults
-            for (BeanFactoryConfiguration factoryConfig : this.factories) {
-                factories.add(new ChainingBeanFactory(factoryConfig, new MojoBeanFactory()));
+            for (Factory factoryConfig : factories) {
+                result.add(new ChainingBeanFactory(factoryConfig, new MojoBeanFactory()));
             }
         } else {
-            factories.add(new MojoBeanFactory());
+            result.add(new MojoBeanFactory());
         }
-        return factories;
+        return result;
     }
 
     private Configuration load(Resource resource) throws MojoExecutionException {

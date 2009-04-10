@@ -62,8 +62,16 @@
           </execution>
         </executions>
         <configuration>
-          <contextFile>src/main/conf/context.xml</contextFile>
-          <className>me.springframework.sample.javame.factory.BeanFactory</className>
+	  <factories>
+	    <factory>
+	      <contextFile>src/main/conf/record-store-context.xml</contextFile>
+	      <className>me.springframework.sample.javame.factory.BeanFactory</className>
+	    </factory>
+	    <factory>
+	      <contextFile>src/main/conf/in-memory-context.xml</contextFile>
+	      <className>me.springframework.sample.javame.factory.InMemoryBeanFactory</className>
+	    </factory>
+	  </factories>
         </configuration>
       </plugin>
       
@@ -115,12 +123,6 @@
 	    </MIDlet>
 	  </midlets>
 	  <useWtkLibs>false</useWtkLibs>
-	  <!--
-	  <libs>
-	    <lib>${settings.localRepository}/org/microemu/cldcapi11/${me2Version}/cldcapi11-${me2Version}.jar</lib>
-	    <lib>${settings.localRepository}/org/microemu/midpapi20/${me2Version}/midpapi20-${me2Version}.jar</lib>
-	  </libs>
-	  -->
 	  <dependencies>
 	    <dependency>
 	      <groupId>org.microemu</groupId>
