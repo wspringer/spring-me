@@ -38,7 +38,7 @@ import me.springframework.di.Instance;
 import me.springframework.di.InstanceReference;
 import me.springframework.di.PropertySetter;
 import me.springframework.di.Source;
-import me.springframework.di.StringValueSource;
+import me.springframework.di.LiteralSource;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -60,11 +60,11 @@ public class SpringFactoryTest extends TestCase {
             if ("foo".equals(setter.getName())) {
                 assertEquals(Source.SourceType.StringRepresentation, setter.getSource()
                         .getSourceType());
-                assertEquals("wilfred", ((StringValueSource) setter.getSource()).getValue());
+                assertEquals("wilfred", ((LiteralSource) setter.getSource()).getValue());
             } else if ("bar".equals(setter.getName())) {
                 assertEquals(Source.SourceType.StringRepresentation, setter.getSource()
                         .getSourceType());
-                assertEquals("springer", ((StringValueSource) setter.getSource()).getValue());
+                assertEquals("springer", ((LiteralSource) setter.getSource()).getValue());
             } else {
                 fail(); // Either foo or bar
             }

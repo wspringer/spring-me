@@ -39,7 +39,7 @@ import me.springframework.di.Instance;
 import me.springframework.di.MapSource;
 import me.springframework.di.PropertySetter;
 import me.springframework.di.Source;
-import me.springframework.di.StringValueSource;
+import me.springframework.di.LiteralSource;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -59,16 +59,16 @@ public class SpringConfigurationLoaderTest extends TestCase {
         assertEquals(2, source.getEntries().size());
 
         // Check that the keys are of the proper type
-        assertTrue(source.getEntries().get(0).getKey() instanceof StringValueSource);
-        assertTrue(source.getEntries().get(1).getKey() instanceof StringValueSource);
+        assertTrue(source.getEntries().get(0).getKey() instanceof LiteralSource);
+        assertTrue(source.getEntries().get(1).getKey() instanceof LiteralSource);
 
         // Check that the values are of the proper type
         assertTrue(source.getEntries().get(0).getValue() instanceof Instance);
         assertTrue(source.getEntries().get(1).getValue() instanceof Instance);
 
         // Check that the values are set correctly
-        assertEquals("coding", ((StringValueSource) source.getEntries().get(0).getKey()).getValue());
-        assertEquals("modeling", ((StringValueSource) source.getEntries().get(1).getKey()).getValue());
+        assertEquals("coding", ((LiteralSource) source.getEntries().get(0).getKey()).getValue());
+        assertEquals("modeling", ((LiteralSource) source.getEntries().get(1).getKey()).getValue());
 
         // Check that the bean properties are set correctly
         assertHasStringProperty(source.getEntries().get(0).getValue(), "topic", "C++");
@@ -81,7 +81,7 @@ public class SpringConfigurationLoaderTest extends TestCase {
         for (PropertySetter setter : instance.getSetters()) {
             if (name.equals(setter.getName())) {
                 assertEquals(Source.SourceType.StringRepresentation, setter.getSource().getSourceType());
-                assertEquals(value, ((StringValueSource) setter.getSource()).getValue());
+                assertEquals(value, ((LiteralSource) setter.getSource()).getValue());
                 return;
             }
         }

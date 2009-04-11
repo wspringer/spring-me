@@ -33,10 +33,10 @@
 package me.springframework.di.base;
 
 import me.springframework.di.Sink;
-import me.springframework.di.StringValueSource;
+import me.springframework.di.LiteralSource;
 
 
-public class MutableStringValueSource extends AbstractTyped implements StringValueSource, MutableSource {
+public class MutableStringValueSource extends AbstractTyped implements LiteralSource, MutableSource {
 
     private String value;
 

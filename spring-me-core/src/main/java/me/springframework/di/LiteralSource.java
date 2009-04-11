@@ -39,7 +39,7 @@ package me.springframework.di;
  * @author Wilfred Springer
  * 
  */
-public interface StringValueSource extends Source {
+public interface LiteralSource extends Source {
 
     /**
      * Returns the String representation of the value.
