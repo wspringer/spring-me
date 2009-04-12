@@ -10,12 +10,6 @@
   <name>Spring ME Core</name>
   <dependencies>
     <dependency>
-      <groupId>javassist</groupId>
-      <artifactId>javassist</artifactId>
-      <version>3.3.GA</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.7</version>
