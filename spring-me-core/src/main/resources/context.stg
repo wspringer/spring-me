@@ -45,12 +45,12 @@ public class <destination.classname> <implementations()>{
 
     <definitions.publicInstances:field();separator="\n">
   
-    /**
-     * Constructs an instance of this bean factory.
-     */
-    public <destination.classname>() {
-        start();
-    }
+  	/**
+  	 * Constructs an instance of this bean factory.
+  	 */
+  	public <destination.classname>() {
+  	    start();
+  	}
   
     /**
      * Returns an object by looking it up by its name.
@@ -89,7 +89,7 @@ public class <destination.classname> <implementations()>{
         <definitions.publicInstances:destroy();separator="\n">
     }
     
-            
+    	    
 }
 >>
 
@@ -104,14 +104,41 @@ destroy() ::= <<
 
 loadEagerly() ::= <<
 <if (!it.lazyInit)>
-<if (it.singleton)>
 get<it.name;format="className">();
 <else>
 // Skipping <it.name>
 <endif>
-<else>
-// Skipping <it.name>
-<endif>
+>>
+
+createLazily() ::= <<
+/**
+ * Creates <it>.
+ */
+private final <it.type> get<it.name;format="className">() {
+    if (<it.name> == null) {
+        try {
+            <if (it.factoryMethod)>
+            <if (it.factoryInstance)>
+            <it.name> = get<it.factoryInstance;format="className">().<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <else>
+            <it.name> = <it.referencedType>.<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <endif>
+            <else>
+            <it.name> = new <it.type>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <endif>
+            <it.type> result = <it.name>;
+            <it.setters:setter();separator="\n">
+            <if (it.initMethod)>
+            result.<it.initMethod>();
+            <endif>
+            return result;
+        } catch(Exception e) {
+            throw new <beanFactoryType.beansExceptionName>(e.getMessage());
+        }
+    } else {
+        return <it.name>;
+    }
+}
 >>
 
 list() ::= <<
@@ -125,14 +152,14 @@ if ("<it.name>".equals(name)) return get<it.name;format="className">();
 
 
 field() ::= <<
-<if(it.singleton)>/**
+/**
  * A cached reference to the bean named "<it.name>".
  */
 private <it.type> <it.name>;
-<endif>
+
 >>
 
-createLazily() ::= <<
+getter() ::= <<
 
 /**
  * Returns the bean named "<it.name>". 
@@ -141,14 +168,11 @@ createLazily() ::= <<
  * @see #create<it.id;format="className">()
  */
 private final <it.type> get<it.name;format="className">() {
-        <if(it.singleton)>if (<it.name> == null) {
+    if (<it.name> == null) {
          <it.name> = create<it.id;format="className">();
     }
-    return <it.name>;<endif>
-    <if(it.prototype)>return create<it.id;format="className">();<endif>
+    return <it.name>;
 }
-
-<create(it)>
 >>
 
 
