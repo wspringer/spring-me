@@ -45,12 +45,12 @@ public class <destination.classname> <implementations()>{
 
     <definitions.publicInstances:field();separator="\n">
   
-  	/**
-  	 * Constructs an instance of this bean factory.
-  	 */
-  	public <destination.classname>() {
-  	    start();
-  	}
+    /**
+     * Constructs an instance of this bean factory.
+     */
+    public <destination.classname>() {
+        start();
+    }
   
     /**
      * Returns an object by looking it up by its name.
@@ -89,7 +89,7 @@ public class <destination.classname> <implementations()>{
         <definitions.publicInstances:destroy();separator="\n">
     }
     
-    	    
+            
 }
 >>
 
@@ -141,7 +141,7 @@ createLazily() ::= <<
  * @see #create<it.id;format="className">()
  */
 private final <it.type> get<it.name;format="className">() {
-	<if(it.singleton)>if (<it.name> == null) {
+        <if(it.singleton)>if (<it.name> == null) {
          <it.name> = create<it.id;format="className">();
     }
     return <it.name>;<endif>
