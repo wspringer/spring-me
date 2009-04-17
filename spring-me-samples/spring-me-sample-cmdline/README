@@ -1,0 +1,57 @@
+				README
+				======
+
+
+  This example demonstrates the use of Spring ME in a Java SE
+context. Just like the other examples, the actual application is
+fairly simple. This time, it is a commandline application capable of
+loading an XML database with movies, with the ability to print these
+movies in different (more or less pretty) ways. 
+
+
+BUILD
+
+  You build the application by running 'mvn package'. As a
+consequence, you will find the application ready to run in the
+'target/appassembler/' directory. 
+
+  There are actually two different types of applications you can
+build. By default, the build will create an application that uses
+Spring ME. You can however override this by specifying another
+profile. If you pass '-Pspring.classic', then the application that
+will get constructed will use the normal version of Spring to wire the
+beans at runtime. 
+
+
+DEPENDENCY INJECTION
+
+  The application uses dependency injection to wire the
+MoviePrettyPrinter to a bunch of renderers. You will find the
+configuration in 'src/main/context.xml'. The renderers are specified
+as a map, with the keys being the symbolic names used to identify
+these renderers on the commandline. If you run the application and
+pass the '-l' option, then application will output a list of all
+renderers including their symbolic name.
+
+  The renderers themselves are not all that interesting. In fact, they
+are completely uninteresting. One renderer simply generates the names
+of the movies. The other renderer outputs the names in color, but only
+if you happen to be running these examples from a VT100 terminal.
+
+
+WHAT'S INTERESTING
+
+  This example illustrates a couple of things:
+
+ * You can use Spring ME on Java SE on the same context.xml file.
+ * The generated application is considerably smaller when you use
+   Spring ME.
+ * The generated application is considerably faster when you use
+   Spring ME.
+ * The generated application does not have a dependency on libraries
+   for doing dependency injection. You will notice that - contrary to
+   the classic Spring example, it will not output any log messages
+   about logging subsystems getting initialized. 
+
+
+

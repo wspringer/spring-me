@@ -8,6 +8,9 @@
   <packaging>pom</packaging>
   <artifactId>spring-me-samples</artifactId>
   <name>Spring ME Samples</name>
+  <description>
+    A collection of examples, demonstrating the use of Spring ME.
+  </description>
   <modules>
     <module>spring-me-sample-api</module>
     <module>spring-me-sample-j2me</module>

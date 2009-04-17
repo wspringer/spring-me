@@ -1,0 +1,65 @@
+				README
+				======
+
+
+  This example demonstrates the use of Spring ME in a Java ME
+context. The actual application is fairly trivial: it only lists some
+movies. These movies might either get loaded from an in memory list of
+movies, or they might get loaded from an RMS record store.
+
+
+SIMPLE EXAMPLE
+
+  In order to run the simple example, you simply invoke 'mvn
+package'. Note that - when you have never build the entire system
+before - you will need to run 'mvn install' from the project root
+first; otherwise the build will not be able to locate the plugin or
+the API this example relies upon.
+
+  After running 'mvn package', the build should have created a
+spring-movies-me.jar and spring-movies-me.jad. You can use those files
+to run the application in an emulator (tested for MPP SDK,
+microemulator and WTK), or on your phone.
+
+  If you build the simple example, then the assembly will be based on
+the configuration in src/main/conf/in-memory-context.xml. As you will
+see, it simply wires an InMemoryMovieStore to a number of BaseMovie
+instances. Those are the movies that will get listed in the
+application.
+
+
+SLIGHTLY LESS TRIVIAL EXAMPLE
+
+  The other example - the one that illustrates using Spring ME to have
+an application that accesses a record store - is slightly more
+complicated. You build it using the command 'mvn -Pexample-rms
+install'.
+
+  As a consequence of specifying the profile, the build will generate
+another BeanFactory (with the same name), based on an alternative
+Spring configuration file:
+src/main/conf/record-store-context.xml. This configuration file *also*
+defines an object called "movieFinder", but in this case, it's an
+instance of RecordStoreMovieFinder. This object is wired to a
+RecordStoreTemplate, which will load a bunch of movies from a record
+store.
+
+  The RecordStoreTemplate is not part of the Spring ME libraries. It's
+provided for illustrative purposes only. The most important property
+on RecordStoreTemplate is the 'name' property. This property defines
+the name of the record store that will be accessed. Another important
+property is the 'autoCreate' property. This will cause the record
+store to be created if it doesn't exist yet. 
+
+  In many cases, it does not make an aweful lot of sense to have a
+record store without any data loaded by default. The
+RecordStoreTemplate allows you to preload a new database by accepting
+a defaultSource, and a defaultCodec. If these two properties are set,
+then the RecordStoreTemplate will take the list of objects from
+defaultSource, and translate the values of these objects into records
+using the defaultCodec. In this case, the defaultSource is using a
+factory method to get all objects from an InMemoryMovieStore.
+
+  You run the application in *exactly* the same way as the simple
+example.
+  

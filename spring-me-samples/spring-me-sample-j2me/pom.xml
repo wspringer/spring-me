@@ -7,17 +7,14 @@
   </parent>
   <artifactId>spring-me-sample-j2me</artifactId>
   <name>Spring ME Sample Java ME</name>
+  <description>
+    An example demonstrating the use of Spring ME in a Java ME
+    environment.
+  </description>
   <organization>
     <name>Spring ME</name>
   </organization>
   <dependencies>
-    <!--
-    <dependency>
-      <groupId>me.springframework</groupId>
-      <artifactId>spring-me-api</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>me.springframework</groupId>
       <artifactId>spring-me-sample-api</artifactId>
@@ -36,15 +33,6 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-  
-  <properties>
-    <me2Version>2.0.3</me2Version><!--me-version-->
-    <j2me.midlet.vendor>${project.organization.name}</j2me.midlet.vendor>
-    <j2me.midlet.name>${project.name}</j2me.midlet.name>
-    <j2me.midlet.version>1.0.1</j2me.midlet.version>
-    <j2me.midlet.configuration>CLDC-1.1</j2me.midlet.configuration>
-    <j2me.midlet.profile>MIDP-2.0</j2me.midlet.profile>
-  </properties>
   
   <build>
     <defaultGoal>install</defaultGoal>
@@ -65,16 +53,8 @@
           </execution>
         </executions>
         <configuration>
-	  <factories>
-	    <factory>
-	      <contextFile>src/main/conf/record-store-context.xml</contextFile>
-	      <className>me.springframework.sample.javame.factory.BeanFactory</className>
-	    </factory>
-	    <factory>
-	      <contextFile>src/main/conf/in-memory-context.xml</contextFile>
-	      <className>me.springframework.sample.javame.factory.InMemoryBeanFactory</className>
-	    </factory>
-	  </factories>
+	  <contextFile>${contextFile}</contextFile>
+	  <className>me.springframework.sample.javame.factory.BeanFactory</className>
         </configuration>
       </plugin>
       
@@ -114,12 +94,8 @@
 	  <jadAttributes>
 	    <MIDlet-Vendor>${project.organization.name}</MIDlet-Vendor>
 	    <Created-By>Wilfred Springer</Created-By>
-	    <!--
-	    <MIDlet-Permissions>javax.microedition.io.Connector.http</MIDlet-Permissions>
-	    -->
 	  </jadAttributes>
 	  <midlets>
-	    <!-- for each MIDlet entry-point, simply reiterate this section -->
 	    <MIDlet>
 	      <name>iWatchMovie</name>
 	      <icon>/pyx.png</icon>
@@ -127,12 +103,6 @@
 	    </MIDlet>
 	  </midlets>
 	  <useWtkLibs>false</useWtkLibs>
-	  <!--
-	  <libs>
-	    <lib>${settings.localRepository}/org/microemu/cldcapi11/${me2Version}/cldcapi11-${me2Version}.jar</lib>
-	    <lib>${settings.localRepository}/org/microemu/midpapi20/${me2Version}/midpapi20-${me2Version}.jar</lib>
-	  </libs>
-	  -->
 	  <assembly>
 	    <inclusions>
 	      <inclusion>
@@ -153,5 +123,24 @@
     </plugins>
 
   </build>
+
+  <properties>
+    <me2Version>2.0.3</me2Version><!--me-version-->
+    <j2me.midlet.vendor>${project.organization.name}</j2me.midlet.vendor>
+    <j2me.midlet.name>${project.name}</j2me.midlet.name>
+    <j2me.midlet.version>1.0.1</j2me.midlet.version>
+    <j2me.midlet.configuration>CLDC-1.1</j2me.midlet.configuration>
+    <j2me.midlet.profile>MIDP-2.0</j2me.midlet.profile>
+    <contextFile>src/main/conf/in-memory-context.xml</contextFile>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>example-rms</id>
+      <properties>
+	<contextFile>src/main/conf/record-store-context.xml</contextFile>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>
