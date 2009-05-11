@@ -110,34 +110,32 @@ get<it.name;format="className">();
 <endif>
 >>
 
-createLazily() ::= <<
+createLazily(instance) ::= <<
 /**
- * Creates <it>.
+ * Creates <instance>.
  */
-private final <it.type> get<it.name;format="className">() {
-    if (<it.name> == null) {
+private final <instance.type> get<instance.name;format="className">() {
+    if (<instance.name> == null) {
         try {
             <if (it.factoryMethod)>
             <if (it.factoryInstance)>
-            <it.name> = get<it.factoryInstance;format="className">().<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <instance.name> = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
             <else>
-            <it.name> = <it.referencedType>.<it.factoryMethod>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <instance.name> = <instance.referencedType>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
             <endif>
             <else>
-            <it.name> = new <it.type>(<it.constructorArguments:constructorArgument();separator=", ">);
+            <instance.name> = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
             <endif>
-            <it.type> result = <it.name>;
-            <it.setters:setter();separator="\n">
+            <instance.setters:setter(name=instance.name);separator="\n">
             <if (it.initMethod)>
-            result.<it.initMethod>();
+            <instance.name>.<instance.initMethod>();
             <endif>
-            return result;
+            return <instance.name>;
         } catch(Exception e) {
             throw new <beanFactoryType.beansExceptionName>(e.getMessage());
         }
-    } else {
-        return <it.name>;
     }
+    return <instance.name>;
 }
 >>
 
@@ -197,7 +195,7 @@ private final <instance.type> create<instance.id;format="className">() {
         <else>
         <instance.type> result = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
         <endif>
-        <instance.setters:setter();separator="\n">
+        <instance.setters:setter(name="result");separator="\n">
         <if (instance.initMethod)>
         result.<instance.initMethod>();
         <endif>
@@ -214,8 +212,8 @@ constructorArgument() ::= <<
 >>
 
 
-setter() ::= <<
-result.set<it.name;format="className">(<source(type=it.type,source=it.source)>);
+setter(name) ::= <<
+<name>.set<it.name;format="className">(<source(type=it.type,source=it.source)>);
 >>
 
 
