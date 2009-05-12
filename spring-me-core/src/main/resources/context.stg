@@ -130,7 +130,6 @@ private final <instance.type> get<instance.name;format="className">() {
             <if (it.initMethod)>
             <instance.name>.<instance.initMethod>();
             <endif>
-            return <instance.name>;
         } catch(Exception e) {
             throw new <beanFactoryType.beansExceptionName>(e.getMessage());
         }
