@@ -15,7 +15,7 @@
     </property>
   </bean>
   
-  <bean name="course1" class="com.tomtom.di.spring.Course" lazy-init="false" scope="prototype">
+  <bean name="course1" class="com.tomtom.di.spring.Course" scope="prototype">
     <property name="topic" value="Java"/>
   </bean>
   

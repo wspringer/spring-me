@@ -43,14 +43,14 @@ package <destination.packagename>;
  */
 public class <destination.classname> <implementations()>{
 
-    <definitions.publicInstances:field();separator="\n">
+    <definitions.publicInstances:field();separator="\n\n">
   
-  	/**
-  	 * Constructs an instance of this bean factory.
-  	 */
-  	public <destination.classname>() {
-  	    start();
-  	}
+    /**
+     * Constructs an instance of this bean factory.
+     */
+    public <destination.classname>() {
+        start();
+    }
   
     /**
      * Returns an object by looking it up by its name.
@@ -64,13 +64,7 @@ public class <destination.classname> <implementations()>{
         return null; // Keep the compiler happy
     }
 
-    <definitions.publicInstances:createLazily();separator="\n">
-    
-    <definitions.instanceSources:create();separator="\n">
-    
-    <definitions.listSources:listCreate();separator="\n">
-
-    <definitions.mapSources:mapCreate();separator="\n">
+    <factoryMethods()>
 
     /**
      * "Starts" the <destination.classname>; instances that have been 
@@ -91,6 +85,19 @@ public class <destination.classname> <implementations()>{
     
     	    
 }
+>>
+
+factoryMethods() ::= <<
+<definitions.publicInstances:createLazily();separator="\n\n">
+<if (definitions.instanceSources)>
+<\n><\n><definitions.instanceSources:create();separator="\n\n">
+<endif>
+<if (definitions.listSources)>
+<\n><\n><definitions.listSources:listCreate();separator="\n\n">
+<endif>
+<if (definitions.mapSources)>
+<\n><\n><definitions.mapSources:mapCreate();separator="\n\n">
+<endif>
 >>
 
 destroy() ::= <<
@@ -115,27 +122,41 @@ createLazily(instance) ::= <<
  * Creates <instance>.
  */
 private final <instance.type> get<instance.name;format="className">() {
+<if (!instance.prototype)>
     if (<instance.name> == null) {
         try {
-            <if (it.factoryMethod)>
-            <if (it.factoryInstance)>
-            <instance.name> = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
-            <else>
-            <instance.name> = <instance.referencedType>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
-            <endif>
-            <else>
-            <instance.name> = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
-            <endif>
-            <instance.setters:setter(name=instance.name);separator="\n">
-            <if (it.initMethod)>
-            <instance.name>.<instance.initMethod>();
-            <endif>
+            <createLazilyBody(instance=instance)>
         } catch(Exception e) {
             throw new <beanFactoryType.beansExceptionName>(e.getMessage());
         }
     }
+<else>
+    <instance.type> <instance.name> = null;
+    try {
+        <createLazilyBody(instance=instance)>
+    } catch(Exception e) {
+        throw new <beanFactoryType.beansExceptionName>(e.getMessage());
+    }
+<endif>    
     return <instance.name>;
 }
+>>
+
+createLazilyBody(instance) ::= << <if (it.factoryMethod)>
+<if (it.factoryInstance)>
+<instance.name> = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
+<else>
+<instance.name> = <instance.referencedType>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
+<endif>
+<else>
+<instance.name> = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
+<endif>
+<instance.setters:setter(name=instance.name);separator="\n">
+<if (it.initMethod)>
+<instance.name>.<instance.initMethod>();
+<else>
+// No init method
+<endif> 
 >>
 
 list() ::= <<
@@ -149,11 +170,12 @@ if ("<it.name>".equals(name)) return get<it.name;format="className">();
 
 
 field() ::= <<
+<if (!it.prototype)>
 /**
  * A cached reference to the bean named "<it.name>".
  */
 private <it.type> <it.name>;
-
+<endif>
 >>
 
 getter() ::= <<
@@ -174,7 +196,6 @@ private final <it.type> get<it.name;format="className">() {
 
 
 create(instance) ::= <<
-
 /**
  * Creates <it>. 
  <if (instance.initMethod)>
@@ -297,7 +318,6 @@ null
 
 
 listCreate(instance) ::= <<
-
 /**
  * Creates <it>.
  * 
@@ -315,7 +335,6 @@ result.<beanFactoryType.listAppendMethodName>(<(sourceTemplate.(it.sourceType))(
 >>
 
 mapCreate(instance) ::= <<
-
 /**
  * Creates <it>.
  * 
