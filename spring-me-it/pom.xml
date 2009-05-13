@@ -13,7 +13,7 @@
       <groupId>me.springframework</groupId>
       <artifactId>spring-me-maven-plugin</artifactId>
       <version>1.0-SNAPSHOT</version>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
