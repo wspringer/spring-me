@@ -37,8 +37,8 @@
  */
 package me.springframework.sample.cmdline;
 
-import me.spring.beans.BeansException;
-import me.spring.beans.factory.MinimalBeanFactory;
+import me.springframework.beans.BeansException;
+import me.springframework.beans.factory.MinimalBeanFactory;
 
 public class DynamicMinimalBeanFactory implements MinimalBeanFactory {
 

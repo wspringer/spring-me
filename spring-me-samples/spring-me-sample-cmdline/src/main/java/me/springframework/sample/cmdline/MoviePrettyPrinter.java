@@ -44,7 +44,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.spring.beans.factory.MinimalBeanFactory;
+import me.springframework.beans.factory.MinimalBeanFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.args4j.Argument;

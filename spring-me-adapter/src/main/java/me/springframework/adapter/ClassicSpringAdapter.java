@@ -37,8 +37,8 @@
  */
 package me.springframework.adapter;
 
-import me.spring.beans.BeansException;
-import me.spring.beans.factory.MinimalBeanFactory;
+import me.springframework.beans.BeansException;
+import me.springframework.beans.factory.MinimalBeanFactory;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;

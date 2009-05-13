@@ -35,9 +35,9 @@
  * do so. If you do not wish to do so, delete this exception statement
  * from your version.
  */
-package me.spring.beans.factory;
+package me.springframework.beans.factory;
 
-import me.spring.beans.BeansException;
+import me.springframework.beans.BeansException;
 
 
 /**

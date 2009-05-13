@@ -35,8 +35,12 @@
  * do so. If you do not wish to do so, delete this exception statement
  * from your version.
  */
-package me.spring.beans;
+package me.springframework.beans;
 
+/**
+ * The exception thrown in case of problems constructing beans. 
+ *
+ */
 public class BeansException extends RuntimeException {
 
     private static final long serialVersionUID = 1794130445396635028L;
