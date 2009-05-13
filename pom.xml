@@ -20,6 +20,10 @@
       <id>springerw</id>
       <name>Wilfred Springer</name>
     </developer>
+    <developer>
+      <id>wmlynar</id>
+      <name>Wojciech Mlynarczyk</name>
+    </developer>
   </developers>
   <mailingLists>
     <mailingList>
@@ -38,6 +42,7 @@
   <scm>
     <connection>scm:svn:https://springme.svn.sourceforge.net/svnroot/springme/trunk</connection>
     <developerConnection>scm:svn:https://springme.svn.sourceforge.net/svnroot/springme/trunk</developerConnection>
+    <url>http://fisheye3.atlassian.com/browse/springme</url>
   </scm>
   <modules>
     <module>spring-me-api</module>

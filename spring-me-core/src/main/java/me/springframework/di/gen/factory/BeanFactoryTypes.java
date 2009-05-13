@@ -57,8 +57,8 @@ public enum BeanFactoryTypes implements BeanFactoryType {
     /**
      * A minimal bean factory, targeting Java SE.
      */
-    JAVA_SE("me.spring.beans.BeansException", "java.util.ArrayList", "java.util.HashMap", "add",
-            "me.spring.beans.factory.MinimalBeanFactory");
+    JAVA_SE("me.springframework.beans.BeansException", "java.util.ArrayList", "java.util.HashMap", "add",
+            "me.springframework.beans.factory.MinimalBeanFactory");
 
     /**
      * @see BeanFactoryType#getBeansExceptionName()

@@ -42,29 +42,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.List;
 
 import me.springframework.di.Configuration;
-import me.springframework.di.Instance;
 import me.springframework.di.antlr.JavaAttributeRenderer;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.BeanFactory;
 
 
 /**
- * A generator of source files corresponding to a dependency injection graph. Note that the source
- * from which it will generate a Java source file only application context, does not rely on Spring.
- * Instead, it merely requires a {@link List} of {@link Instance Instances}. Those Instances might
- * however reflect a Spring configuration, and can be loaded from a Spring configuration file.
- * 
- * <p>
- * Note that there is little to prevent us from actualy generating a full Spring {@link BeanFactory}
- * implementation. However, it's questionable if you really need a full implementation, in all
- * cases. So many of the methods have deliberately been left out so far.
- * </p>
+ * An object capable of generating a bean factory based on a {@linkplain Configuration
+ * configuration} passed in. The output can be customized by passing an implementation of
+ * {@link BeanFactoryType}. Typically, this is one of the values of {@link BeanFactoryTypes}.
  * 
  * @author Wilfred Springer
  * 
@@ -80,7 +70,8 @@ public class BeanFactoryGenerator {
      * 
      * @param destination An abstraction of where and how to generate the target output.
      * @param definitions The definitions of the object instances wired together.
-     * @param details Some metadata on the BeanFactory to generate.
+     * @param details Some metadata on the BeanFactory to generate. (Typically, one of the values of
+     *            {@link BeanFactoryTypes}.
      * @throws GeneratorException If - for some reason - the {@link BeanFactoryGenerator} fails to
      *             generate the desired output.
      */
