@@ -12,7 +12,6 @@
     A collection of examples, demonstrating the use of Spring ME.
   </description>
   <modules>
-    <module>spring-me-sample-api</module>
     <module>spring-me-sample-j2me</module>
     <module>spring-me-sample-cmdline</module>
   </modules>
