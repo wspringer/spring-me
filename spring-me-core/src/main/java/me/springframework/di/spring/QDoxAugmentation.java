@@ -121,6 +121,9 @@ public class QDoxAugmentation implements Augmentation {
         guaranteeType(instance, allInstances);
         logger.logAttributing(instance.getName());
         JavaClass cl = builder.getClassByName(instance.getType());
+        for (JavaMethod method : cl.getMethods()) {
+            System.err.println(method.getName());
+        }
         for (MutablePropertySetter setter : instance.getSetters()) {
             BeanProperty property = cl.getBeanProperty(setter.getName(), true);
             if (property == null) {
