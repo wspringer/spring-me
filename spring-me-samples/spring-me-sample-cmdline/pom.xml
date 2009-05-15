@@ -1,9 +1,9 @@
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>me.springframework</groupId>
     <artifactId>spring-me-samples</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
   </parent>
   <artifactId>spring-me-sample-cmdline</artifactId>
   <name>Spring ME Sample Commandline</name>
@@ -24,7 +24,7 @@
     <dependency>
       <groupId>me.springframework</groupId>
       <artifactId>spring-me-api</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>args4j</groupId>
@@ -126,7 +126,7 @@
 		<configuration>
 		  <tasks>
 		    <copy todir="target/appassembler/etc">
-		      <fileset dir="src/main/conf"/>
+		      <fileset dir="src/main/conf" />
 		    </copy>
 		  </tasks>
 		</configuration>
