@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.springframework</groupId>
   <artifactId>spring-me</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <name>Spring ME</name>
   <packaging>pom</packaging>
   <url>http://springframework.me/</url>
@@ -40,9 +40,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://springme.svn.sourceforge.net/svnroot/springme/tags/spring-me-1.0</connection>
-    <developerConnection>scm:svn:https://springme.svn.sourceforge.net/svnroot/springme/tags/spring-me-1.0</developerConnection>
-    <url>http://fisheye3.atlassian.com/browse/springme/tags/spring-me-1.0</url>
+    <connection>scm:svn:https://springme.svn.sourceforge.net/svnroot/springme/trunk</connection>
+    <developerConnection>scm:svn:https://springme.svn.sourceforge.net/svnroot/springme/trunk</developerConnection>
+    <url>http://fisheye3.atlassian.com/browse/springme</url>
   </scm>
   <modules>
     <module>spring-me-api</module>
