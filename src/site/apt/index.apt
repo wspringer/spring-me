@@ -4,6 +4,12 @@ About Spring ME
 (none), but also is capable of running on small handheld devices,
 since it does not rely on reflection.
 
+  Spring ME 1.0 has been released on May 15, 2009. We hope to be able to have it in the central Maven repository soon. You can help by voting for the JIRA task: {{http://jira.codehaus.org/browse/MAVENUPLOAD-2463}}. For the time being, you will need to add an additional repository and pluginRepository to your pom: {{http://springframework.me/repository}}.
+
+  Spring ME will be presentated at JavaOne on Thursday, June 4, between 18:30 and 19:20, Esplanade 302.
+
+[http://sites.google.com/a/flotsam.nl/images/_/rsrc/1242465117335/Home/spring-me-banner-grey.png?height=68&width=420]
+
   In order to learn more about Spring ME, read {{{http://www.scribd.com/doc/8611209/Spring-ME}this introduction}}:
 
 %{swf|src=http://is.gd/mocQ|width=400|height=400}

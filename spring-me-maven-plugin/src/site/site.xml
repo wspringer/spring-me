@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project name="${project.name}">
+
+  <skin>
+    <groupId>me.springframework</groupId>
+    <artifactId>spring-me-skin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </skin>
+  <body>
+    <menu name="Overview">
+      <item name="Introduction" href="index.html"/>
+      <item name="Goals" href="plugin-info.html"/>
+      <item name="Usage" href="usage.html"/>
+    </menu>
+    <menu ref="modules"/>
+    <menu ref="reports"/>
+    
+  </body>
+  
+</project>

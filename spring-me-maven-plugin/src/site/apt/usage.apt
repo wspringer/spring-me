@@ -1,0 +1,72 @@
+Usage
+
+* Simple Example
+
+  Using the Spring ME Maven plugin is fairly simple. The only things you really need to pass are the name of the BeanFactory you intend to generate, and the location of the Spring XML configuration file containing the definitions of your beans.
+
+  The example below illustrates how you would use the plugin to generate a bean factory named BeanFactory in package me.springframework.sample.javame.factory. TThe assembly of beans offered through that BeanFactory will be based on the Spring XML configuration file passed in through the contextFile parameter.
+
++--------------------+
+<plugin>
+  <groupId>me.springframework</groupId>
+  <artifactId>spring-me-maven-plugin</artifactId>
+  <version>...</version>
+  <executions>
+    <execution>
+      <goals>
+        <goal>generate</goal>
+      </goals>
+      <phase>generate-sources</phase>
+    </execution>
+  </executions>
+  <configuration>
+    <contextFile>src/main/conf/applicationContext.xml</contextFile>
+    <className>me.springframework.sample.javame.factory.BeanFactory</className>
+  </configuration>
+</plugin>
++--------------------+
+
+  Once you have your pom configured like above, the BeanFactory will automatically be generated during the generate-sources phase. (Note that the Java code getting generated will also be included in the compilation phase. So if you would type 'mvn compile', the BeanFactory would not only be generated, but be compiled as well.)
+
+* Factory types
+
+  The plugin responsible for generating the bean factory accepts some other configuration as well. It turns out that various platforms impose different restrictions on the type of code generated. On Java ME, you don't want code referring to ArrayList, since it simply doesn't exist. This is where the 'factoryType' parameter comes in.
+
+  The factoryType parameter not surprisingly allows you to specify the type of bean factory you want to generate. Currently, you have three options:
+
+  * MINIMAL_JAVA_ME (java.lang.Vector, java.util.Hashtable)
+
+  * MINIMAL_JAVA_SE (java.util.ArrayList, java.util.HashMap)
+
+  * JAVA_SE (java.util.ArrayList, java.util.HashMap, _and_ implementing MinimalFactory)
+
+  []
+
+  The third option probably deserves some additional attention: if you pass this as an option, then the BeanFactory will be an implementation of MinimalBeanFactory. MinimalBeanFactory is an interface from spring-me-api, defining the most minimalistic bean factory contract you can imagine. The cool thing about this interface is that you can build your applications against this interface, without depending directly on generated code. As a consequence you can write your own interceptors, or have various bean factories that you choose from at runtime.
+
+* Multiple Factories
+
+  It's not hard to imagine that you would generate multiple bean factories in a single pass. The Spring ME Maven plugin allows you to do that, without having to continuously copy and paste the common parts of the plugin's configuration.
+
+  This is the way it works: you first define the common parts of your configuration as child elements from the '<configuration>' element, like illustrated below. However, after that, you add '<factory>' elements for each of the factories you want to generate. Inside of those '<factory>' elements, you specify overrides for the defaults. This way, the example given below would have generated three different bean factories.
+
++------------------------+
+<configuration>
+  <factoryType>JAVA_SE</factoryType>
+  <contextFile>src/main/conf/applicationContext.xml</contextFile>
+  <factories>
+    <factory>
+      <className>foo.bar.BeanFactory1</className>
+    </factory>
+    <factory>
+      <className>foo.bar.BeanFactory2</className>
+      <factoryType>MINIMAL_JAVA_SE</factoryType>
+    </factory>
+    <factory>
+      <className>foo.bar.BeanFactory3</className>
+      <contextFile>src/main/conf/applicationContext2.xml</contextFile>
+    </factory>
+  </factories>
+</configuration>
++------------------------+
+
