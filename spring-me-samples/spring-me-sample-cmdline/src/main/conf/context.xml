@@ -4,20 +4,20 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
        default-lazy-init="true">
 
-	<bean id="moviePrinter" class="me.springframework.sample.cmdline.MoviePrettyPrinter">
-		<constructor-arg>	
-			<map>
-				<entry>
-					<key><value>simple</value></key>
-					<bean class="me.springframework.sample.cmdline.TitlesOnlyRenderer"/>
-				</entry>
-				<entry>
-					<key><value>colored</value></key>
-					<bean class="me.springframework.sample.cmdline.NicelyColoredRenderer"/>
-				</entry>
-			</map>
-		</constructor-arg>
-	</bean>
+  <bean id="moviePrinter" class="me.springframework.sample.cmdline.MoviePrettyPrinter">
+    <constructor-arg>	
+      <map>
+	<entry>
+	  <key><value>simple</value></key>
+	  <bean class="me.springframework.sample.cmdline.TitlesOnlyRenderer"/>
+	</entry>
+	<entry>
+	  <key><value>colored</value></key>
+	  <bean class="me.springframework.sample.cmdline.NicelyColoredRenderer"/>
+	</entry>
+      </map>
+    </constructor-arg>
+  </bean>
 
 
 </beans>

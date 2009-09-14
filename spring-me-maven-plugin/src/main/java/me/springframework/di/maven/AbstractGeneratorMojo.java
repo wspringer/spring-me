@@ -95,11 +95,15 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     protected ArtifactFactory artifactFactory;
 
     /**
+     * The factories to be generated. 
+     * 
      * @parameter
      */
     private List<Factory> factories = new ArrayList<Factory>();
 
     /**
+     * The name of the bean factory to be generated.
+     * 
      * @parameter
      */
     private String className;
@@ -110,6 +114,8 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     private File dotFile;
 
     /**
+     * The XML file containing the definitions of your beans.
+     * 
      * @parameter
      */
     private File contextFile;
