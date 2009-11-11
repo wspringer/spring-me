@@ -24,6 +24,15 @@ stringConversion ::= [
     default : "stringToDefault"
 ]
 
+objectConversion ::= [
+    "int" : "objectToInt",
+    "boolean" : "objectToBoolean",
+    "byte" : "objectToByte",
+    "short" : "objectToShort",
+    "long" : "objectToLong",
+    default : "objectToObject"
+]
+
 implementations() ::= <<
 <if(beanFactoryType.interfaceNames)>implements <beanFactoryType.interfaceNames:{<it>};separator="\,"><endif> 
 >>
@@ -204,7 +213,7 @@ create(instance) ::= <<
  * 
  * @return One of the required instances of {@link <instance.type>}.
  */
-private final <instance.type> create<instance.id;format="className">() {
+private final <if(instance.factoryBean)>java.lang.Object<else><instance.type><endif> create<instance.id;format="className">() {
     try {
         <if (instance.factoryMethod)>
         <if (instance.factoryInstance)>
@@ -219,7 +228,7 @@ private final <instance.type> create<instance.id;format="className">() {
         <if (instance.initMethod)>
         result.<instance.initMethod>();
         <endif>
-        return result;
+        return result<if(instance.factoryBean)>.getObject()<endif>;
     } catch(Exception e) {
         throw new <beanFactoryType.beansExceptionName>(e.getMessage());
     }
@@ -243,7 +252,7 @@ source(type,source) ::= <<
 
 
 sourceInstance(type,source) ::= <<
-create<source.id;format="className">()
+<(objectConversion.(type))(obj={create<source.id;format="className">()}, type=type)>
 >>
 
 
@@ -349,4 +358,28 @@ private final <beanFactoryType.mapImplementationName> create<instance.id;format=
 
 addEntry() ::= <<
 result.put(<(sourceTemplate.(it.key.sourceType))(type=it.key.type,source=it.key)>, <(sourceTemplate.(it.value.sourceType))(type=it.value.type,source=it.value)>);
+>>
+
+objectToInt(obj, type) ::= <<
+((Integer) <obj>).intValue()
+>>
+
+objectToByte(obj, type) ::= <<
+((Byte) <obj>).byteValue()
+>>
+
+objectToShort(obj, type) ::= <<
+((Short) <obj>).shortValue()
+>>
+
+objectToLong(obj, type) ::= <<
+((Long) <obj>).longValue()
+>>
+
+objectToBoolean(obj, type) ::= <<
+((Boolean) <obj>).booleanValue()
+>>
+
+objectToObject(obj, type) ::= <<
+(<type>) <obj>
 >>

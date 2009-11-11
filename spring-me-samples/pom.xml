@@ -14,5 +14,6 @@
   <modules>
     <module>spring-me-sample-j2me</module>
     <module>spring-me-sample-cmdline</module>
+    <module>spring-me-sample-namespaces</module>
   </modules>
 </project>

@@ -144,4 +144,9 @@ public interface Instance extends Source {
      */
     boolean isPrototype();
 
+    /**
+     * Returns <code>true</code> if the bean implements {@link org.springframework.beans.factory.FactoryBean}.
+     */
+    boolean isFactoryBean();
+
 }

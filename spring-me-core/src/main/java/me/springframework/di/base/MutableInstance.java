@@ -37,12 +37,12 @@
  */
 package me.springframework.di.base;
 
-import java.util.List;
-import java.util.Set;
-
 import me.springframework.di.Instance;
 import me.springframework.di.Scope;
 import me.springframework.di.Sink;
+
+import java.util.List;
+import java.util.Set;
 
 
 public class MutableInstance extends AbstractTyped implements Instance, MutableSource {
@@ -72,6 +72,8 @@ public class MutableInstance extends AbstractTyped implements Instance, MutableS
     private boolean autowireCandidate;
 
     private int autowireMode;
+
+    private boolean isFactoryBean;
 
     private Scope scope = Scope.SINGLETON;
 
@@ -210,6 +212,14 @@ public class MutableInstance extends AbstractTyped implements Instance, MutableS
 
     public boolean isSingleton() {
         return Scope.SINGLETON == scope;
+    }
+
+    public boolean isFactoryBean() {
+        return isFactoryBean;
+    }
+
+    public void setFactoryBean(boolean isFactoryBean) {
+        this.isFactoryBean = isFactoryBean;
     }
 
 }

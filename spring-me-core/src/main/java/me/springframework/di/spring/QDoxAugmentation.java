@@ -37,27 +37,17 @@
  */
 package me.springframework.di.spring;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import me.springframework.di.MapSource;
-import me.springframework.di.Source;
-import me.springframework.di.base.MutableConstructorArgument;
-import me.springframework.di.base.MutableInstance;
-import me.springframework.di.base.MutableInstanceReference;
-import me.springframework.di.base.MutableListSource;
-import me.springframework.di.base.MutableMapSource;
-import me.springframework.di.base.MutablePropertySetter;
-
 import com.agilejava.blammo.BlammoLoggerFactory;
 import com.agilejava.blammo.LoggingKitAdapter;
 import com.thoughtworks.qdox.JavaDocBuilder;
-import com.thoughtworks.qdox.model.BeanProperty;
-import com.thoughtworks.qdox.model.JavaClass;
-import com.thoughtworks.qdox.model.JavaMethod;
-import com.thoughtworks.qdox.model.JavaParameter;
-import com.thoughtworks.qdox.model.Type;
+import com.thoughtworks.qdox.model.*;
+import me.springframework.di.MapSource;
+import me.springframework.di.Source;
+import me.springframework.di.base.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -121,6 +111,13 @@ public class QDoxAugmentation implements Augmentation {
         guaranteeType(instance, allInstances);
         logger.logAttributing(instance.getName());
         JavaClass cl = builder.getClassByName(instance.getType());
+        if (isFactoryBean(cl)) {
+            logger.logFoundFactoryBean(instance.getName());
+            instance.setFactoryBean(true);
+        }
+        if (isInitializingBean(cl)) {
+            instance.setInitMethod("afterPropertiesSet");
+        }
         for (MutablePropertySetter setter : instance.getSetters()) {
             BeanProperty property = cl.getBeanProperty(setter.getName(), true);
             if (property == null) {
@@ -169,6 +166,14 @@ public class QDoxAugmentation implements Augmentation {
                 copyTypes(method.getParameters(), arguments);
             }
         }
+    }
+
+    private boolean isInitializingBean(JavaClass cl) {
+        return cl.isA("org.springframework.beans.factory.InitializingBean");
+    }
+
+    private boolean isFactoryBean(JavaClass cl) {
+        return cl.isA("org.springframework.beans.factory.FactoryBean");
     }
 
     /**
@@ -253,7 +258,7 @@ public class QDoxAugmentation implements Augmentation {
 
     /**
      * Copy type information from an array of {@link JavaParameter}s to a list of
-     * {@link MutabableConstructorArgument}s. (One by one.)
+     * {@link me.springframework.di.base.MutableConstructorArgument}s. (One by one.)
      * 
      * @param parameters The {@link JavaParameter}s.
      * @param arguments The {@link MutableConstructorArgument}s.
@@ -540,6 +545,14 @@ public class QDoxAugmentation implements Augmentation {
          */
         void logInformConstructorArguments(String name);
 
+        /**
+         * The system is informing that the specificied bean implements FactoryBean.
+         *
+         * @param name The name of the bean.
+         * @blammo.level debug
+         * @blammo.message Bean {name} is a FactoryBean
+         */
+        void logFoundFactoryBean(String name);
     }
 
 }

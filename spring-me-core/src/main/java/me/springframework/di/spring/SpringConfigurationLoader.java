@@ -37,43 +37,19 @@
  */
 package me.springframework.di.spring;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import me.springframework.di.Configuration;
-import me.springframework.di.Instance;
+import me.springframework.di.*;
 import me.springframework.di.Scope;
-import me.springframework.di.Sink;
-import me.springframework.di.Source;
-import me.springframework.di.base.MutableConfiguration;
-import me.springframework.di.base.MutableConstructorArgument;
-import me.springframework.di.base.MutableInstance;
-import me.springframework.di.base.MutableInstanceReference;
-import me.springframework.di.base.MutableListSource;
-import me.springframework.di.base.MutableMapSource;
-import me.springframework.di.base.MutablePropertySetter;
-import me.springframework.di.base.MutableSource;
-import me.springframework.di.base.MutableStringValueSource;
+import me.springframework.di.base.*;
 import me.springframework.di.gen.factory.BeanFactoryGenerator;
-
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.config.TypedStringValue;
+import org.springframework.beans.factory.config.*;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.ManagedList;
-import org.springframework.beans.factory.support.ManagedMap;
+import org.springframework.beans.factory.support.*;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.Resource;
+
+import java.util.*;
 
 /**
  * A class capable of loading lists of {@link Instance Instances} from a Spring
@@ -223,7 +199,9 @@ public class SpringConfigurationLoader {
      */
     private static MutableSource loadSource(Sink sink, Object value) {
         MutableSource result = null;
-        if (value instanceof RuntimeBeanReference) {
+        if (value instanceof String) {
+            return load(sink, (String) value);
+        } else if (value instanceof RuntimeBeanReference) {
             result = load(sink, (RuntimeBeanReference) value);
         } else if (value instanceof TypedStringValue) {
             result = load(sink, (TypedStringValue) value);
@@ -233,12 +211,22 @@ public class SpringConfigurationLoader {
             result = load(sink, (ManagedList) value);
         } else if (value instanceof ManagedMap) {
             result = load(sink, (ManagedMap) value);
+        } else if (value instanceof ManagedProperties) {
+            result = load(sink, (ManagedProperties) value);
         } else {
             System.err.println("No support for " + value.getClass().getName());
             return null;
         }
         result.setId("source" + (counter++));
         return result;
+    }
+
+    private static MutableSource load(Sink sink, String s) {
+        return new MutableStringValueSource(sink, s, "java.lang.String");
+    }
+
+    private static MutableSource load(Sink sink, ManagedProperties managedProperties) {
+        throw new UnsupportedOperationException("No support for managed properties yet.");
     }
 
     private static MutableSource load(Sink sink, ManagedMap value) {
