@@ -8,7 +8,6 @@ sourceTemplate ::= [
     "Map" : "sourceMap"
 ]
 
-
 stringConversion ::= [
     "java.lang.String" : "stringToString",
     "java.lang.Boolean" : "stringToBoolean",
@@ -30,6 +29,8 @@ objectConversion ::= [
     "byte" : "objectToByte",
     "short" : "objectToShort",
     "long" : "objectToLong",
+    "float" : "objectToFloat",
+    "double" : "objectToDouble",
     default : "objectToObject"
 ]
 
@@ -382,4 +383,12 @@ objectToBoolean(obj, type) ::= <<
 
 objectToObject(obj, type) ::= <<
 (<type>) <obj>
+>>
+
+objectToFloat(obj, type) ::= <<
+((Float) <obj>).floatValue()
+>>
+
+objectToDouble(obj, type) ::= <<
+((Double) <obj>).doubleValue()
 >>

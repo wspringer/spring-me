@@ -44,6 +44,10 @@ public class Person {
     private Properties properties;
     private int age;
 
+    private float lengthInCm;
+
+    private double moneySpent;
+
     public void setProperties(Properties properties) {
         this.properties = properties;
     }
@@ -56,4 +60,19 @@ public class Person {
         return age;
     }
 
+    public float getLengthInCm() {
+        return lengthInCm;
+    }
+
+    public void setLengthInCm(float lengthInCm) {
+        this.lengthInCm = lengthInCm;
+    }
+
+    public double getMoneySpent() {
+        return moneySpent;
+    }
+
+    public void setMoneySpent(double moneySpent) {
+        this.moneySpent = moneySpent;
+    }
 }

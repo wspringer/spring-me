@@ -8,6 +8,12 @@
         <property name="age">
             <util:constant static-field="java.lang.Integer.MAX_VALUE"/>
         </property>
+        <property name="lengthInCm">
+            <util:constant static-field="java.lang.Float.MAX_VALUE"/>
+        </property>
+        <property name="moneySpent">
+            <util:constant static-field="java.lang.Double.MAX_VALUE"/>
+        </property>
     </bean>
 
 </beans>
