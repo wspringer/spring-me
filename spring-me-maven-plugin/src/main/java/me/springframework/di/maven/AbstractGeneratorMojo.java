@@ -37,19 +37,11 @@
  */
 package me.springframework.di.maven;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
+import com.thoughtworks.qdox.JavaDocBuilder;
 import me.springframework.di.Configuration;
 import me.springframework.di.spring.AutowiringAugmentation;
 import me.springframework.di.spring.QDoxAugmentation;
 import me.springframework.di.spring.SpringConfigurationLoader;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -63,7 +55,13 @@ import org.apache.maven.project.artifact.MavenMetadataSource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import com.thoughtworks.qdox.JavaDocBuilder;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -109,7 +107,7 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     private String className;
 
     /**
-     * @parameter
+     * @parameter expression="{dotFile}"
      */
     private File dotFile;
 

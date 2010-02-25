@@ -37,25 +37,40 @@
  */
 package me.springframework.di.maven;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.maven.it.AbstractMavenIntegrationTestCase;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.ResourceExtractor;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 
-public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
+public class CodeGeneratorMojoTest extends AbstractMojoTestCase {
 
-    public CodeGeneratorMojoTest() {
-        super("[2.0,)");
-    }
+
+//    /**
+//     * A convenience method for getting a configured {@link me.springframework.di.maven.BeanFactoryGeneratorMojo}
+//     * instance.
+//     *
+//     * @param test
+//     *            The name of the test. (Used to resolve the pom.xml file from a corresponding directory.)
+//     * @return A configured instance of the {@link BeanFactoryGeneratorMojo}.
+//     * @throws Exception
+//     *             If an instance of the {@link BeanFactoryGeneratorMojo} cannot be
+//     *             constructed from the file name passed in.
+//     */
+//    private BeanFactoryGeneratorMojo getMojo(String test) throws Exception {
+//        return (BeanFactoryGeneratorMojo) lookupMojo("generate", getBasedir()
+//                + "/src/test/resources/" + test + "/pom.xml");
+//    }
 
     /**
      * Tests everything is ok for builds running directly from source folders only.
      */
-    public void testSmokeTest() throws IOException, VerificationException {
+    @Test
+    public void testSmokeTest() throws Exception {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-smoke");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
         verifier.deleteArtifact("com.tomtom.di.maven.its", "it-spring-me-smoke", "1.0", "jar");
@@ -71,6 +86,7 @@ public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
     /**
      * Tests Strings are escaped properly.
      */
+    @Test
     public void testStringEscaping() throws IOException, VerificationException {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-smoke");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
@@ -87,6 +103,7 @@ public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
     /**
      * Tests everything is ok for builds running directly from source folders only.
      */
+    @Test
     public void testCheckedExceptions() throws IOException, VerificationException {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-checked-exceptions");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
@@ -103,6 +120,7 @@ public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
     /**
      * Tests everything is ok for builds running directly from source folders only.
      */
+    @Test
     public void testMaps() throws IOException, VerificationException {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-maps");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
@@ -119,6 +137,7 @@ public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
     /**
      * Tests everything is ok for builds running directly from source folders only.
      */
+    @Test
     public void testCheckedExceptionsForProperties() throws IOException, VerificationException {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-checked-exceptions-properties");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
@@ -138,6 +157,7 @@ public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
      * commons-collections. In our Spring configuration file we are going to include a dependency on
      * a instance of a class of commons-collections.)
      */
+    @Test
     public void testRecursiveDependencies() throws IOException, VerificationException {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-recursive-dependencies");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
@@ -151,6 +171,7 @@ public class CodeGeneratorMojoTest extends AbstractMavenIntegrationTestCase {
         verifier.resetStreams();
     }
 
+    @Test
     public void testPrototypeScope() throws IOException, VerificationException {
         File testDir = ResourceExtractor.simpleExtractResources(getClass(), "/it-prototype");
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
