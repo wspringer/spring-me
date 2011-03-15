@@ -85,7 +85,7 @@ public class ParentBeanTest {
     }
 
     @Test
-    public void validateAnonymousBeansConfigWorksInSpring() {
+    public void validateParentBeansConfigWorksInSpring() {
         ClassPathResource res = new ClassPathResource("/parent.xml");
         XmlBeanFactory beanFactory = new XmlBeanFactory(res);
 
