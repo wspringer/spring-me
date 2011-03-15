@@ -61,7 +61,7 @@ public class FormattingUtils {
         boolean nextUpper = startWithUpper;
         for (int i = 0; i < length; i++) {
             char c = in.charAt(i);
-            if (c == '-' || c == '_') {
+            if (c == '-' || c == '_'|| c == '#' || c == '.') {
                 nextUpper = true;
             } else {
                 if (nextUpper) {
@@ -73,6 +73,26 @@ public class FormattingUtils {
             }
         }
         return builder.toString();
+    }
+
+    public static String toFieldName(String string) {
+        if (isJavaIdentifier(string)) {
+            return string;
+        }
+        return toCamelCase(string, false);
+    }
+
+    static boolean isJavaIdentifier(String s) {
+        int length = s.length();
+        if (length == 0 || !Character.isJavaIdentifierStart(s.charAt(0))) {
+            return false;
+        }
+        for (int i = 1; i < length; i++) {
+            if (!Character.isJavaIdentifierPart(s.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

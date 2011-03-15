@@ -75,6 +75,8 @@ public class JavaAttributeRenderer implements AttributeRenderer {
     public String toString(Object obj, String formatName) {
         if ("className".equals(formatName)) {
             return FormattingUtils.toCamelCase(obj.toString(), true);
+        } else if ("fieldName".equals(formatName)) {
+            return FormattingUtils.toFieldName(obj.toString());
         } else if ("constant".equals(formatName)) {
             return FormattingUtils.toUpperCase(obj.toString());
         } else if ("escapeJava".equals(formatName)) {

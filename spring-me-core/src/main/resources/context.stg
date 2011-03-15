@@ -112,9 +112,9 @@ factoryMethods() ::= <<
 
 destroy() ::= <<
 <if (it.destroyMethod)>
-<it.name>.<it.destroyMethod>();
+<it.name;format="fieldName">.<it.destroyMethod>();
 <else>
-// Skipping <it.name>
+// Skipping <it.name;format="fieldName">
 <endif>
 >>
 
@@ -123,7 +123,7 @@ loadEagerly() ::= <<
 <if (!it.lazyInit)>
 get<it.name;format="className">();
 <else>
-// Skipping <it.name>
+// Skipping <it.name;format="fieldName">
 <endif>
 >>
 
@@ -133,7 +133,7 @@ createLazily(instance) ::= <<
  */
 private final <instance.type> get<instance.name;format="className">() {
 <if (!instance.prototype)>
-    if (<instance.name> == null) {
+    if (<instance.name;format="fieldName"> == null) {
         try {
             <createLazilyBody(instance=instance)>
         } catch(Exception e) {
@@ -141,29 +141,29 @@ private final <instance.type> get<instance.name;format="className">() {
         }
     }
 <else>
-    <instance.type> <instance.name> = null;
+    <instance.type> <instance.name;format="fieldName"> = null;
     try {
         <createLazilyBody(instance=instance)>
     } catch(Exception e) {
         throw new <beanFactoryType.beansExceptionName>(e.getMessage());
     }
 <endif>    
-    return <instance.name>;
+    return <instance.name;format="fieldName">;
 }
 >>
 
 createLazilyBody(instance) ::= << <if (it.factoryMethod)>
 <if (it.factoryInstance)>
-<instance.name> = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
+<instance.name;format="fieldName"> = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
 <else>
-<instance.name> = <instance.referencedType>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
+<instance.name;format="fieldName"> = <instance.referencedType>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
 <endif>
 <else>
-<instance.name> = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
+<instance.name;format="fieldName"> = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
 <endif>
 <instance.setters:setter(name=instance.name);separator="\n">
 <if (it.initMethod)>
-<instance.name>.<instance.initMethod>();
+<instance.name;format="fieldName">.<instance.initMethod>();
 <else>
 // No init method
 <endif> 
@@ -184,7 +184,7 @@ field() ::= <<
 /**
  * A cached reference to the bean named "<it.name>".
  */
-private <it.type> <it.name>;
+private <it.type> <it.name;format="fieldName">;
 <endif>
 >>
 
@@ -197,10 +197,10 @@ getter() ::= <<
  * @see #create<it.id;format="className">()
  */
 private final <it.type> get<it.name;format="className">() {
-    if (<it.name> == null) {
-         <it.name> = create<it.id;format="className">();
+    if (<it.name;format="fieldName"> == null) {
+         <it.name;format="fieldName"> = create<it.id;format="className">();
     }
-    return <it.name>;
+    return <it.name;format="fieldName">;
 }
 >>
 
@@ -243,7 +243,7 @@ constructorArgument() ::= <<
 
 
 setter(name) ::= <<
-<name>.set<it.name;format="className">(<source(type=it.type,source=it.source)>);
+<name;format="fieldName">.set<it.name;format="className">(<source(type=it.type,source=it.source)>);
 >>
 
 
