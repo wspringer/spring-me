@@ -41,6 +41,8 @@ import me.springframework.di.*;
 import me.springframework.di.Scope;
 import me.springframework.di.base.*;
 import me.springframework.di.gen.factory.BeanFactoryGenerator;
+
+import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.*;
@@ -97,12 +99,29 @@ public class SpringConfigurationLoader {
      * @return A {@link Configuration} representing the graph of wired objects.
      */
     public Configuration load(Resource resource) {
-        BeanDefinitionRegistry registry = new XmlBeanFactory(resource);
+        MergedBeanDefinitionRegistry registry = new MergedBeanDefinitionRegistry(resource);
         Map<String, MutableInstance> instances = load(registry);
         for (Augmentation augmentation : augmentations) {
             augmentation.augment(instances);
         }
         return createConfiguration(instances);
+    }
+
+    /**
+     * Provides access to 'merged' bean definitions.  This means each BeanDefinition that
+     * has a parent includes the parts of the definition inherited from that parent.
+     */
+    static class MergedBeanDefinitionRegistry extends XmlBeanFactory {
+
+        public MergedBeanDefinitionRegistry(Resource resource) {
+            super(resource);
+        }
+
+        @Override
+        public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
+            return super.getMergedBeanDefinition(name);
+        }
+
     }
 
     /**
@@ -116,16 +135,20 @@ public class SpringConfigurationLoader {
      *         representing the root beans defined by the
      *         {@link ListableBeanFactory}.
      */
-    private static Map<String, MutableInstance> load(BeanDefinitionRegistry registry) {
+    private static Map<String, MutableInstance> load(MergedBeanDefinitionRegistry registry) {
         Map<String, MutableInstance> instances = new HashMap<String, MutableInstance>();
         for (String name : registry.getBeanDefinitionNames()) {
             BeanDefinition definition = registry.getBeanDefinition(name);
-            MutableInstance instance = new MutableInstance(name);
-            load(instance, definition);
-            instances.put(name, instance);
+            if (!definition.isAbstract()) {
+                BeanDefinition merged = registry.getMergedBeanDefinition(name);
+                MutableInstance instance = new MutableInstance(name);
+                load(instance, merged);
+                instances.put(name, instance);
+            }
         }
         return instances;
     }
+
 
     /**
      * Loads a {@link MutableInstance} from one of the {@link BeanDefinition}s

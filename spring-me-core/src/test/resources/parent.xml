@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Type inheritance -->
+    <bean id="type-person-base" class="me.springframework.di.spring.Person" abstract="true"/>
+    <bean id="type-teacher-base" class="me.springframework.di.spring.Teacher"
+        parent="type-person-base" abstract="true"/>
+    <bean id="type-bob" parent="type-teacher-base"/>
+
+    <!-- Property inheritance -->
+    <bean id="prop-name-base" abstract="true">
+      <property name="name"><value></value></property>
+    </bean>
+    <bean id="prop-age-base" parent="prop-name-base" abstract="true">
+      <property name="age"><value>-1</value></property>
+    </bean>
+    <bean id="prop-bob" parent="prop-age-base" class="me.springframework.di.spring.Person">
+      <property name="name"><value>Bob</value></property>
+    </bean>
+
+</beans>
