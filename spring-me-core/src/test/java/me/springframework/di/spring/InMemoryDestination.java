@@ -35,45 +35,38 @@
  * do so. If you do not wish to do so, delete this exception statement
  * from your version.
  */
-package me.springframework.di.gen;
+package me.springframework.di.spring;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 
-import junit.framework.TestCase;
-import me.springframework.di.Configuration;
-import me.springframework.di.gen.factory.BeanFactoryGenerator;
-import me.springframework.di.gen.factory.BeanFactoryTypes;
-import me.springframework.di.spring.InMemoryDestination;
-import me.springframework.di.spring.QDoxAugmentation;
-import me.springframework.di.spring.SpringConfigurationLoader;
+import me.springframework.di.gen.factory.Destination;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+public class InMemoryDestination implements Destination {
 
-import com.thoughtworks.qdox.JavaDocBuilder;
+    private final StringWriter writer = new StringWriter();
 
-public class ContextGeneratorTest extends TestCase {
+    private final String packageName;
 
-    public void testIntegration() throws IOException {
-        Resource resource = new ClassPathResource("/context3.xml", ContextGeneratorTest.class);
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(new QDoxAugmentation(
-                builder));
-        Configuration configuration = loader.load(resource);
-        InMemoryDestination dest = new InMemoryDestination("com.tomtom.test");
-        BeanFactoryGenerator generator = new BeanFactoryGenerator();
-        generator.generate(dest, configuration, BeanFactoryTypes.MINIMAL_JAVA_SE);
-        System.out.println(dest.getAsText());
+    public InMemoryDestination(String packageName) {
+        this.packageName = packageName;
     }
 
-    private File getBaseDir() {
-        String basedir = System.getProperty("basedir");
-        if (basedir == null) {
-            basedir = System.getProperty("user.dir");
-        }
-        return new File(basedir);
+    public String getClassname() {
+        return "BeanFactory";
+    }
+
+    public String getPackagename() {
+        return packageName;
+    }
+
+    public Writer getWriter() throws IOException {
+        return writer;
+    }
+
+    public String getAsText() {
+        return writer.toString();
     }
 
 }
