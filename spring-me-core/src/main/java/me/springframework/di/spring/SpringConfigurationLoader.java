@@ -37,21 +37,45 @@
  */
 package me.springframework.di.spring;
 
-import me.springframework.di.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import me.springframework.di.Configuration;
+import me.springframework.di.Instance;
 import me.springframework.di.Scope;
-import me.springframework.di.base.*;
+import me.springframework.di.Sink;
+import me.springframework.di.Source;
+import me.springframework.di.base.MutableConfiguration;
+import me.springframework.di.base.MutableConstructorArgument;
+import me.springframework.di.base.MutableInstance;
+import me.springframework.di.base.MutableInstanceReference;
+import me.springframework.di.base.MutableListSource;
+import me.springframework.di.base.MutableMapSource;
+import me.springframework.di.base.MutablePropertySetter;
+import me.springframework.di.base.MutableSource;
+import me.springframework.di.base.MutableStringValueSource;
 import me.springframework.di.gen.factory.BeanFactoryGenerator;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.config.*;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
-import org.springframework.beans.factory.support.*;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.config.TypedStringValue;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.ManagedMap;
+import org.springframework.beans.factory.support.ManagedProperties;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.Resource;
-
-import java.util.*;
 
 /**
  * A class capable of loading lists of {@link Instance Instances} from a Spring
@@ -99,29 +123,22 @@ public class SpringConfigurationLoader {
      * @return A {@link Configuration} representing the graph of wired objects.
      */
     public Configuration load(Resource resource) {
-        MergedBeanDefinitionRegistry registry = new MergedBeanDefinitionRegistry(resource);
-        Map<String, MutableInstance> instances = load(registry);
+        ConfigurableListableBeanFactory registry = new XmlBeanFactory(resource);
+        return load(registry);
+    }
+
+    /**
+     * Loads a Configuration from an existing application context.
+     *
+     * @param resource The Spring context from which to load bean definitions.
+     * @return A {@link Configuration} representing the graph of wired objects.
+     */
+    public Configuration load(ConfigurableListableBeanFactory factory) {
+        Map<String, MutableInstance> instances = loadBeans(factory);
         for (Augmentation augmentation : augmentations) {
             augmentation.augment(instances);
         }
         return createConfiguration(instances);
-    }
-
-    /**
-     * Provides access to 'merged' bean definitions.  This means each BeanDefinition that
-     * has a parent includes the parts of the definition inherited from that parent.
-     */
-    static class MergedBeanDefinitionRegistry extends XmlBeanFactory {
-
-        public MergedBeanDefinitionRegistry(Resource resource) {
-            super(resource);
-        }
-
-        @Override
-        public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
-            return super.getMergedBeanDefinition(name);
-        }
-
     }
 
     /**
@@ -135,12 +152,12 @@ public class SpringConfigurationLoader {
      *         representing the root beans defined by the
      *         {@link ListableBeanFactory}.
      */
-    private static Map<String, MutableInstance> load(MergedBeanDefinitionRegistry registry) {
+    protected static Map<String, MutableInstance> loadBeans(ConfigurableListableBeanFactory factory) {
         Map<String, MutableInstance> instances = new HashMap<String, MutableInstance>();
-        for (String name : registry.getBeanDefinitionNames()) {
-            BeanDefinition definition = registry.getBeanDefinition(name);
+        for (String name : factory.getBeanDefinitionNames()) {
+            BeanDefinition definition = factory.getBeanDefinition(name);
             if (!definition.isAbstract()) {
-                BeanDefinition merged = registry.getMergedBeanDefinition(name);
+                BeanDefinition merged = factory.getMergedBeanDefinition(name);
                 MutableInstance instance = new MutableInstance(name);
                 load(instance, merged);
                 instances.put(name, instance);
@@ -148,7 +165,6 @@ public class SpringConfigurationLoader {
         }
         return instances;
     }
-
 
     /**
      * Loads a {@link MutableInstance} from one of the {@link BeanDefinition}s
@@ -470,7 +486,7 @@ public class SpringConfigurationLoader {
      *            The root instances for which we need a {@link Configuration}.
      * @return The {@link Configuration} from the instances passed in.
      */
-    private static Configuration createConfiguration(Map<String, ? extends Instance> instances) {
+    protected static Configuration createConfiguration(Map<String, ? extends Instance> instances) {
         return new MutableConfiguration(instances);
     }
 
