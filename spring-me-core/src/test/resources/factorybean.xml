@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="rmiRegistry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+    <property name="port" value="10000"/>
+  </bean>
+  <bean id="test" class="me.springframework.di.spring.FactoryBeanTest$TestBean">
+    <property name="registry" ref="rmiRegistry"/>
+  </bean>
+
+</beans>

@@ -39,6 +39,7 @@ package me.springframework.di.spring;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import me.springframework.di.MapSource;
@@ -123,6 +124,7 @@ public class QDoxAugmentation implements Augmentation {
         guaranteeType(instance, context);
         guaranteeTypes(context, instance.getConstructorArguments());
         guaranteeTypes(context, instance.getSetters());
+
         logger.logAttributing(instance.getName());
         JavaClass cl = builder.getClassByName(instance.getType());
         if (isFactoryBean(cl)) {

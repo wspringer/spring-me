@@ -46,7 +46,9 @@ public abstract class AbstractSink extends AbstractTyped implements Sink {
     private Source source;
     
     private Instance instance;
-    
+
+    private String castTo;
+
     public Source getSource() {
         return source;
     }
@@ -61,6 +63,14 @@ public abstract class AbstractSink extends AbstractTyped implements Sink {
 
     public void setInstance(Instance instance) {
         this.instance = instance;
+    }
+
+    public String getCastTo() {
+        return castTo;
+    }
+
+    public void setCastTo(String castTo) {
+        this.castTo = castTo;
     }
 
 }
