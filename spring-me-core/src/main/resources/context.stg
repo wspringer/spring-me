@@ -90,7 +90,11 @@ public class <destination.classname> <implementations()>{
      * destroy-method defined will get that method invoked.
      */
     public final void stop() {
-        <definitions.publicInstances:destroy();separator="\n">
+        try {
+            <definitions.publicInstances:destroy();separator="\n">
+        } catch (Exception e) {
+            throw new <beanFactoryType.beansExceptionName>(e.getMessage());
+        }
     }
     
     	    
