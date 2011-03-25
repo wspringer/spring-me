@@ -188,22 +188,6 @@ private <it.type> <it.name;format="fieldName">;
 <endif>
 >>
 
-getter() ::= <<
-
-/**
- * Returns the bean named "<it.name>". 
- *
- * @return The bean named "<it.name>".
- * @see #create<it.id;format="className">()
- */
-private final <it.type> get<it.name;format="className">() {
-    if (<it.name;format="fieldName"> == null) {
-         <it.name;format="fieldName"> = create<it.id;format="className">();
-    }
-    return <it.name;format="fieldName">;
-}
->>
-
 
 create(instance) ::= <<
 /**
