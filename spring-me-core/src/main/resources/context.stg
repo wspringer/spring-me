@@ -152,15 +152,8 @@ private final <instance.type> get<instance.name;format="className">() {
 }
 >>
 
-createLazilyBody(instance) ::= << <if (it.factoryMethod)>
-<if (it.factoryInstance)>
-<instance.name;format="fieldName"> = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
-<else>
-<instance.name;format="fieldName"> = <instance.referencedType>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
-<endif>
-<else>
-<instance.name;format="fieldName"> = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);<\n>
-<endif>
+createLazilyBody(instance) ::= <<
+<instance.name;format="fieldName"> = <instantiateInstance(it)>;
 <instance.setters:setter(name=instance.name);separator="\n">
 <if (it.initMethod)>
 <instance.name;format="fieldName">.<instance.initMethod>();
@@ -200,15 +193,7 @@ create(instance) ::= <<
  */
 private final <if(instance.factoryBean)>java.lang.Object<else><instance.type><endif> create<instance.id;format="className">() {
     try {
-        <if (instance.factoryMethod)>
-        <if (instance.factoryInstance)>
-        <instance.type> result = get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
-        <else>
-        <instance.type> result = <instance.type>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">);
-        <endif>
-        <else>
-        <instance.type> result = new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">);
-        <endif>
+        <instance.type> result = <instantiateInstance(instance)>;
         <instance.setters:setter(name="result");separator="\n">
         <if (instance.initMethod)>
         result.<instance.initMethod>();
@@ -220,6 +205,17 @@ private final <if(instance.factoryBean)>java.lang.Object<else><instance.type><en
 }
 >>
 
+instantiateInstance(instance) ::= <<
+<if (instance.factoryMethod)>
+<if (instance.factoryInstance)>
+get<instance.factoryInstance;format="className">().<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">)
+<else>
+<instance.referencedType>.<instance.factoryMethod>(<instance.constructorArguments:constructorArgument();separator=", ">)
+<endif>
+<else>
+new <instance.type>(<instance.constructorArguments:constructorArgument();separator=", ">)
+<endif>
+>>
 
 constructorArgument() ::= <<
 <source(type=it.type,source=it.source)>
