@@ -46,6 +46,7 @@ import java.util.Map;
 import me.springframework.di.MapSource;
 import me.springframework.di.Source;
 import me.springframework.di.base.MutableConstructorArgument;
+import me.springframework.di.base.MutableContext;
 import me.springframework.di.base.MutableInstance;
 import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
@@ -89,46 +90,44 @@ public class AutowiringAugmentation implements Augmentation {
     }
 
     /**
-     * Autowires {@link MutableInstance}s passed in. (Just the
-     * {@link MutableInstance}s representing the top-level (root) beans.
-     * 
-     * @param allInstances
-     *            An map of {@link MutableInstance}s, indexed by bean id.
+     * Autowires {@link MutableInstance}s in the given {@link MutableContext}.
+     * (Just the {@link MutableInstance}s representing the top-level (root) beans.
+     *
+     * @param context The context containing beans to be autowired.
      */
-    public void augment(final Map<String, MutableInstance> allInstances) {
+    public void augment(MutableContext context) {
+        Map<String, MutableInstance> allInstances = context.getInstances();
         for (final MutableInstance instance : allInstances.values()) {
             // autowire all children instances
             for (final MutablePropertySetter setter : instance.getSetters()) {
-                attribute(setter.getSource(), allInstances);
+                attribute(setter.getSource(), context);
             }
             // autowire instances in constructor
             if (instance.getConstructorArguments() != null) {
                 for (final MutableConstructorArgument argument : instance.getConstructorArguments()) {
-                    attribute(argument.getSource(), allInstances);
+                    attribute(argument.getSource(), context);
                 }
             }
             // autowire the instance itself
-            attribute(instance, allInstances);
+            attribute(instance, context);
         }
     }
 
-    private void attribute(final MutableInstance instance,
-            final Map<String, MutableInstance> allInstances) {
+    private void attribute(final MutableInstance instance, final MutableContext context) {
         if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_NAME
                 || instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_TYPE) {
-            attributeProperties(instance, allInstances);
+            attributeProperties(instance, context);
         } else if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR) {
-            attributeConstructor(instance, allInstances);
+            attributeConstructor(instance, context);
         }
     }
 
     /**
      * Autowires {@link MutableInstance} passed in, accepting
-     * <code>allInstances</code> for resolving references.
-     * 
+     * <code>context</code> for resolving references.
      */
     private void attributeProperties(final MutableInstance instance,
-            final Map<String, MutableInstance> allInstances) {
+            final MutableContext context) {
         final JavaClass cl = builder.getClassByName(instance.getType());
         for (final BeanProperty beanProperty : cl.getBeanProperties()) {
             // don't do autowiring by type for primitive types
@@ -143,13 +142,13 @@ public class AutowiringAugmentation implements Augmentation {
             final MutableInstance newInstance;
             if (instance.getAutowireMode() == AbstractBeanDefinition.AUTOWIRE_BY_NAME) {
                 // try to find an instance by name
-                newInstance = allInstances.get(beanProperty.getName());
+                newInstance = context.getByName(beanProperty.getName());
                 if (newInstance == null || !newInstance.isAutowireCandidate()) {
                     continue;
                 }
             } else {
                 // try to find an instance by type
-                newInstance = findInstanceByType(allInstances, instance.getName(), beanProperty
+                newInstance = findInstanceByType(context, instance.getName(), beanProperty
                         .getName(), beanProperty.getType().getValue());
                 if (newInstance == null || !newInstance.isAutowireCandidate()) {
                     continue;
@@ -172,10 +171,10 @@ public class AutowiringAugmentation implements Augmentation {
 
     }
 
-    private MutableInstance findInstanceByType(final Map<String, MutableInstance> allInstances,
+    private MutableInstance findInstanceByType(final MutableContext context,
             final String beanName, final String propertyName, final String type) {
         MutableInstance ret = null;
-        for (final MutableInstance instance : allInstances.values()) {
+        for (final MutableInstance instance : context.getInstances().values()) {
             if (instance.isAutowireCandidate() && type.equals(instance.getType())) {
                 if (ret != null) {
                     throw new RuntimeException("Failed autowiring by type, bean " + beanName
@@ -196,12 +195,11 @@ public class AutowiringAugmentation implements Augmentation {
         return false;
     }
 
-    private void attributeConstructor(final MutableInstance instance,
-            final Map<String, MutableInstance> allInstances) {
+    private void attributeConstructor(final MutableInstance instance, final MutableContext context) {
 
         final JavaClass cl = builder.getClassByName(instance.getType());
         final List<JavaMethod> matchingConstructors = findMatchingConstructors(cl, instance,
-                allInstances);
+                context);
         sortConstructors(matchingConstructors);
 
         final List<MutableConstructorArgument> arguments = new ArrayList<MutableConstructorArgument>();
@@ -231,7 +229,7 @@ public class AutowiringAugmentation implements Augmentation {
 
                 final MutableInstance newInstance;
                 // try to find an instance by type
-                newInstance = findInstanceByType(allInstances, instance.getName(),
+                newInstance = findInstanceByType(context, instance.getName(),
                         "constructor parameter " + parameter.getName(), parameter.getType()
                                 .getValue());
                 // proper bean not found
@@ -278,7 +276,7 @@ public class AutowiringAugmentation implements Augmentation {
     }
 
     private List<JavaMethod> findMatchingConstructors(final JavaClass cl,
-            final MutableInstance instance, final Map<String, MutableInstance> allInstances) {
+            final MutableInstance instance, final MutableContext context) {
 
         final ArrayList<JavaMethod> constructors = new ArrayList<JavaMethod>();
 
@@ -329,22 +327,22 @@ public class AutowiringAugmentation implements Augmentation {
      * 
      * @param source
      *            The {@link Source} for which metadata needs to be completed.
-     * @param allInstances
-     *            All other instances, for resolving references.
+     * @param context
+     *            The context containing all beans, for resolving references.
      */
-    private void attribute(final Source source, final Map<String, MutableInstance> allInstances) {
+    private void attribute(final Source source, final MutableContext context) {
         switch (source.getSourceType()) {
             case Instance:
-                attribute((MutableInstance) source, allInstances);
+                attribute((MutableInstance) source, context);
                 break;
             case List:
-                attribute((MutableListSource) source, allInstances);
+                attribute((MutableListSource) source, context);
                 break;
             case Map:
-                attribute((MutableMapSource) source, allInstances);
+                attribute((MutableMapSource) source, context);
                 break;
             case InstanceReference:
-                attribute((MutableInstanceReference) source, allInstances);
+                attribute((MutableInstanceReference) source, context);
                 break;
             case StringRepresentation:
             default:
@@ -356,13 +354,12 @@ public class AutowiringAugmentation implements Augmentation {
      * 
      * @param source
      *            The {@link MutableListSource} that needs to be completed.
-     * @param allInstances
-     *            All other {@link MutableInstance}s, for resolving references.
+     * @param context
+     *            The context containing all beans, for resolving references.
      */
-    private void attribute(final MutableListSource source,
-            final Map<String, MutableInstance> allInstances) {
+    private void attribute(final MutableListSource source, final MutableContext context) {
         for (final Source element : source.getElementSources()) {
-            attribute(element, allInstances);
+            attribute(element, context);
         }
     }
 
@@ -371,14 +368,13 @@ public class AutowiringAugmentation implements Augmentation {
      * 
      * @param source
      *            The {@link MutableListSource} that needs to be completed.
-     * @param allInstances
-     *            All other {@link MutableInstance}s, for resolving references.
+     * @param context
+     *            The context containing all beans, for resolving references.
      */
-    private void attribute(final MutableMapSource source,
-            final Map<String, MutableInstance> allInstances) {
+    private void attribute(final MutableMapSource source, final MutableContext context) {
         for (final MapSource.Entry entry : source.getEntries()) {
-            attribute(entry.getKey(), allInstances);
-            attribute(entry.getValue(), allInstances);
+            attribute(entry.getKey(), context);
+            attribute(entry.getValue(), context);
         }
     }
 
@@ -387,12 +383,12 @@ public class AutowiringAugmentation implements Augmentation {
      * 
      * @param reference
      *            The {@link MutableInstanceReference} to be completed.
-     * @param allInstances
-     *            All other {@link MutableInstance}s, for resolving references.
+     * @param context
+     *            The context containing all beans, for resolving references.
      */
     private void attribute(final MutableInstanceReference reference,
-            final Map<String, MutableInstance> allInstances) {
-        reference.setReferencedId(allInstances.get(reference.getName()).getId());
+            final MutableContext context) {
+        reference.setReferencedId(context.getByName(reference.getName()).getId());
     }
 
 }

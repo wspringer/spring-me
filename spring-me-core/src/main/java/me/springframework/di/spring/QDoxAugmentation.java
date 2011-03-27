@@ -37,17 +37,27 @@
  */
 package me.springframework.di.spring;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import me.springframework.di.MapSource;
+import me.springframework.di.Source;
+import me.springframework.di.base.MutableConstructorArgument;
+import me.springframework.di.base.MutableContext;
+import me.springframework.di.base.MutableInstance;
+import me.springframework.di.base.MutableInstanceReference;
+import me.springframework.di.base.MutableListSource;
+import me.springframework.di.base.MutableMapSource;
+import me.springframework.di.base.MutablePropertySetter;
+
 import com.agilejava.blammo.BlammoLoggerFactory;
 import com.agilejava.blammo.LoggingKitAdapter;
 import com.thoughtworks.qdox.JavaDocBuilder;
-import com.thoughtworks.qdox.model.*;
-import me.springframework.di.MapSource;
-import me.springframework.di.Source;
-import me.springframework.di.base.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.thoughtworks.qdox.model.BeanProperty;
+import com.thoughtworks.qdox.model.JavaClass;
+import com.thoughtworks.qdox.model.JavaMethod;
+import com.thoughtworks.qdox.model.JavaParameter;
+import com.thoughtworks.qdox.model.Type;
 
 
 /**
@@ -92,11 +102,11 @@ public class QDoxAugmentation implements Augmentation {
      * Completes metadata for the {@link MutableInstance}s passed in. (Just the
      * {@link MutableInstance}s representing the top-level (root) beans.
      * 
-     * @param allInstances An map of {@link MutableInstance}s, indexed by bean id.
+     * @param context The context containing beans to be augmented.
      */
-    public void augment(Map<String, MutableInstance> allInstances) {
-        for (MutableInstance instance : allInstances.values()) {
-            attribute(instance, allInstances);
+    public void augment(MutableContext context) {
+        for (MutableInstance instance : context.getInstances().values()) {
+            attribute(instance, context);
         }
     }
 
@@ -105,10 +115,10 @@ public class QDoxAugmentation implements Augmentation {
      * <code>allInstances</code> for resolving references.
      * 
      * @param instance The instance that must be completed.
-     * @param allInstances All known {@link MutableInstance}s, for resolving references.
+     * @param context All beans in the context, for resolving references.
      */
-    private void attribute(MutableInstance instance, Map<String, MutableInstance> allInstances) {
-        guaranteeType(instance, allInstances);
+    private void attribute(MutableInstance instance, MutableContext context) {
+        guaranteeType(instance, context);
         logger.logAttributing(instance.getName());
         JavaClass cl = builder.getClassByName(instance.getType());
         if (isFactoryBean(cl)) {
@@ -125,13 +135,13 @@ public class QDoxAugmentation implements Augmentation {
             } else {
                 setter.setType(property.getType().getValue());
                 setter.setPrimitive(property.getType().isPrimitive());
-                attribute(setter.getSource(), allInstances);
+                attribute(setter.getSource(), context);
             }
         }
         if (instance.getConstructorArguments() != null && instance.getConstructorArguments().size() > 0) {
             logger.logInformConstructorArguments(instance.getName());
             for (MutableConstructorArgument argument : instance.getConstructorArguments()) {
-                attribute(argument.getSource(), allInstances);
+                attribute(argument.getSource(), context);
             }
             List<MutableConstructorArgument> arguments = instance.getConstructorArguments();
             JavaMethod method = null;
@@ -154,7 +164,7 @@ public class QDoxAugmentation implements Augmentation {
 
                 // If there *is* a factory method, *and* a factory bean
             } else {
-                MutableInstance factoryInstance = allInstances.get(instance.getFactoryInstance());
+                MutableInstance factoryInstance = context.getByName(instance.getFactoryInstance());
                 logger.logFactoryBean(instance.getName(), factoryInstance.getName(), instance.getFactoryMethod());
                 JavaClass factoryClass = builder.getClassByName(factoryInstance.getType());
                 method = findMethod(factoryClass, false, instance.getFactoryMethod(), arguments);
@@ -180,9 +190,9 @@ public class QDoxAugmentation implements Augmentation {
      * Guarantee that the type data is available.
      * 
      * @param instance The MutableInstance for which we need type data.
-     * @param allInstances All other instances, in order to resolve references.
+     * @param context All beans in the context, for resolving references.
      */
-    private void guaranteeType(MutableInstance instance, Map<String, MutableInstance> allInstances) {
+    private void guaranteeType(MutableInstance instance, MutableContext context) {
         logger.logGuaranteeingTypeKnown(instance.getId(), instance.getType() == null);
         // In case of no factory method
         if (instance.getFactoryMethod() == null) {
@@ -203,8 +213,8 @@ public class QDoxAugmentation implements Augmentation {
             } else { // If there is a bean factory
 
                 // Find that factory
-                MutableInstance factoryInstance = allInstances.get(instance.getFactoryInstance());
-                guaranteeType(factoryInstance, allInstances);
+                MutableInstance factoryInstance = context.getByName(instance.getFactoryInstance());
+                guaranteeType(factoryInstance, context);
                 List<MutableConstructorArgument> arguments = instance.getConstructorArguments();
                 if (arguments == null) {
                     arguments = new ArrayList<MutableConstructorArgument>();
@@ -313,21 +323,21 @@ public class QDoxAugmentation implements Augmentation {
      * Completes metadata for the source.
      * 
      * @param source The {@link Source} for which metadata needs to be completed.
-     * @param allInstances All other instances, for resolving references.
+     * @param context All beans in the context, for resolving references.
      */
-    private void attribute(Source source, Map<String, MutableInstance> allInstances) {
+    private void attribute(Source source, MutableContext context) {
         switch (source.getSourceType()) {
         case Instance:
-            attribute((MutableInstance) source, allInstances);
+            attribute((MutableInstance) source, context);
             break;
         case List:
-            attribute((MutableListSource) source, allInstances);
+            attribute((MutableListSource) source, context);
             break;
         case Map:
-            attribute((MutableMapSource) source, allInstances);
+            attribute((MutableMapSource) source, context);
             break;
         case InstanceReference:
-            attribute((MutableInstanceReference) source, allInstances);
+            attribute((MutableInstanceReference) source, context);
             break;
         case StringRepresentation:
         default:
@@ -340,9 +350,9 @@ public class QDoxAugmentation implements Augmentation {
      * @param source The {@link MutableListSource} that needs to be completed.
      * @param allInstances All other {@link MutableInstance}s, for resolving references.
      */
-    private void attribute(MutableListSource source, Map<String, MutableInstance> allInstances) {
+    private void attribute(MutableListSource source, MutableContext context) {
         for (Source element : source.getElementSources()) {
-            attribute(element, allInstances);
+            attribute(element, context);
         }
     }
 
@@ -350,12 +360,12 @@ public class QDoxAugmentation implements Augmentation {
      * Completes metadata for the {@link MutableListSource} passed in.
      * 
      * @param source The {@link MutableListSource} that needs to be completed.
-     * @param allInstances All other {@link MutableInstance}s, for resolving references.
+     * @param context All beans in the context, for resolving references.
      */
-    private void attribute(MutableMapSource source, Map<String, MutableInstance> allInstances) {
+    private void attribute(MutableMapSource source, MutableContext context) {
         for (MapSource.Entry entry : source.getEntries()) {
-            attribute(entry.getKey(), allInstances);
-            attribute(entry.getValue(), allInstances);
+            attribute(entry.getKey(), context);
+            attribute(entry.getValue(), context);
         }
     }
 
@@ -363,10 +373,12 @@ public class QDoxAugmentation implements Augmentation {
      * Completes metadata of the {@link MutableInstanceReference} passed in.
      * 
      * @param reference The {@link MutableInstanceReference} to be completed.
-     * @param allInstances All other {@link MutableInstance}s, for resolving references.
+     * @param context All beans in the context, for resolving references.
      */
-    private void attribute(MutableInstanceReference reference, Map<String, MutableInstance> allInstances) {
-        reference.setReferencedId(allInstances.get(reference.getName()).getId());
+    private void attribute(MutableInstanceReference reference, MutableContext context) {
+        MutableInstance referent = context.getByName(reference.getName());
+        reference.setName(referent.getName());
+        reference.setReferencedId(referent.getId());
     }
 
     /**

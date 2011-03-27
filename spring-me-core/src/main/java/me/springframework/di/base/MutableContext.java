@@ -35,27 +35,65 @@
  * do so. If you do not wish to do so, delete this exception statement
  * from your version.
  */
-package me.springframework.di.spring;
+package me.springframework.di.base;
 
-import me.springframework.di.base.MutableContext;
-import me.springframework.di.base.MutableInstance;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * The interface to be implemented by objects capable of augmenting the
- * {@link MutableInstance}s in a {@link MutableContext}. Used by
- * {@link SpringConfigurationLoader#load(org.springframework.core.io.Resource)} to
- * complement metadata loaded from a Spring configuration file.
- * 
- * @author Wilfred Springer (wis)
- * 
+ * The context in which a bean is defined, including other container-managed beans and
+ * aliases.
  */
-public interface Augmentation {
+public class MutableContext {
+
+    private final Map<String, MutableInstance> instances =
+        new HashMap<String, MutableInstance>();
+
+    private final Map<String, String> aliases =
+        new HashMap<String, String>();
 
     /**
-     * Augments the instances in the given Spring context.
+     * Adds a container-managed bean definition to this instance.
      *
-     * @param context The context containing instances to be augmented.
+     * @param name The name of the bean.
+     * @param instance The instance.
      */
-    void augment(MutableContext context);
+    public void addInstance(String name, MutableInstance instance) {
+        instances.put(name, instance);
+    }
+
+    /**
+     * Gets the {@link MutableInstance} for the bean with the given name or alias.
+     *
+     * @param name The name of the bean.
+     * @return The instance for the named bean, or null if no bean with that name exists.
+     */
+    public MutableInstance getByName(String name) {
+        MutableInstance result = instances.get(name);
+        if (result == null) {
+            String aliasFor = aliases.get(name);
+            if (aliasFor != null) {
+                result = instances.get(aliasFor);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Gets a map of all {@link MutableInstance} in this context, keyed by name.
+     * @return A map of bean name to the bean's {@link MutableInstance}.
+     */
+    public Map<String, MutableInstance> getInstances() {
+        return instances;
+    }
+
+    /**
+     * Adds an alias for a bean.
+     * @param from The alias to add.
+     * @param to The name of the referent.
+     */
+    public void addAlias(String from, String to) {
+        aliases.put(from, to);
+    }
 
 }

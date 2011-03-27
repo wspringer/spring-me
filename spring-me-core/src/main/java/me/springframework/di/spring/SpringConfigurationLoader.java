@@ -38,7 +38,6 @@
 package me.springframework.di.spring;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +50,7 @@ import me.springframework.di.Sink;
 import me.springframework.di.Source;
 import me.springframework.di.base.MutableConfiguration;
 import me.springframework.di.base.MutableConstructorArgument;
+import me.springframework.di.base.MutableContext;
 import me.springframework.di.base.MutableInstance;
 import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
@@ -134,11 +134,11 @@ public class SpringConfigurationLoader {
      * @return A {@link Configuration} representing the graph of wired objects.
      */
     public Configuration load(ConfigurableListableBeanFactory factory) {
-        Map<String, MutableInstance> instances = loadBeans(factory);
+        MutableContext context = loadBeans(factory);
         for (Augmentation augmentation : augmentations) {
-            augmentation.augment(instances);
+            augmentation.augment(context);
         }
-        return createConfiguration(instances);
+        return createConfiguration(context);
     }
 
     /**
@@ -152,18 +152,24 @@ public class SpringConfigurationLoader {
      *         representing the root beans defined by the
      *         {@link ListableBeanFactory}.
      */
-    protected static Map<String, MutableInstance> loadBeans(ConfigurableListableBeanFactory factory) {
-        Map<String, MutableInstance> instances = new HashMap<String, MutableInstance>();
+    protected static MutableContext loadBeans(ConfigurableListableBeanFactory factory) {
+        MutableContext context = new MutableContext();
+        for (String name : factory.getBeanDefinitionNames()) {
+            for (String alias : factory.getAliases(name)) {
+                context.addAlias(alias, name);
+            }
+        }
+
         for (String name : factory.getBeanDefinitionNames()) {
             BeanDefinition definition = factory.getBeanDefinition(name);
             if (!definition.isAbstract()) {
                 BeanDefinition merged = factory.getMergedBeanDefinition(name);
                 MutableInstance instance = new MutableInstance(name);
-                load(instance, merged);
-                instances.put(name, instance);
+                load(instance, merged, context);
+                context.addInstance(name, instance);
             }
         }
-        return instances;
+        return context;
     }
 
     /**
@@ -175,7 +181,8 @@ public class SpringConfigurationLoader {
      * @param definition
      *            A {@link BeanDefinition}, providing the meta data.
      */
-    private static void load(MutableInstance instance, BeanDefinition definition) {
+    private static void load(MutableInstance instance, BeanDefinition definition,
+            MutableContext context) {
         instance.setReferencedType(definition.getBeanClassName());
         instance.setPrimitive(false);
         instance.setLazyInit(definition.isLazyInit());
@@ -199,7 +206,7 @@ public class SpringConfigurationLoader {
                 MutableConstructorArgument argument = new MutableConstructorArgument(instance);
                 argument.setInstance(instance);
                 ValueHolder holder = (ValueHolder) object;
-                argument.setSource(loadSource(argument, holder.getValue()));
+                argument.setSource(loadSource(context, argument, holder.getValue()));
                 argument.setType(holder.getType());
                 arguments.add(argument);
             }
@@ -211,7 +218,7 @@ public class SpringConfigurationLoader {
             setter.setInstance(instance);
             PropertyValue value = (PropertyValue) object;
             setter.setName(value.getName());
-            setter.setSource(loadSource(setter, value.getValue()));
+            setter.setSource(loadSource(context, setter, value.getValue()));
             setters.add(setter);
         }
         instance.setSetters(setters);
@@ -236,20 +243,20 @@ public class SpringConfigurationLoader {
      * @return A {@link MutableSource}, representing the source of the data to
      *         be injected in the {@link Sink}.
      */
-    private static MutableSource loadSource(Sink sink, Object value) {
+    private static MutableSource loadSource(MutableContext context, Sink sink, Object value) {
         MutableSource result = null;
         if (value instanceof String) {
             return load(sink, (String) value);
         } else if (value instanceof RuntimeBeanReference) {
-            result = load(sink, (RuntimeBeanReference) value);
+            result = load(sink, (RuntimeBeanReference) value, context);
         } else if (value instanceof TypedStringValue) {
             result = load(sink, (TypedStringValue) value);
         } else if (value instanceof BeanDefinitionHolder) {
-            result = load(sink, (BeanDefinitionHolder) value);
+            result = load(sink, (BeanDefinitionHolder) value, context);
         } else if (value instanceof ManagedList) {
-            result = load(sink, (ManagedList) value);
+            result = load(sink, (ManagedList) value, context);
         } else if (value instanceof ManagedMap) {
-            result = load(sink, (ManagedMap) value);
+            result = load(context, sink, (ManagedMap) value);
         } else if (value instanceof ManagedProperties) {
             result = load(sink, (ManagedProperties) value);
         } else {
@@ -268,15 +275,16 @@ public class SpringConfigurationLoader {
         throw new UnsupportedOperationException("No support for managed properties yet.");
     }
 
-    private static MutableSource load(Sink sink, ManagedMap value) {
+    private static MutableSource load(MutableContext context, Sink sink,
+            ManagedMap value) {
         MutableMapSource source = new MutableMapSource(sink);
         for (Object element : value.entrySet()) {
             Map.Entry<?, ?> entry = (Map.Entry<?, ?>) element;
             MutableMapSource.MapSourceEntry created = new MutableMapSource.MapSourceEntry();
             Sink keySink = new EntrySink(EntrySink.Type.Key, source);
             Sink valueSink = new EntrySink(EntrySink.Type.Value, source);
-            created.setKey(loadSource(keySink, entry.getKey()));
-            created.setValue(loadSource(valueSink, entry.getValue()));
+            created.setKey(loadSource(context, keySink, entry.getKey()));
+            created.setValue(loadSource(context, valueSink, entry.getValue()));
             source.getEntries().add(created);
         }
         return source;
@@ -293,12 +301,12 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         list of values.
      */
-    private static MutableSource load(Sink sink, ManagedList list) {
+    private static MutableSource load(Sink sink, ManagedList list, MutableContext context) {
         ArrayList<MutableSource> elements = new ArrayList<MutableSource>();
         MutableListSource source = new MutableListSource(sink, elements);
         int index = 0;
         for (Object object : list) {
-            elements.add(loadSource(new ElementSink(index++, source), object));
+            elements.add(loadSource(context, new ElementSink(index++, source), object));
         }
         return source;
     }
@@ -315,9 +323,10 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         anonymous bean.
      */
-    private static MutableSource load(Sink sink, BeanDefinitionHolder value) {
+    private static MutableSource load(Sink sink, BeanDefinitionHolder value,
+            MutableContext context) {
         MutableInstance instance = new MutableInstance(sink, value.getBeanName());
-        load(instance, value.getBeanDefinition());
+        load(instance, value.getBeanDefinition(), context);
         return instance;
     }
 
@@ -350,8 +359,9 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         value.
      */
-    private static MutableSource load(Sink sink, RuntimeBeanReference value) {
-        return new MutableInstanceReference(sink, value.getBeanName());
+    private static MutableSource load(Sink sink, RuntimeBeanReference value, MutableContext context) {
+        String name = value.getBeanName();
+        return new MutableInstanceReference(sink, name);
     }
 
     private static class EntrySink implements Sink {
@@ -486,7 +496,8 @@ public class SpringConfigurationLoader {
      *            The root instances for which we need a {@link Configuration}.
      * @return The {@link Configuration} from the instances passed in.
      */
-    protected static Configuration createConfiguration(Map<String, ? extends Instance> instances) {
+    protected static Configuration createConfiguration(MutableContext context) {
+        Map<String, MutableInstance> instances = context.getInstances();
         return new MutableConfiguration(instances);
     }
 

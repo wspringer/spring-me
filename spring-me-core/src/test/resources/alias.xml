@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="order" value="1"/>
+    <property name="properties">
+      <value>
+        studentImpl=defaultStudent
+        defaultName=Bob
+      </value>
+    </property>
+  </bean>
+
+  <alias alias="student" name="${studentImpl}"/>
+  <bean id="defaultStudent" class="me.springframework.di.spring.Student">
+    <property name="name"><value>${defaultName}</value></property>
+  </bean>
+
+  <bean name="course" class="me.springframework.di.spring.Course">
+    <property name="students">
+      <list>
+        <ref bean="student" />
+      </list>
+    </property>
+  </bean>
+
+</beans>
