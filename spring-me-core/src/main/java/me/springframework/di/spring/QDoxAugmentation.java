@@ -157,7 +157,8 @@ public class QDoxAugmentation implements Augmentation {
                 // If there *is* a factory method, but no factory bean
             } else if (instance.getFactoryInstance() == null) {
                 logger.logFactoryMethod(instance.getName(), instance.getFactoryMethod());
-                method = findMethod(cl, true, instance.getFactoryMethod(), arguments);
+                JavaClass factoryClass = builder.getClassByName(instance.getReferencedType());
+                method = findMethod(factoryClass, true, instance.getFactoryMethod(), arguments);
                 if (method == null) {
                     logger.logNoMatchingFactoryMethod(instance);
                 }
