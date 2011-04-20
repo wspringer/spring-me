@@ -303,15 +303,16 @@ public class QDoxAugmentation implements Augmentation {
     }
 
     private boolean match(MutableConstructorArgument mutableConstructorArgument, JavaParameter javaParameter) {
-        if (mutableConstructorArgument.getType() == null) {
+        String argType = mutableConstructorArgument.getType();
+        if (argType == null) {
             logger.logConstructorArgumentTypeIsNull();
             return false;
         }
         if (javaParameter.getType().isResolved()) {
-            if (mutableConstructorArgument.getType().equals(javaParameter.getType().getValue())) {
+            if (builder.getClassByName(argType).isA(javaParameter.getType().getJavaClass())) {
                 return true;
             } else {
-                logger.logConstructorArgumentTypeMismatch(mutableConstructorArgument.getType(), javaParameter.getType());
+                logger.logConstructorArgumentTypeMismatch(argType, javaParameter.getType());
                 return false;
             }
         } else {
