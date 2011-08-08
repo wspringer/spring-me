@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="constructor"
+      class="me.springframework.di.spring.FactoryMethodTest$MyObject">
+    <constructor-arg value="ctr"/>
+    <constructor-arg value="01"/>
+  </bean>
+
+  <bean id="localFactoryMethod"
+      class="me.springframework.di.spring.FactoryMethodTest$MyObject"
+      factory-method="newInstance">
+    <constructor-arg value="local"/>
+    <constructor-arg value="02"/>
+  </bean>
+
+  <bean id="nonLocalFactoryMethod"
+      class="me.springframework.di.spring.FactoryMethodTest$MyObjectFactory"
+      factory-method="create">
+    <constructor-arg value="nonLocal"/>
+    <constructor-arg value="03"/>
+  </bean>
+
+  <bean id="nonLocalFactoryBeanInstance"
+      class="me.springframework.di.spring.FactoryMethodTest$MyObjectFactoryBean"/>
+
+  <bean id="nonLocalFactoryBean"
+      factory-bean="nonLocalFactoryBeanInstance"
+      factory-method="createObject">
+    <constructor-arg value="nonLocalFactoryBean"/>
+    <constructor-arg value="04"/>
+  </bean>
+
+  <!-- Unusual example: creating a method from an instance of the same type -->
+  <bean id="localFactoryBeanInstance"
+      class="me.springframework.di.spring.FactoryMethodTest$MyObject"/>
+
+  <bean id="localFactoryBean"
+      factory-bean="localFactoryBeanInstance"
+      factory-method="createAnother">
+    <constructor-arg value="localFactoryBean"/>
+    <constructor-arg value="05"/>
+  </bean>
+
+</beans>

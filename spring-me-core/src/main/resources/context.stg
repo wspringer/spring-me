@@ -135,8 +135,18 @@ createLazily(instance) ::= <<
 /**
  * Creates <instance>.
  */
-private final <instance.type> get<instance.name;format="className">() {
+private final <if(instance.factoryBean)>java.lang.Object<else><instance.type><endif> get<instance.name;format="className">() {
 <if (!instance.prototype)>
+<if (instance.factoryBean)>
+    try {
+        if (<instance.name;format="fieldName"> == null) {
+            <createLazilyBody(instance=instance)>
+        }
+        return <instance.name;format="fieldName">.getObject();
+    } catch(Exception e) {
+        throw new <beanFactoryType.beansExceptionName>(e.getMessage());
+    }
+<else>
     if (<instance.name;format="fieldName"> == null) {
         try {
             <createLazilyBody(instance=instance)>
@@ -144,15 +154,17 @@ private final <instance.type> get<instance.name;format="className">() {
             throw new <beanFactoryType.beansExceptionName>(e.getMessage());
         }
     }
+    return <instance.name;format="fieldName">;
+<endif>
 <else>
     <instance.type> <instance.name;format="fieldName"> = null;
     try {
         <createLazilyBody(instance=instance)>
+        return <instance.name;format="fieldName"><if(instance.factoryBean)>.getObject()<endif>;
     } catch(Exception e) {
         throw new <beanFactoryType.beansExceptionName>(e.getMessage());
     }
 <endif>    
-    return <instance.name;format="fieldName">;
 }
 >>
 
@@ -222,17 +234,17 @@ new <instance.type>(<instance.constructorArguments:constructorArgument();separat
 >>
 
 constructorArgument() ::= <<
-<source(type=it.type,source=it.source)>
+<source(sink=it,source=it.source)>
 >>
 
 
 setter(name) ::= <<
-<name;format="fieldName">.set<it.name;format="className">(<source(type=it.type,source=it.source)>);
+<name;format="fieldName">.set<it.name;format="className">(<source(sink=it,source=it.source)>);
 >>
 
 
-source(type,source) ::= <<
-<(sourceTemplate.(it.source.sourceType))(type=type,source=source)>
+source(sink,source) ::= <<
+<if (sink.castTo)>(<sink.castTo>) <endif><(sourceTemplate.(sink.source.sourceType))(type=sink.type,source=source)>
 >>
 
 
@@ -366,7 +378,7 @@ objectToBoolean(obj, type) ::= <<
 >>
 
 objectToObject(obj, type) ::= <<
-(<type>) <obj>
+<obj>
 >>
 
 objectToFloat(obj, type) ::= <<
