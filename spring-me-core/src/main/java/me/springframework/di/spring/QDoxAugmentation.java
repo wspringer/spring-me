@@ -38,10 +38,13 @@
 package me.springframework.di.spring;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import me.springframework.di.MapSource;
 import me.springframework.di.Source;
+import me.springframework.di.base.AbstractSink;
 import me.springframework.di.base.MutableConstructorArgument;
 import me.springframework.di.base.MutableContext;
 import me.springframework.di.base.MutableInstance;
@@ -119,6 +122,9 @@ public class QDoxAugmentation implements Augmentation {
      */
     private void attribute(MutableInstance instance, MutableContext context) {
         guaranteeType(instance, context);
+        guaranteeTypes(context, instance.getConstructorArguments());
+        guaranteeTypes(context, instance.getSetters());
+
         logger.logAttributing(instance.getName());
         JavaClass cl = builder.getClassByName(instance.getType());
         if (isFactoryBean(cl)) {
@@ -157,7 +163,8 @@ public class QDoxAugmentation implements Augmentation {
                 // If there *is* a factory method, but no factory bean
             } else if (instance.getFactoryInstance() == null) {
                 logger.logFactoryMethod(instance.getName(), instance.getFactoryMethod());
-                method = findMethod(cl, true, instance.getFactoryMethod(), arguments);
+                JavaClass factoryClass = builder.getClassByName(instance.getReferencedType());
+                method = findMethod(factoryClass, true, instance.getFactoryMethod(), arguments);
                 if (method == null) {
                     logger.logNoMatchingFactoryMethod(instance);
                 }
@@ -194,6 +201,10 @@ public class QDoxAugmentation implements Augmentation {
      */
     private void guaranteeType(MutableInstance instance, MutableContext context) {
         logger.logGuaranteeingTypeKnown(instance.getId(), instance.getType() == null);
+        if (instance.getType() != null) {
+            return;
+        }
+
         // In case of no factory method
         if (instance.getFactoryMethod() == null) {
             instance.setType(instance.getReferencedType());
@@ -223,6 +234,42 @@ public class QDoxAugmentation implements Augmentation {
                 JavaMethod method = findMethod(factoryClass, false, instance.getFactoryMethod(), arguments);
                 logger.logFoundFactory(instance.getId(), factoryInstance.getId(), instance.getFactoryMethod(), method.getReturns().toString());
                 instance.setType(method.getReturns().toString());
+            }
+        }
+    }
+
+    /**
+     * Ensures that the type of the source is known for every sink.
+     *
+     * @param context The context for resolving references.
+     * @param sinks The sinks for which source types should be resolved.
+     */
+    private void guaranteeTypes(MutableContext context, Collection<? extends AbstractSink> sinks) {
+        if (sinks == null) {
+           return;
+        }
+        for (AbstractSink sink : sinks) {
+            Source source = sink.getSource();
+            if (source.getType() == null) {
+                guaranteeType(context, source);
+            }
+        }
+    }
+
+    /**
+     * Ensures that the type of the given source is known.
+     *
+     * @param context The context for resolving references.
+     * @param sinks The source that should have its type resolved.
+     */
+    private void guaranteeType(MutableContext context, Source source) {
+        if (source instanceof MutableInstanceReference) {
+            MutableInstanceReference ref = (MutableInstanceReference) source;
+            MutableInstance referent = context.getByName(ref.getName());
+            if (referent != null) {
+                guaranteeType(referent, context);
+                ref.setType(referent.getType());
+                ref.setPrimitive(referent.isPrimitive());
             }
         }
     }
@@ -302,15 +349,16 @@ public class QDoxAugmentation implements Augmentation {
     }
 
     private boolean match(MutableConstructorArgument mutableConstructorArgument, JavaParameter javaParameter) {
-        if (mutableConstructorArgument.getType() == null) {
+        String argType = mutableConstructorArgument.getType();
+        if (argType == null) {
             logger.logConstructorArgumentTypeIsNull();
             return false;
         }
         if (javaParameter.getType().isResolved()) {
-            if (mutableConstructorArgument.getType().equals(javaParameter.getType().getValue())) {
+            if (builder.getClassByName(argType).isA(javaParameter.getType().getJavaClass())) {
                 return true;
             } else {
-                logger.logConstructorArgumentTypeMismatch(mutableConstructorArgument.getType(), javaParameter.getType());
+                logger.logConstructorArgumentTypeMismatch(argType, javaParameter.getType());
                 return false;
             }
         } else {

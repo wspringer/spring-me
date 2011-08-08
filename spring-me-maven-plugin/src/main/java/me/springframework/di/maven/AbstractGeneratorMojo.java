@@ -41,6 +41,7 @@ import com.thoughtworks.qdox.JavaDocBuilder;
 import me.springframework.di.Configuration;
 import me.springframework.di.spring.AutowiringAugmentation;
 import me.springframework.di.spring.QDoxAugmentation;
+import me.springframework.di.spring.SinkAugmentation;
 import me.springframework.di.spring.SpringConfigurationLoader;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -144,7 +145,8 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
         QDoxAugmentation augmentation = new QDoxAugmentation(builder);
         augmentation.setLoggingKitAdapter(new MavenLoggingKitAdapter(getLog()));
         AutowiringAugmentation autowire = new AutowiringAugmentation(builder);
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation, autowire);
+        SinkAugmentation sink = new SinkAugmentation();
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation, autowire, sink);
         return loader.load(resource);
     }
 

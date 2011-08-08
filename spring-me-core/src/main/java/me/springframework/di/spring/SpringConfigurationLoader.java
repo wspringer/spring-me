@@ -395,6 +395,10 @@ public class SpringConfigurationLoader {
             return false;
         }
 
+        public String getCastTo() {
+            return null;
+        }
+
         public String toString() {
             switch (type) {
                 case Key:
@@ -476,6 +480,10 @@ public class SpringConfigurationLoader {
          */
         public boolean isPrimitive() {
             return false;
+        }
+
+        public String getCastTo() {
+            return null;
         }
 
         /*

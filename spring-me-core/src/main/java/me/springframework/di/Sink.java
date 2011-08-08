@@ -63,4 +63,12 @@ public interface Sink extends Typed {
      */
     Instance getInstance();
 
+    /**
+     * Returns the type to which the source for this sink should be cast, or null if no
+     * cast is required.
+     *
+     * @return The fully qualified class name for the cast, or null.
+     */
+    String getCastTo();
+
 }
