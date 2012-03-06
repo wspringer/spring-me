@@ -39,9 +39,9 @@ package me.springframework.di.spring;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
+import me.springframework.di.LiteralSource;
 import me.springframework.di.MapSource;
 import me.springframework.di.Source;
 import me.springframework.di.base.AbstractSink;
@@ -348,23 +348,34 @@ public class QDoxAugmentation implements Augmentation {
         return true;
     }
 
-    private boolean match(MutableConstructorArgument mutableConstructorArgument, JavaParameter javaParameter) {
-        String argType = mutableConstructorArgument.getType();
+    private boolean match(MutableConstructorArgument argument, JavaParameter parameter) {
+        String argType = argument.getType();
+        Type paramType = parameter.getType();
+
         if (argType == null) {
             logger.logConstructorArgumentTypeIsNull();
             return false;
-        }
-        if (javaParameter.getType().isResolved()) {
-            if (builder.getClassByName(argType).isA(javaParameter.getType().getJavaClass())) {
-                return true;
-            } else {
-                logger.logConstructorArgumentTypeMismatch(argType, javaParameter.getType());
-                return false;
-            }
-        } else {
+        } else if (!paramType.isResolved()) {
             logger.logUnresolvedConstructorArgumentType();
             return true;
         }
+
+        if (builder.getClassByName(argType).isA(paramType.getJavaClass())) {
+            return true;
+        } else if (matchLiteral(argument.getSource(), paramType)) {
+            return true;
+        } else {
+            logger.logConstructorArgumentTypeMismatch(argType, paramType);
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if the source is a literal value, and the type is a type
+     * for which literal values can be written.
+     */
+    static boolean matchLiteral(Source source, Type type) {
+        return source instanceof LiteralSource && Types.isLiteral(type); 
     }
 
     /**
