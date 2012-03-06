@@ -58,7 +58,6 @@ import me.springframework.di.base.MutableMapSource;
 import me.springframework.di.base.MutablePropertySetter;
 import me.springframework.di.base.MutableSource;
 import me.springframework.di.base.MutableStringValueSource;
-import me.springframework.di.gen.factory.BeanFactoryGenerator;
 
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -245,8 +244,8 @@ public class SpringConfigurationLoader {
      */
     private static MutableSource loadSource(MutableContext context, Sink sink, Object value) {
         MutableSource result = null;
-        if (value instanceof String) {
-            return load(sink, (String) value);
+        if (Types.isLiteral(value.getClass())) {
+            return load(sink, String.valueOf(value));
         } else if (value instanceof RuntimeBeanReference) {
             result = load(sink, (RuntimeBeanReference) value, context);
         } else if (value instanceof TypedStringValue) {

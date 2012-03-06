@@ -38,14 +38,21 @@
 package me.springframework.di.spring;
 
 import static me.springframework.test.Paths.getFile;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
+import me.springframework.di.LiteralSource;
 import me.springframework.di.MapSource;
 import me.springframework.di.PropertySetter;
 import me.springframework.di.Source;
-import me.springframework.di.LiteralSource;
 
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -78,6 +85,28 @@ public class SpringConfigurationLoaderTest extends TestCase {
         // Check that the bean properties are set correctly
         assertHasStringProperty(source.getEntries().get(0).getValue(), "topic", "C++");
         assertHasStringProperty(source.getEntries().get(1).getValue(), "topic", "UML");
+    }
+
+    /**
+     * Set an integer property value on a bean definition, and check that the
+     * corresponding Source has the correct value. 
+     */
+    public void testBeanWithNonStringProperties() {
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        RootBeanDefinition bd = new RootBeanDefinition(PropertyPlaceholderConfigurer.class);
+        bd.getPropertyValues().addPropertyValue("order", 1);
+        beanFactory.registerBeanDefinition("ppc", bd);
+        SpringConfigurationLoader loader = new SpringConfigurationLoader();
+        Configuration configuration = loader.load(beanFactory);
+
+        Instance instance = configuration.get("ppc");
+        List<PropertySetter> setters =
+                new ArrayList<PropertySetter>(instance.getSetters());
+        assertEquals(1, setters.size());
+        PropertySetter setter = setters.get(0);
+        assertEquals("order", setter.getName());
+        LiteralSource source = (LiteralSource) setter.getSource();
+        assertEquals("1", String.valueOf(source.getValue()));
     }
 
     private static void assertHasStringProperty(Source source, String name, String value) {
