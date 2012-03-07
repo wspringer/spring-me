@@ -47,17 +47,29 @@ public enum BeanFactoryTypes implements BeanFactoryType {
     /**
      * A minimal bean factory, targeting Java ME.
      */
-    MINIMAL_JAVA_ME("java.lang.RuntimeException", "java.util.Vector", "java.util.Hashtable", "addElement"),
+    MINIMAL_JAVA_ME("java.lang.RuntimeException",
+            "java.util.Vector",
+            null,
+            "java.util.Hashtable",
+            "addElement"),
 
     /**
      * A minimal bean factory, targeting Java SE.
      */
-    MINIMAL_JAVA_SE("java.lang.RuntimeException", "java.util.ArrayList", "java.util.HashMap", "add"),
+    MINIMAL_JAVA_SE("java.lang.RuntimeException",
+            "java.util.ArrayList",
+            "java.util.LinkedHashSet",
+            "java.util.HashMap",
+            "add"),
 
     /**
      * A minimal bean factory, targeting Java SE.
      */
-    JAVA_SE("me.springframework.beans.BeansException", "java.util.ArrayList", "java.util.HashMap", "add",
+    JAVA_SE("me.springframework.beans.BeansException",
+            "java.util.ArrayList",
+            "java.util.LinkedHashSet",
+            "java.util.HashMap",
+            "add",
             "me.springframework.beans.factory.MinimalBeanFactory");
 
     /**
@@ -75,6 +87,8 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     private String listAppendMethodName;
 
+    private String setImplementationName;
+
     /**
      * @see BeanFactoryType#getMapImplementationName()
      */
@@ -85,10 +99,15 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     private String[] interfaceNames;
 
-    private BeanFactoryTypes(String beansExceptionName, String listImplementationName, String mapImplementationName, String listAppendMethodName,
+    private BeanFactoryTypes(String beansExceptionName,
+            String listImplementationName,
+            String setImplementationName,
+            String mapImplementationName,
+            String listAppendMethodName,
             String... interfaceNames) {
         this.beansExceptionName = beansExceptionName;
         this.listImplementationName = listImplementationName;
+        this.setImplementationName = setImplementationName;
         this.mapImplementationName = mapImplementationName;
         this.listAppendMethodName = listAppendMethodName;
         this.interfaceNames = interfaceNames;
@@ -110,6 +129,10 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     public String getListImplementationName() {
         return listImplementationName;
+    }
+
+    public String getSetImplementationName() {
+        return setImplementationName;
     }
 
     /*

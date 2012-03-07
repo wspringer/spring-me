@@ -54,6 +54,7 @@ import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
 import me.springframework.di.base.MutableMapSource;
 import me.springframework.di.base.MutablePropertySetter;
+import me.springframework.di.base.MutableSetSource;
 
 import com.agilejava.blammo.BlammoLoggerFactory;
 import com.agilejava.blammo.LoggingKitAdapter;
@@ -399,6 +400,9 @@ public class QDoxAugmentation implements Augmentation {
         case List:
             attribute((MutableListSource) source, context);
             break;
+        case Set:
+            attribute((MutableSetSource) source, context);
+            break;
         case Map:
             attribute((MutableMapSource) source, context);
             break;
@@ -417,6 +421,18 @@ public class QDoxAugmentation implements Augmentation {
      * @param allInstances All other {@link MutableInstance}s, for resolving references.
      */
     private void attribute(MutableListSource source, MutableContext context) {
+        for (Source element : source.getElementSources()) {
+            attribute(element, context);
+        }
+    }
+
+    /**
+     * Completes metadata for the {@link MutableSetSource} passed in.
+     *
+     * @param source The {@link MutableSetSource} that needs to be completed.
+     * @param allInstances All other {@link MutableInstance}s, for resolving references.
+     */
+    private void attribute(MutableSetSource source, MutableContext context) {
         for (Source element : source.getElementSources()) {
             attribute(element, context);
         }

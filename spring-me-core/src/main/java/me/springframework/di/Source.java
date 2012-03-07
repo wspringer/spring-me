@@ -80,6 +80,11 @@ public interface Source extends Typed {
         List,
         
         /**
+         * A set of values / references
+         */
+        Set,
+
+        /**
          * A map of entries.
          */
         Map;
