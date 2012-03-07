@@ -52,6 +52,7 @@ import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
 import me.springframework.di.base.MutableMapSource;
 import me.springframework.di.base.MutablePropertySetter;
+import me.springframework.di.base.MutableSetSource;
 
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
@@ -338,6 +339,9 @@ public class AutowiringAugmentation implements Augmentation {
             case List:
                 attribute((MutableListSource) source, context);
                 break;
+            case Set:
+                    attribute((MutableSetSource) source, context);
+                    break;
             case Map:
                 attribute((MutableMapSource) source, context);
                 break;
@@ -358,6 +362,20 @@ public class AutowiringAugmentation implements Augmentation {
      *            The context containing all beans, for resolving references.
      */
     private void attribute(final MutableListSource source, final MutableContext context) {
+        for (final Source element : source.getElementSources()) {
+            attribute(element, context);
+        }
+    }
+
+    /**
+     * Completes metadata for the {@link MutableSetSource} passed in.
+     *
+     * @param source
+     *            The {@link MutableSetSource} that needs to be completed.
+     * @param context
+     *            The context containing all beans, for resolving references.
+     */
+    private void attribute(final MutableSetSource source, final MutableContext context) {
         for (final Source element : source.getElementSources()) {
             attribute(element, context);
         }

@@ -38,6 +38,7 @@
 package me.springframework.di.spring;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import me.springframework.di.Instance;
 import me.springframework.di.Scope;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
+import me.springframework.di.base.MutableCollectionSource;
 import me.springframework.di.base.MutableConfiguration;
 import me.springframework.di.base.MutableConstructorArgument;
 import me.springframework.di.base.MutableContext;
@@ -56,8 +58,10 @@ import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
 import me.springframework.di.base.MutableMapSource;
 import me.springframework.di.base.MutablePropertySetter;
+import me.springframework.di.base.MutableSetSource;
 import me.springframework.di.base.MutableSource;
 import me.springframework.di.base.MutableStringValueSource;
+import me.springframework.di.gen.factory.BeanFactoryGenerator;
 
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -73,6 +77,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.ManagedProperties;
+import org.springframework.beans.factory.support.ManagedSet;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.Resource;
 
@@ -252,6 +257,8 @@ public class SpringConfigurationLoader {
             result = load(sink, (TypedStringValue) value);
         } else if (value instanceof BeanDefinitionHolder) {
             result = load(sink, (BeanDefinitionHolder) value, context);
+        } else if (value instanceof ManagedSet) {
+            result = load(sink, (ManagedSet) value, context);
         } else if (value instanceof ManagedList) {
             result = load(sink, (ManagedList) value, context);
         } else if (value instanceof ManagedMap) {
@@ -290,6 +297,23 @@ public class SpringConfigurationLoader {
     }
 
     /**
+     * Returns a {@link MutableSource} from a source providing a set of values.
+     *
+     * @param sink
+     *            The {@link Sink} that has the result of this object configured
+     *            as its source.
+     * @param set
+     *            The Spring representation of a set of values.
+     * @return The {@link Source} representation of the object producing that
+     *         set of values.
+     */
+    private static MutableSource load(Sink sink, ManagedSet set, MutableContext context) {
+        MutableCollectionSource source = new MutableSetSource(sink);
+        loadElements(source, set, context);
+        return source;
+    }
+
+    /**
      * Returns a {@link MutableSource} from a source providing a list of values.
      * 
      * @param sink
@@ -301,13 +325,26 @@ public class SpringConfigurationLoader {
      *         list of values.
      */
     private static MutableSource load(Sink sink, ManagedList list, MutableContext context) {
-        ArrayList<MutableSource> elements = new ArrayList<MutableSource>();
-        MutableListSource source = new MutableListSource(sink, elements);
-        int index = 0;
-        for (Object object : list) {
-            elements.add(loadSource(context, new ElementSink(index++, source), object));
-        }
+        MutableCollectionSource source = new MutableListSource(sink);
+        loadElements(source, list, context);
         return source;
+    }
+
+    /**
+     * Resolves sinks/sources for each element in a managed collection.
+     * @param source The collection source (e.g. ManagedList/ManagedSet source).
+     * @param values The values in the source collection.
+     * @param context The bean context.
+     */
+    private static void loadElements(MutableCollectionSource source,
+            Collection<?> values, MutableContext context) {
+        List<MutableSource> elements = new ArrayList<MutableSource>();
+        int index = 0;
+        for (Object object : values) {
+            ElementSink elementSink = new ElementSink(index++, source);
+            elements.add(loadSource(context, elementSink, object));
+        }
+        source.setElementSources(elements);
     }
 
     /**

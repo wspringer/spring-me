@@ -37,27 +37,50 @@
  */
 package me.springframework.di.base;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import me.springframework.di.ListSource;
+import me.springframework.di.SetSource;
 import me.springframework.di.Sink;
+import me.springframework.di.Source;
 
 /**
- * The implementation of the {@link ListSource}.
- * 
- * @author Wilfred Springer
- * 
+ * Abstract class for {@link ListSource} and {@link SetSource} implementations.
  */
-public class MutableListSource extends MutableCollectionSource implements ListSource {
+public abstract class MutableCollectionSource extends AbstractTyped
+        implements MutableSource {
 
-    public MutableListSource(Sink sink) {
-        super(sink);
+    private final List<Source> elements = new ArrayList<Source>();
+
+    private String id;
+
+    private Sink sink;
+
+    MutableCollectionSource(Sink sink) {
+        this.sink = sink;
     }
 
-    public SourceType getSourceType() {
-        return SourceType.List;
+    public List<? extends Source> getElementSources() {
+        return elements;
     }
 
-    public String toString() {
-        return "the list of " + getSink().toString();
+    public void setElementSources(Collection<MutableSource> sources) {
+        this.elements.clear();
+        this.elements.addAll(sources);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    protected Sink getSink() {
+        return sink;
     }
 
 }
