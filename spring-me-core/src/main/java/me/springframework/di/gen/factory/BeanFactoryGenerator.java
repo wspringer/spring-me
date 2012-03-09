@@ -83,6 +83,11 @@ public class BeanFactoryGenerator {
             throw new IllegalArgumentException(
                     "Sets are not supported by BeanFactoryType: " + beanFactoryType);
         }
+        if (!definitions.getPropertiesSources().isEmpty()
+                && beanFactoryType.getPropertiesImplementationName() == null) {
+            throw new IllegalArgumentException(
+                    "Properties are not supported by BeanFactoryType" + beanFactoryType);
+        }
 
         Writer writer = null;
         try {

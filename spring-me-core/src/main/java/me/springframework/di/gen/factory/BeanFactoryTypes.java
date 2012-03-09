@@ -51,6 +51,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
             "java.util.Vector",
             null,
             "java.util.Hashtable",
+            null,
             "addElement"),
 
     /**
@@ -60,6 +61,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
             "java.util.ArrayList",
             "java.util.LinkedHashSet",
             "java.util.HashMap",
+            "java.util.Properties",
             "add"),
 
     /**
@@ -69,6 +71,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
             "java.util.ArrayList",
             "java.util.LinkedHashSet",
             "java.util.HashMap",
+            "java.util.Properties",
             "add",
             "me.springframework.beans.factory.MinimalBeanFactory");
 
@@ -94,6 +97,8 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     private String mapImplementationName;
 
+    private String propertiesImplementationName;
+
     /**
      * @see BeanFactoryType#getInterfaceNames()
      */
@@ -103,12 +108,14 @@ public enum BeanFactoryTypes implements BeanFactoryType {
             String listImplementationName,
             String setImplementationName,
             String mapImplementationName,
+            String propertiesImplementationName,
             String listAppendMethodName,
             String... interfaceNames) {
         this.beansExceptionName = beansExceptionName;
         this.listImplementationName = listImplementationName;
         this.setImplementationName = setImplementationName;
         this.mapImplementationName = mapImplementationName;
+        this.propertiesImplementationName = propertiesImplementationName;
         this.listAppendMethodName = listAppendMethodName;
         this.interfaceNames = interfaceNames;
     }
@@ -142,6 +149,10 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     public String getMapImplementationName() {
         return mapImplementationName;
+    }
+
+    public String getPropertiesImplementationName() {
+        return propertiesImplementationName;
     }
 
     /*

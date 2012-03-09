@@ -37,67 +37,13 @@
  */
 package me.springframework.di;
 
-import java.util.Set;
+import java.util.List;
 
 /**
- * A configured collection of instances. (Think Spring application context.)
- * Configurations are expected to be be constructed in various ways. Sometimes
- * through
- * 
- * @author Wilfred Springer (wis)
- * 
+ * A type of {@link Source} producing a Properties instance.
  */
-public interface Configuration {
+public interface PropertiesSource extends Source {
 
-    /**
-     * All public instances. (Instances identified by a name.)
-     * 
-     * @return All public instances.
-     */
-    Set<Instance> getPublicInstances();
+    List<MapSource.Entry> getEntries();
 
-    /**
-     * Returns all sources producing lists.
-     * 
-     * @return All sources producing lists.
-     */
-    Set<ListSource> getListSources();
-
-    /**
-     * Returns all sources producing sets
-     *
-     * @return All sources producing sets.
-     */
-    Set<SetSource> getSetSources();
-
-    /**
-     * Returns all sources producing instances
-     * 
-     * @return All sources producing instances.
-     */
-    Set<Instance> getInstanceSources();
-
-    /**
-     * Returns all sources producing maps.
-     * 
-     * @return All sources producing maps.
-     */
-    Set<MapSource> getMapSources();
-
-    /**
-     * Returns all sources producing Properties instances.
-     *
-     * @return All sources producing Properties instances.
-     */
-    Set<PropertiesSource> getPropertiesSources();
-
-    /**
-     * Return the an instance by its name.
-     * 
-     * @param name
-     *            The name of the instance.
-     * @return The corresponding instance, or <code>null</code>.
-     */
-    Instance get(String name);
-    
 }

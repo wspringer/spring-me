@@ -35,69 +35,81 @@
  * do so. If you do not wish to do so, delete this exception statement
  * from your version.
  */
-package me.springframework.di;
+package me.springframework.di.base;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import me.springframework.di.MapSource;
+import me.springframework.di.PropertiesSource;
+import me.springframework.di.Sink;
 
 /**
- * A configured collection of instances. (Think Spring application context.)
- * Configurations are expected to be be constructed in various ways. Sometimes
- * through
- * 
- * @author Wilfred Springer (wis)
- * 
+ * A mutable implementation of {@link PropertiesSource}.
  */
-public interface Configuration {
+public class MutablePropertiesSource extends AbstractTyped implements PropertiesSource, MutableSource {
 
     /**
-     * All public instances. (Instances identified by a name.)
-     * 
-     * @return All public instances.
+     * The {@link Sink} to which the source is connected.
      */
-    Set<Instance> getPublicInstances();
+    private Sink sink;
 
     /**
-     * Returns all sources producing lists.
-     * 
-     * @return All sources producing lists.
+     * The id of the {@link MapSource}.
      */
-    Set<ListSource> getListSources();
+    private String id;
 
     /**
-     * Returns all sources producing sets
+     * The entries in the map.
+     */
+    private List<MapSource.Entry> entries;
+
+    /**
+     * Constructs a new instance.
+     */
+    public MutablePropertiesSource(Sink sink, Properties properties) {
+        this.sink = sink;
+        this.entries = new ArrayList<MapSource.Entry>();
+    }
+
+    public List<MapSource.Entry> getEntries() {
+        return entries;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+       return "a Properties injected in " + sink.toString();
+    }
+
+    /*
+     * (non-Javadoc)
      *
-     * @return All sources producing sets.
+     * @see me.springframework.di.Source#getId()
      */
-    Set<SetSource> getSetSources();
+    public String getId() {
+        return id;
+    }
 
     /**
-     * Returns all sources producing instances
-     * 
-     * @return All sources producing instances.
-     */
-    Set<Instance> getInstanceSources();
-
-    /**
-     * Returns all sources producing maps.
-     * 
-     * @return All sources producing maps.
-     */
-    Set<MapSource> getMapSources();
-
-    /**
-     * Returns all sources producing Properties instances.
+     * Sets the id to a new value.
      *
-     * @return All sources producing Properties instances.
+     * @param id The new id.
      */
-    Set<PropertiesSource> getPropertiesSources();
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    /**
-     * Return the an instance by its name.
-     * 
-     * @param name
-     *            The name of the instance.
-     * @return The corresponding instance, or <code>null</code>.
+    /*
+     * (non-Javadoc)
+     *
+     * @see me.springframework.di.Source#getSourceType()
      */
-    Instance get(String name);
-    
+    public SourceType getSourceType() {
+        return SourceType.Properties;
+    }
+
 }
