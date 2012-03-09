@@ -87,7 +87,12 @@ public interface Source extends Typed {
         /**
          * A map of entries.
          */
-        Map;
+        Map,
+
+        /**
+         * A Properties map.
+         */
+        Properties;
 
     };
 

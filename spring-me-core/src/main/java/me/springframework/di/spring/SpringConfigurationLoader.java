@@ -42,10 +42,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
+import me.springframework.di.MapSource;
 import me.springframework.di.Scope;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
@@ -57,6 +59,8 @@ import me.springframework.di.base.MutableInstance;
 import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
 import me.springframework.di.base.MutableMapSource;
+import me.springframework.di.base.MutableMapSource.MapSourceEntry;
+import me.springframework.di.base.MutablePropertiesSource;
 import me.springframework.di.base.MutablePropertySetter;
 import me.springframework.di.base.MutableSetSource;
 import me.springframework.di.base.MutableSource;
@@ -264,7 +268,7 @@ public class SpringConfigurationLoader {
         } else if (value instanceof ManagedMap) {
             result = load(context, sink, (ManagedMap) value);
         } else if (value instanceof ManagedProperties) {
-            result = load(sink, (ManagedProperties) value);
+            result = load(context, sink, (ManagedProperties) value);
         } else {
             System.err.println("No support for " + value.getClass().getName());
             return null;
@@ -277,23 +281,33 @@ public class SpringConfigurationLoader {
         return new MutableStringValueSource(sink, s, "java.lang.String");
     }
 
-    private static MutableSource load(Sink sink, ManagedProperties managedProperties) {
-        throw new UnsupportedOperationException("No support for managed properties yet.");
+    private static MutableSource load(MutableContext context, Sink sink, ManagedProperties properties) {
+        MutablePropertiesSource source = new MutablePropertiesSource(sink, properties);
+        for (Map.Entry<?, ?> entry : properties.entrySet()) {
+            MapSourceEntry entrySource = createEntry(context, source, entry);
+            source.getEntries().add(entrySource);
+        }
+        return source;
     }
 
-    private static MutableSource load(MutableContext context, Sink sink,
-            ManagedMap value) {
+    private static MutableSource load(MutableContext context, Sink sink, ManagedMap value) {
         MutableMapSource source = new MutableMapSource(sink);
-        for (Object element : value.entrySet()) {
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) element;
-            MutableMapSource.MapSourceEntry created = new MutableMapSource.MapSourceEntry();
-            Sink keySink = new EntrySink(EntrySink.Type.Key, source);
-            Sink valueSink = new EntrySink(EntrySink.Type.Value, source);
-            created.setKey(loadSource(context, keySink, entry.getKey()));
-            created.setValue(loadSource(context, valueSink, entry.getValue()));
+        for (Object element: value.entrySet()) {
+            Map.Entry<?, ?> entry = (Entry<?, ?>) element;
+            MapSourceEntry created = createEntry(context, source, entry);
             source.getEntries().add(created);
         }
         return source;
+    }
+
+    private static MapSourceEntry createEntry(MutableContext context,
+            MutableSource source, Map.Entry<?, ?> entry) {
+        MapSourceEntry created = new MapSourceEntry();
+        Sink keySink = new EntrySink(EntrySink.Type.Key, source);
+        Sink valueSink = new EntrySink(EntrySink.Type.Value, source);
+        created.setKey(loadSource(context, keySink, entry.getKey()));
+        created.setValue(loadSource(context, valueSink, entry.getValue()));
+        return created;
     }
 
     /**

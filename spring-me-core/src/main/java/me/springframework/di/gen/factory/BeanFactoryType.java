@@ -64,6 +64,15 @@ public interface BeanFactoryType {
     String getMapImplementationName();
 
     /**
+     * Returns the fully qualified name of the Properties implementation backing
+     * the <code>&lt;props/&gt;</code> configuration.
+     *
+     * @return The fully qualified name of the Properties implementation backing
+     * <code>&lt;props/&gt;</code> configuration.
+     */
+    String getPropertiesImplementationName();
+
+    /**
      * Returns the fully qualified name of the list implementation backing
      * <code>&lt;list/&gt;</code> configuration.
      * 
