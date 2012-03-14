@@ -41,7 +41,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import me.springframework.di.LiteralSource;
 import me.springframework.di.MapSource;
 import me.springframework.di.Source;
 import me.springframework.di.base.AbstractSink;
@@ -52,6 +54,7 @@ import me.springframework.di.base.MutableInstanceReference;
 import me.springframework.di.base.MutableListSource;
 import me.springframework.di.base.MutableMapSource;
 import me.springframework.di.base.MutablePropertySetter;
+import me.springframework.di.base.MutableSetSource;
 
 import com.agilejava.blammo.BlammoLoggerFactory;
 import com.agilejava.blammo.LoggingKitAdapter;
@@ -134,16 +137,21 @@ public class QDoxAugmentation implements Augmentation {
         if (isInitializingBean(cl)) {
             instance.setInitMethod("afterPropertiesSet");
         }
-        for (MutablePropertySetter setter : instance.getSetters()) {
+
+        Set<MutablePropertySetter> setters = instance.getSetters();
+        for (Iterator<MutablePropertySetter> it = setters.iterator(); it.hasNext();) {
+            MutablePropertySetter setter = it.next();
             BeanProperty property = cl.getBeanProperty(setter.getName(), true);
             if (property == null) {
                 logger.logNoSuchProperty(setter.getName(), cl.getName());
+                it.remove();
             } else {
                 setter.setType(property.getType().getValue());
                 setter.setPrimitive(property.getType().isPrimitive());
                 attribute(setter.getSource(), context);
             }
         }
+
         if (instance.getConstructorArguments() != null && instance.getConstructorArguments().size() > 0) {
             logger.logInformConstructorArguments(instance.getName());
             for (MutableConstructorArgument argument : instance.getConstructorArguments()) {
@@ -348,23 +356,34 @@ public class QDoxAugmentation implements Augmentation {
         return true;
     }
 
-    private boolean match(MutableConstructorArgument mutableConstructorArgument, JavaParameter javaParameter) {
-        String argType = mutableConstructorArgument.getType();
+    private boolean match(MutableConstructorArgument argument, JavaParameter parameter) {
+        String argType = argument.getType();
+        Type paramType = parameter.getType();
+
         if (argType == null) {
             logger.logConstructorArgumentTypeIsNull();
             return false;
-        }
-        if (javaParameter.getType().isResolved()) {
-            if (builder.getClassByName(argType).isA(javaParameter.getType().getJavaClass())) {
-                return true;
-            } else {
-                logger.logConstructorArgumentTypeMismatch(argType, javaParameter.getType());
-                return false;
-            }
-        } else {
+        } else if (!paramType.isResolved()) {
             logger.logUnresolvedConstructorArgumentType();
             return true;
         }
+
+        if (builder.getClassByName(argType).isA(paramType.getJavaClass())) {
+            return true;
+        } else if (matchLiteral(argument.getSource(), paramType)) {
+            return true;
+        } else {
+            logger.logConstructorArgumentTypeMismatch(argType, paramType);
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if the source is a literal value, and the type is a type
+     * for which literal values can be written.
+     */
+    static boolean matchLiteral(Source source, Type type) {
+        return source instanceof LiteralSource && Types.isLiteral(type); 
     }
 
     /**
@@ -380,6 +399,9 @@ public class QDoxAugmentation implements Augmentation {
             break;
         case List:
             attribute((MutableListSource) source, context);
+            break;
+        case Set:
+            attribute((MutableSetSource) source, context);
             break;
         case Map:
             attribute((MutableMapSource) source, context);
@@ -399,6 +421,18 @@ public class QDoxAugmentation implements Augmentation {
      * @param allInstances All other {@link MutableInstance}s, for resolving references.
      */
     private void attribute(MutableListSource source, MutableContext context) {
+        for (Source element : source.getElementSources()) {
+            attribute(element, context);
+        }
+    }
+
+    /**
+     * Completes metadata for the {@link MutableSetSource} passed in.
+     *
+     * @param source The {@link MutableSetSource} that needs to be completed.
+     * @param allInstances All other {@link MutableInstance}s, for resolving references.
+     */
+    private void attribute(MutableSetSource source, MutableContext context) {
         for (Source element : source.getElementSources()) {
             attribute(element, context);
         }

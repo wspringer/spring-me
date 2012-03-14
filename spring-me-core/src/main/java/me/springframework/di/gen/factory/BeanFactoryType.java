@@ -64,6 +64,15 @@ public interface BeanFactoryType {
     String getMapImplementationName();
 
     /**
+     * Returns the fully qualified name of the Properties implementation backing
+     * the <code>&lt;props/&gt;</code> configuration.
+     *
+     * @return The fully qualified name of the Properties implementation backing
+     * <code>&lt;props/&gt;</code> configuration.
+     */
+    String getPropertiesImplementationName();
+
+    /**
      * Returns the fully qualified name of the list implementation backing
      * <code>&lt;list/&gt;</code> configuration.
      * 
@@ -71,7 +80,17 @@ public interface BeanFactoryType {
      *         <code>&lt;list/&gt;</code> configuration.
      */
     String getListImplementationName();
-    
+
+
+    /**
+     * Returns the fully qualified name of the set implementation backing
+     * <code>&lt;set/&gt;</code configuration.
+     *
+     * @return The fully qualified name of the set implementation backing
+     *         <code>&lt;set/&gt;</code> configuration.
+     */
+    String getSetImplementationName();
+
     /**
      * Returns the name of the method for adding an element to a list.
      * 

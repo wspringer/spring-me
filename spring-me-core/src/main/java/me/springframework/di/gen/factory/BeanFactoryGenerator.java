@@ -75,8 +75,20 @@ public class BeanFactoryGenerator {
      * @throws GeneratorException If - for some reason - the {@link BeanFactoryGenerator} fails to
      *             generate the desired output.
      */
-    public static void generate(Destination destination, me.springframework.di.Configuration definitions, BeanFactoryType beanFactoryType)
-            throws GeneratorException {
+    public static void generate(Destination destination, Configuration definitions,
+            BeanFactoryType beanFactoryType) throws GeneratorException {
+
+        if (!definitions.getSetSources().isEmpty()
+                && beanFactoryType.getSetImplementationName() == null) {
+            throw new IllegalArgumentException(
+                    "Sets are not supported by BeanFactoryType: " + beanFactoryType);
+        }
+        if (!definitions.getPropertiesSources().isEmpty()
+                && beanFactoryType.getPropertiesImplementationName() == null) {
+            throw new IllegalArgumentException(
+                    "Properties are not supported by BeanFactoryType" + beanFactoryType);
+        }
+
         Writer writer = null;
         try {
             writer = destination.getWriter();

@@ -64,6 +64,13 @@ public interface Configuration {
     Set<ListSource> getListSources();
 
     /**
+     * Returns all sources producing sets
+     *
+     * @return All sources producing sets.
+     */
+    Set<SetSource> getSetSources();
+
+    /**
      * Returns all sources producing instances
      * 
      * @return All sources producing instances.
@@ -76,7 +83,14 @@ public interface Configuration {
      * @return All sources producing maps.
      */
     Set<MapSource> getMapSources();
-    
+
+    /**
+     * Returns all sources producing Properties instances.
+     *
+     * @return All sources producing Properties instances.
+     */
+    Set<PropertiesSource> getPropertiesSources();
+
     /**
      * Return the an instance by its name.
      * 

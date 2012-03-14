@@ -35,29 +35,15 @@
  * do so. If you do not wish to do so, delete this exception statement
  * from your version.
  */
-package me.springframework.di.base;
+package me.springframework.di;
 
-import me.springframework.di.ListSource;
-import me.springframework.di.Sink;
+import java.util.List;
 
 /**
- * The implementation of the {@link ListSource}.
- * 
- * @author Wilfred Springer
- * 
+ * A type of {@link Source} producing a Properties instance.
  */
-public class MutableListSource extends MutableCollectionSource implements ListSource {
+public interface PropertiesSource extends Source {
 
-    public MutableListSource(Sink sink) {
-        super(sink);
-    }
-
-    public SourceType getSourceType() {
-        return SourceType.List;
-    }
-
-    public String toString() {
-        return "the list of " + getSink().toString();
-    }
+    List<MapSource.Entry> getEntries();
 
 }

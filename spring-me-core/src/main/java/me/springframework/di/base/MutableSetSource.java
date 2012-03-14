@@ -35,29 +35,27 @@
  * do so. If you do not wish to do so, delete this exception statement
  * from your version.
  */
+
 package me.springframework.di.base;
 
-import me.springframework.di.ListSource;
+import me.springframework.di.SetSource;
 import me.springframework.di.Sink;
 
 /**
- * The implementation of the {@link ListSource}.
- * 
- * @author Wilfred Springer
- * 
+ * The implementation of the {@link SetSource}.
  */
-public class MutableListSource extends MutableCollectionSource implements ListSource {
+public class MutableSetSource extends MutableCollectionSource implements SetSource {
 
-    public MutableListSource(Sink sink) {
+    public MutableSetSource(Sink sink) {
         super(sink);
     }
 
     public SourceType getSourceType() {
-        return SourceType.List;
+        return SourceType.Set;
     }
 
     public String toString() {
-        return "the list of " + getSink().toString();
+        return "the set of " + getSink().toString();
     }
 
 }

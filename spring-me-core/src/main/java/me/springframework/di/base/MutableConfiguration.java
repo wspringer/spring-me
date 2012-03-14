@@ -47,6 +47,8 @@ import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
 import me.springframework.di.ListSource;
 import me.springframework.di.MapSource;
+import me.springframework.di.PropertiesSource;
+import me.springframework.di.SetSource;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
 import me.springframework.di.MapSource.Entry;
@@ -55,6 +57,8 @@ public class MutableConfiguration implements Configuration {
 
     private Set<Instance> instanceSources = new HashSet<Instance>();
     private Set<ListSource> listSources = new HashSet<ListSource>();
+    private Set<SetSource> setSources = new HashSet<SetSource>();
+    private Set<PropertiesSource> propertiesSources = new HashSet<PropertiesSource>();
     private Set<Instance> publicInstances = new HashSet<Instance>();
     private Map<String, ? extends Instance> instancesByName;
     private Set<MapSource> mapSources = new HashSet<MapSource>();
@@ -75,8 +79,16 @@ public class MutableConfiguration implements Configuration {
         return listSources;
     }
     
+    public Set<SetSource> getSetSources() {
+            return setSources;
+    }
+
     public Set<MapSource> getMapSources() {
         return mapSources;
+    }
+
+    public Set<PropertiesSource> getPropertiesSources() {
+        return propertiesSources;
     }
 
     public Set<Instance> getPublicInstances() {
@@ -104,6 +116,13 @@ public class MutableConfiguration implements Configuration {
                     processSource(element);
                 }
                 break;
+            case Set:
+                SetSource setSource = (SetSource) source;
+                setSources.add(setSource);
+                for (Source element : setSource.getElementSources()) {
+                    processSource(element);
+                }
+                break;
             case Instance:
                 Instance instance = (Instance) source;
                 instanceSources.add(instance);
@@ -116,6 +135,11 @@ public class MutableConfiguration implements Configuration {
                     processSource(entry.getKey());
                     processSource(entry.getValue());
                 }
+                break;
+            case Properties:
+                PropertiesSource propsSource = (PropertiesSource) source;
+                propertiesSources.add(propsSource);
+                break;
         }
     }
 

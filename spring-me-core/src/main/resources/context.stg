@@ -5,7 +5,9 @@ sourceTemplate ::= [
     "InstanceReference" : "sourceInstanceReference",
     "StringRepresentation" : "sourceStringRepresentation",
     "List" : "sourceList",
-    "Map" : "sourceMap"
+    "Set" : "sourceSet",
+    "Map" : "sourceMap",
+    "Properties" : "sourceProperties"
 ]
 
 stringConversion ::= [
@@ -109,8 +111,14 @@ factoryMethods() ::= <<
 <if (definitions.listSources)>
 <\n><\n><definitions.listSources:listCreate();separator="\n\n">
 <endif>
+<if (definitions.setSources)>
+<\n><\n><definitions.setSources:setCreate();separator="\n\n">
+<endif>
 <if (definitions.mapSources)>
 <\n><\n><definitions.mapSources:mapCreate();separator="\n\n">
+<endif>
+<if (definitions.propertiesSources)>
+<\n><\n><definitions.propertiesSources:propertiesCreate();separator="\n\n">
 <endif>
 >>
 
@@ -267,6 +275,14 @@ sourceList(type,source) ::= <<
 create<source.id;format="className">()
 >>
 
+sourceSet(type,source) ::= <<
+create<source.id;format="className">()
+>>
+
+sourceProperties(type,source) ::= <<
+create<source.id;format="className">()
+>>
+
 sourceMap(type,source) ::= <<
 create<source.id;format="className">()
 >>
@@ -340,6 +356,22 @@ addElement(name) ::= <<
 result.<beanFactoryType.listAppendMethodName>(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>);
 >>
 
+setCreate(instance) ::= <<
+/**
+ * Creates <it>.
+ *
+ * @return A set of objects.
+ */
+private final <beanFactoryType.setImplementationName> create<instance.id;format="className">() {
+    <beanFactoryType.setImplementationName> result = new <beanFactoryType.setImplementationName>();
+    <instance.elementSources:addSetElement();separator="\n">
+    return result;
+}
+>>
+
+addSetElement(name) ::= <<
+result.add(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>)>>
+
 mapCreate(instance) ::= <<
 /**
  * Creates <it>.
@@ -355,6 +387,23 @@ private final <beanFactoryType.mapImplementationName> create<instance.id;format=
 
 addEntry() ::= <<
 result.put(<(sourceTemplate.(it.key.sourceType))(type=it.key.type,source=it.key)>, <(sourceTemplate.(it.value.sourceType))(type=it.value.type,source=it.value)>);
+>>
+
+propertiesCreate(instance) ::= <<
+/**
+ * Creates <it>.
+ *
+ * @return A Properties object.
+ */
+private final <beanFactoryType.propertiesImplementationName> create<instance.id;format="className">() {
+    <beanFactoryType.propertiesImplementationName> result = new <beanFactoryType.propertiesImplementationName>();
+    <instance.entries:addProperty();separator="\n">
+    return result;
+}
+>>
+
+addProperty() ::= <<
+result.setProperty(<(sourceTemplate.(it.key.sourceType))(type=it.key.type,source=it.key)>, <(sourceTemplate.(it.value.sourceType))(type=it.value.type,source=it.value)>);
 >>
 
 objectToInt(obj, type) ::= <<

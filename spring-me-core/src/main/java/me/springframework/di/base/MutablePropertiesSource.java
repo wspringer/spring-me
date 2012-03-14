@@ -37,27 +37,79 @@
  */
 package me.springframework.di.base;
 
-import me.springframework.di.ListSource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import me.springframework.di.MapSource;
+import me.springframework.di.PropertiesSource;
 import me.springframework.di.Sink;
 
 /**
- * The implementation of the {@link ListSource}.
- * 
- * @author Wilfred Springer
- * 
+ * A mutable implementation of {@link PropertiesSource}.
  */
-public class MutableListSource extends MutableCollectionSource implements ListSource {
+public class MutablePropertiesSource extends AbstractTyped implements PropertiesSource, MutableSource {
 
-    public MutableListSource(Sink sink) {
-        super(sink);
+    /**
+     * The {@link Sink} to which the source is connected.
+     */
+    private Sink sink;
+
+    /**
+     * The id of the {@link MapSource}.
+     */
+    private String id;
+
+    /**
+     * The entries in the map.
+     */
+    private List<MapSource.Entry> entries;
+
+    /**
+     * Constructs a new instance.
+     */
+    public MutablePropertiesSource(Sink sink, Properties properties) {
+        this.sink = sink;
+        this.entries = new ArrayList<MapSource.Entry>();
     }
 
-    public SourceType getSourceType() {
-        return SourceType.List;
+    public List<MapSource.Entry> getEntries() {
+        return entries;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     public String toString() {
-        return "the list of " + getSink().toString();
+       return "a Properties injected in " + sink.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see me.springframework.di.Source#getId()
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Sets the id to a new value.
+     *
+     * @param id The new id.
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see me.springframework.di.Source#getSourceType()
+     */
+    public SourceType getSourceType() {
+        return SourceType.Properties;
     }
 
 }
