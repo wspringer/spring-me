@@ -56,35 +56,35 @@ import com.thoughtworks.qdox.JavaDocBuilder;
 public class AutowiringAttributorTest extends TestCase {
 
     public void testAttributionByName() throws FileNotFoundException, IOException {
-        Configuration configuration = configurationLoader("/autowiring-woj1.xml");
+        Configuration configuration = configurationLoader("by-name.xml");
         commonPropertyTester(configuration, 4);
     }
 
     public void testAttributionByType() throws FileNotFoundException, IOException {
-        Configuration configuration = configurationLoader("/autowiring-woj2.xml");
+        Configuration configuration = configurationLoader("by-type.xml");
         commonPropertyTester(configuration, 4);
     }
 
     public void testAttributionDefaultAutowire() throws FileNotFoundException, IOException {
-        Configuration configuration = configurationLoader("/autowiring-woj3.xml");
+        Configuration configuration = configurationLoader("default-autowire.xml");
         commonPropertyTester(configuration, 4);
     }
 
     public void testAttributionTwoTypesFail() throws FileNotFoundException, IOException {
         try {
-            Configuration configuration = configurationLoader("/autowiring-woj4.xml");
+            Configuration configuration = configurationLoader("duplicate-type.xml");
             fail();
         } catch (final Exception e) {
         }
     }
 
     public void testAttributionNoCandidate() throws FileNotFoundException, IOException {
-        Configuration configuration = configurationLoader("/autowiring-woj5.xml");
+        Configuration configuration = configurationLoader("false-candidate.xml");
         commonPropertyTester(configuration, 5);
     }
 
     public void testAttributionConstructor() throws FileNotFoundException, IOException {
-        Configuration configuration = configurationLoader("/autowiring-woj6.xml");
+        Configuration configuration = configurationLoader("constructor-args.xml");
 
         assertEquals(4, configuration.getPublicInstances().size());
         assertNotNull(configuration.get("bean1"));
@@ -116,7 +116,7 @@ public class AutowiringAttributorTest extends TestCase {
     }
 
     public void testAttributionConstructorNoParams() throws FileNotFoundException, IOException {
-        Configuration configuration = configurationLoader("/autowiring-woj7.xml");
+        Configuration configuration = configurationLoader("default-constructor.xml");
 
         assertNotNull(configuration.get("bean6"));
         assertNotNull(configuration.get("bean6").getConstructorArguments());
@@ -124,7 +124,8 @@ public class AutowiringAttributorTest extends TestCase {
     }
 
     private Configuration configurationLoader(final String fileName) {
-        final Resource resource = new ClassPathResource(fileName, AutowiringAttributorTest.class);
+        final String path = "/autowire/" + fileName;
+        final Resource resource = new ClassPathResource(path, AutowiringAttributorTest.class);
         final JavaDocBuilder builder = new JavaDocBuilder();
         builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
         final QDoxAugmentation augmentation = new QDoxAugmentation(builder);

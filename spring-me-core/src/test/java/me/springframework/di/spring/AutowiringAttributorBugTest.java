@@ -53,7 +53,7 @@ import com.thoughtworks.qdox.JavaDocBuilder;
 public class AutowiringAttributorBugTest extends TestCase {
 
     public void testAttributionByName() throws FileNotFoundException, IOException {
-        final Resource resource = new ClassPathResource("/autowiring-bug1.xml",
+        final Resource resource = new ClassPathResource("/autowire/autowire-bug1.xml",
                 AutowiringAttributorBugTest.class);
         final JavaDocBuilder builder = new JavaDocBuilder();
         builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
