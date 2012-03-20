@@ -73,7 +73,7 @@ public class PropertiesTest {
         Instance bean = configuration.get("bean");
         List<PropertySetter> setters =
                 new ArrayList<PropertySetter>(bean.getSetters());
-        assertEquals(2, setters.size());
+        assertEquals(1, setters.size());
         PropertySetter setter = setters.get(0);
         Source source = setter.getSource();
         assertEquals(SourceType.Properties, source.getSourceType());
@@ -102,14 +102,7 @@ public class PropertiesTest {
     public static class TestClass {
 
         @SuppressWarnings("unused")
-        private Properties values;
-
-        @SuppressWarnings("unused")
         private Properties properties;
-
-        public void setValues(Properties values) {
-            this.values = values;
-        }
 
         public void setProperties(Properties properties) {
             this.properties = properties;
