@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
@@ -81,6 +82,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.ManagedProperties;
 import org.springframework.beans.factory.support.ManagedSet;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
 /**
  * A class capable of loading lists of {@link Instance Instances} from a Spring
@@ -206,6 +208,7 @@ public class SpringConfigurationLoader {
             }
             instance.setConstructorArguments(arguments);
         }
+
         Set<MutablePropertySetter> setters = new HashSet<MutablePropertySetter>();
         for (Object object : definition.getPropertyValues().getPropertyValueList()) {
             MutablePropertySetter setter = new MutablePropertySetter(instance);
@@ -215,6 +218,7 @@ public class SpringConfigurationLoader {
             setter.setSource(loadSource(context, setter, value.getValue()));
             setters.add(setter);
         }
+
         instance.setSetters(setters);
 
         // added by woj
@@ -361,8 +365,36 @@ public class SpringConfigurationLoader {
      */
     private MutableSource load(Sink sink, BeanDefinitionHolder value, MutableContext context) {
         MutableInstance instance = new MutableInstance(sink, value.getBeanName());
-        load(instance, value.getBeanDefinition(), context);
+        BeanDefinition merged = merged(value.getBeanDefinition());
+        load(instance, merged, context);
         return instance;
+    }
+
+    /**
+     * Returns a BeanDefinition for a nested bean, merged with its parent bean
+     * if it is a child bean.
+     * @param beanDefinition
+     * @return
+     */
+    private BeanDefinition merged(BeanDefinition beanDefinition) {
+        if (beanDefinition.getParentName() == null
+                || beanDefinition instanceof RootBeanDefinition) {
+            return beanDefinition;
+        }
+
+        Stack<BeanDefinition> definitions = new Stack<BeanDefinition>();
+        BeanDefinition definition = beanDefinition;
+        definitions.push(definition);
+        while (definition.getParentName() != null) {
+            definition = factory.getBeanDefinition(definition.getParentName());
+            definitions.push(definition);
+        }
+
+        RootBeanDefinition merged = new RootBeanDefinition();
+        for (BeanDefinition defn : definitions) {
+            merged.overrideFrom(defn);
+        }
+        return merged;
     }
 
     /**
