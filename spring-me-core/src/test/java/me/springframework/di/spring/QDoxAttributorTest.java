@@ -49,18 +49,14 @@ import me.springframework.test.Paths;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import com.thoughtworks.qdox.JavaDocBuilder;
-
 public class QDoxAttributorTest extends TestCase {
 
     public void testAttribution() throws FileNotFoundException, IOException {
-        Resource resource = new ClassPathResource("/component.xml",
-                QDoxAttributorTest.class);
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(Paths.getFile("src/test/java"));
-        QDoxAugmentation augmentation = new QDoxAugmentation(builder);
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation);
-        Configuration configuration = loader.load(resource);
+        Resource resource = new ClassPathResource("/component.xml", getClass());
+        Configuration configuration = new ConfigurationBuilder()
+            .addSourceTree(Paths.getFile("src/test/java"))
+            .withBeanFactoryOf(resource)
+            .build();
         assertEquals(3, configuration.getPublicInstances().size());
         assertNotNull(configuration.get("teacher1"));
         assertNotNull(configuration.get("teacher1").getSetters());

@@ -56,8 +56,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import com.thoughtworks.qdox.JavaDocBuilder;
-
 public class PropertyValuesTest {
 
     @Test
@@ -84,16 +82,11 @@ public class PropertyValuesTest {
     }
 
     private static Configuration readConfiguration(Resource resource) {
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(Paths.getFile("src/test/java"));
-        Augmentation[] augmentations = {
-                new QDoxAugmentation(builder),
-                new AutowiringAugmentation(builder)
-        };
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentations);
         ConfigurableApplicationContext ctxt = new ClassPathXmlApplicationContext(resource.getFilename());
-        Configuration configuration = loader.load(ctxt.getBeanFactory());
-        return configuration;
+        return new ConfigurationBuilder()
+            .addSourceTree(Paths.getFile("src/test/java"))
+            .withContext(ctxt)
+            .build();
     }
 
 }

@@ -47,7 +47,6 @@ import java.util.Set;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
-import me.springframework.di.MapSource;
 import me.springframework.di.Scope;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
@@ -82,8 +81,6 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.ManagedProperties;
 import org.springframework.beans.factory.support.ManagedSet;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.core.io.Resource;
 
 /**
  * A class capable of loading lists of {@link Instance Instances} from a Spring
@@ -105,10 +102,15 @@ public class SpringConfigurationLoader {
     private static int counter = 0;
 
     /**
+     * The Spring context from which to load bean definitions.
+     */
+    private final ConfigurableListableBeanFactory factory;
+
+    /**
      * The objects responsible for augmenting the model read from Spring
      * configuration.
      */
-    private Augmentation[] augmentations;
+    private final Augmentation[] augmentations;
 
     /**
      * Constructs a new instance, accepting a number of objects to augment the
@@ -119,29 +121,13 @@ public class SpringConfigurationLoader {
      *            Objects capable of augmenting the partial model constructed
      *            from the meta data in Spring configuration files.
      */
-    public SpringConfigurationLoader(Augmentation... augmentations) {
+    public SpringConfigurationLoader(ConfigurableListableBeanFactory factory,
+            Augmentation... augmentations) {
+        this.factory = factory;
         this.augmentations = augmentations;
     }
 
-    /**
-     * Loads a Configuration from a Spring XML based application context.
-     * 
-     * @param resource
-     *            The Spring configuration file defining the beans.
-     * @return A {@link Configuration} representing the graph of wired objects.
-     */
-    public Configuration load(Resource resource) {
-        ConfigurableListableBeanFactory registry = new XmlBeanFactory(resource);
-        return load(registry);
-    }
-
-    /**
-     * Loads a Configuration from an existing application context.
-     *
-     * @param resource The Spring context from which to load bean definitions.
-     * @return A {@link Configuration} representing the graph of wired objects.
-     */
-    public Configuration load(ConfigurableListableBeanFactory factory) {
+    public Configuration load() {
         MutableContext context = loadBeans(factory);
         for (Augmentation augmentation : augmentations) {
             augmentation.augment(context);
@@ -160,7 +146,7 @@ public class SpringConfigurationLoader {
      *         representing the root beans defined by the
      *         {@link ListableBeanFactory}.
      */
-    protected static MutableContext loadBeans(ConfigurableListableBeanFactory factory) {
+    protected MutableContext loadBeans(ConfigurableListableBeanFactory factory) {
         MutableContext context = new MutableContext();
         for (String name : factory.getBeanDefinitionNames()) {
             for (String alias : factory.getAliases(name)) {
@@ -189,7 +175,7 @@ public class SpringConfigurationLoader {
      * @param definition
      *            A {@link BeanDefinition}, providing the meta data.
      */
-    private static void load(MutableInstance instance, BeanDefinition definition,
+    private void load(MutableInstance instance, BeanDefinition definition,
             MutableContext context) {
         instance.setReferencedType(definition.getBeanClassName());
         instance.setPrimitive(false);
@@ -251,7 +237,7 @@ public class SpringConfigurationLoader {
      * @return A {@link MutableSource}, representing the source of the data to
      *         be injected in the {@link Sink}.
      */
-    private static MutableSource loadSource(MutableContext context, Sink sink, Object value) {
+    private MutableSource loadSource(MutableContext context, Sink sink, Object value) {
         MutableSource result = null;
         if (Types.isLiteral(value.getClass())) {
             return load(sink, String.valueOf(value));
@@ -277,11 +263,11 @@ public class SpringConfigurationLoader {
         return result;
     }
 
-    private static MutableSource load(Sink sink, String s) {
+    private MutableSource load(Sink sink, String s) {
         return new MutableStringValueSource(sink, s, "java.lang.String");
     }
 
-    private static MutableSource load(MutableContext context, Sink sink, ManagedProperties properties) {
+    private MutableSource load(MutableContext context, Sink sink, ManagedProperties properties) {
         MutablePropertiesSource source = new MutablePropertiesSource(sink, properties);
         for (Map.Entry<?, ?> entry : properties.entrySet()) {
             MapSourceEntry entrySource = createEntry(context, source, entry);
@@ -290,9 +276,9 @@ public class SpringConfigurationLoader {
         return source;
     }
 
-    private static MutableSource load(MutableContext context, Sink sink, ManagedMap value) {
+    private MutableSource load(MutableContext context, Sink sink, ManagedMap value) {
         MutableMapSource source = new MutableMapSource(sink);
-        for (Object element: value.entrySet()) {
+        for (Object element : value.entrySet()) {
             Map.Entry<?, ?> entry = (Entry<?, ?>) element;
             MapSourceEntry created = createEntry(context, source, entry);
             source.getEntries().add(created);
@@ -300,7 +286,7 @@ public class SpringConfigurationLoader {
         return source;
     }
 
-    private static MapSourceEntry createEntry(MutableContext context,
+    private MapSourceEntry createEntry(MutableContext context,
             MutableSource source, Map.Entry<?, ?> entry) {
         MapSourceEntry created = new MapSourceEntry();
         Sink keySink = new EntrySink(EntrySink.Type.Key, source);
@@ -321,7 +307,7 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         set of values.
      */
-    private static MutableSource load(Sink sink, ManagedSet set, MutableContext context) {
+    private MutableSource load(Sink sink, ManagedSet set, MutableContext context) {
         MutableCollectionSource source = new MutableSetSource(sink);
         loadElements(source, set, context);
         return source;
@@ -338,7 +324,7 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         list of values.
      */
-    private static MutableSource load(Sink sink, ManagedList list, MutableContext context) {
+    private MutableSource load(Sink sink, ManagedList list, MutableContext context) {
         MutableCollectionSource source = new MutableListSource(sink);
         loadElements(source, list, context);
         return source;
@@ -350,7 +336,7 @@ public class SpringConfigurationLoader {
      * @param values The values in the source collection.
      * @param context The bean context.
      */
-    private static void loadElements(MutableCollectionSource source,
+    private void loadElements(MutableCollectionSource source,
             Collection<?> values, MutableContext context) {
         List<MutableSource> elements = new ArrayList<MutableSource>();
         int index = 0;
@@ -373,8 +359,7 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         anonymous bean.
      */
-    private static MutableSource load(Sink sink, BeanDefinitionHolder value,
-            MutableContext context) {
+    private MutableSource load(Sink sink, BeanDefinitionHolder value, MutableContext context) {
         MutableInstance instance = new MutableInstance(sink, value.getBeanName());
         load(instance, value.getBeanDefinition(), context);
         return instance;
@@ -392,7 +377,7 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         value.
      */
-    private static MutableSource load(Sink sink, TypedStringValue value) {
+    private MutableSource load(Sink sink, TypedStringValue value) {
         return new MutableStringValueSource(sink, value.getValue(), value.getTargetTypeName());
     }
 
@@ -409,7 +394,7 @@ public class SpringConfigurationLoader {
      * @return The {@link Source} representation of the object producing that
      *         value.
      */
-    private static MutableSource load(Sink sink, RuntimeBeanReference value, MutableContext context) {
+    private MutableSource load(Sink sink, RuntimeBeanReference value, MutableContext context) {
         String name = value.getBeanName();
         return new MutableInstanceReference(sink, name);
     }

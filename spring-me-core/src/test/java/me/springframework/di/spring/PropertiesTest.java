@@ -56,8 +56,6 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import com.thoughtworks.qdox.JavaDocBuilder;
-
 /**
  * Tests for managed properties.
  */
@@ -88,15 +86,10 @@ public class PropertiesTest {
     }
 
     private static Configuration readConfiguration(Resource resource) {
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(Paths.getFile("src/test/java"));
-        Augmentation[] augmentations = {
-                new QDoxAugmentation(builder),
-                new AutowiringAugmentation(builder),
-        };
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentations);
-        Configuration configuration = loader.load(resource);
-        return configuration;
+        return new ConfigurationBuilder()
+            .addSourceTree(Paths.getFile("src/test/java"))
+            .withBeanFactoryOf(resource)
+            .build();
     }
 
     public static class TestClass {

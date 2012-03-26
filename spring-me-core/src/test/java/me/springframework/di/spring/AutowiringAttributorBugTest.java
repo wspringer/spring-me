@@ -46,24 +46,17 @@ import me.springframework.di.Configuration;
 import me.springframework.di.base.MutableInstance;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import com.thoughtworks.qdox.JavaDocBuilder;
 
 public class AutowiringAttributorBugTest extends TestCase {
 
     public void testAttributionByName() throws FileNotFoundException, IOException {
-        final Resource resource = new ClassPathResource("/autowire/autowire-bug1.xml",
-                AutowiringAttributorBugTest.class);
-        final JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        final QDoxAugmentation augmentation = new QDoxAugmentation(builder);
-        final AutowiringAugmentation augmentation2 = new AutowiringAugmentation(builder);
-        final SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation,
-                augmentation2);
-        final Configuration configuration = loader.load(resource);
+        Configuration config = new ConfigurationBuilder()
+            .addSourceTree(new File(getBaseDir(), "src/test/java"))
+            .withBeanFactoryOf(new ClassPathResource("/autowire/autowire-bug1.xml", getClass()))
+            .withAutowiring()
+            .build();
 
-        MutableInstance anon = (MutableInstance) configuration.get("holder1")
+        MutableInstance anon = (MutableInstance) config.get("holder1")
                 .getConstructorArguments().get(0).getSource();
 
         // test that nothing is assigned

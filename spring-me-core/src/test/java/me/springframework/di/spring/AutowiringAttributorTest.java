@@ -49,9 +49,6 @@ import me.springframework.di.PropertySetter;
 import me.springframework.di.base.MutableInstanceReference;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import com.thoughtworks.qdox.JavaDocBuilder;
 
 public class AutowiringAttributorTest extends TestCase {
 
@@ -125,14 +122,11 @@ public class AutowiringAttributorTest extends TestCase {
 
     private Configuration configurationLoader(final String fileName) {
         final String path = "/autowire/" + fileName;
-        final Resource resource = new ClassPathResource(path, AutowiringAttributorTest.class);
-        final JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        final QDoxAugmentation augmentation = new QDoxAugmentation(builder);
-        final AutowiringAugmentation augmentation2 = new AutowiringAugmentation(builder);
-        final SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation,
-                augmentation2);
-        final Configuration configuration = loader.load(resource);
+        Configuration configuration = new ConfigurationBuilder()
+            .addSourceTree(new File(getBaseDir(), "src/test/java"))
+            .withBeanFactoryOf(new ClassPathResource(path, getClass()))
+            .withAutowiring()
+            .build();
 
         // printout
         //        final InMemoryDestination dest = new InMemoryDestination();

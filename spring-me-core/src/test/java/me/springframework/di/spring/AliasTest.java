@@ -54,7 +54,6 @@ import me.springframework.test.Paths;
 
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -92,14 +91,11 @@ public class AliasTest {
     private static Configuration readConfiguration(Resource resource) {
         JavaDocBuilder builder = new JavaDocBuilder();
         builder.addSourceTree(Paths.getFile("src/test/java"));
-        Augmentation[] augmentations = {
-                new QDoxAugmentation(builder),
-                new AutowiringAugmentation(builder)
-        };
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentations);
-        ConfigurableApplicationContext ctxt = new ClassPathXmlApplicationContext(resource.getFilename());
-        Configuration configuration = loader.load(ctxt.getBeanFactory());
-        return configuration;
+        String filename = resource.getFilename();
+        Configuration config = new ConfigurationBuilder(builder)
+            .withContext(new ClassPathXmlApplicationContext(filename))
+            .build();
+        return config;
     }
 
 }
