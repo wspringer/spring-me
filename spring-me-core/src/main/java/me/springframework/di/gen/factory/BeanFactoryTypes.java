@@ -49,6 +49,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     MINIMAL_JAVA_ME("java.lang.RuntimeException",
             "java.util.Vector",
+            "copyInto",
             null,
             "java.util.Hashtable",
             null,
@@ -59,6 +60,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     MINIMAL_JAVA_SE("java.lang.RuntimeException",
             "java.util.ArrayList",
+            "toArray",
             "java.util.LinkedHashSet",
             "java.util.HashMap",
             "java.util.Properties",
@@ -69,6 +71,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     JAVA_SE("me.springframework.beans.BeansException",
             "java.util.ArrayList",
+            "toArray",
             "java.util.LinkedHashSet",
             "java.util.HashMap",
             "java.util.Properties",
@@ -84,6 +87,8 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      * @see BeanFactoryType#getListImplementationName()
      */
     private String listImplementationName;
+
+    private String listToArrayMethod;
 
     /**
      * @see BeanFactoryType#getListAppendMethodName()
@@ -106,6 +111,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
 
     private BeanFactoryTypes(String beansExceptionName,
             String listImplementationName,
+            String listToArrayMethod,
             String setImplementationName,
             String mapImplementationName,
             String propertiesImplementationName,
@@ -113,6 +119,7 @@ public enum BeanFactoryTypes implements BeanFactoryType {
             String... interfaceNames) {
         this.beansExceptionName = beansExceptionName;
         this.listImplementationName = listImplementationName;
+        this.listToArrayMethod = listToArrayMethod;
         this.setImplementationName = setImplementationName;
         this.mapImplementationName = mapImplementationName;
         this.propertiesImplementationName = propertiesImplementationName;
@@ -136,6 +143,10 @@ public enum BeanFactoryTypes implements BeanFactoryType {
      */
     public String getListImplementationName() {
         return listImplementationName;
+    }
+
+    public String getListToArrayMethod() {
+        return listToArrayMethod;
     }
 
     public String getSetImplementationName() {
