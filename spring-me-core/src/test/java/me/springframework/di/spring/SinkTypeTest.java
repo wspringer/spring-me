@@ -39,11 +39,13 @@ package me.springframework.di.spring;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.springframework.di.Configuration;
 import me.springframework.di.ConstructorArgument;
 import me.springframework.di.Instance;
+import me.springframework.di.PropertySetter;
 import me.springframework.di.gen.factory.BeanFactoryGenerator;
 import me.springframework.di.gen.factory.BeanFactoryTypes;
 import me.springframework.test.Paths;
@@ -81,6 +83,29 @@ public class SinkTypeTest {
 
     public static class TestBean {
         public TestBean(List<Number> x) {
+        }
+    }
+
+
+    public void testArrayPropertyHasCorrectType() throws Exception {
+        Resource resource = new ClassPathResource("/array.xml", getClass());
+        Configuration configuration = new ConfigurationBuilder()
+            .addSourceTree(Paths.getFile("src/test/java"))
+            .withBeanFactoryOf(resource)
+            .withConversions()
+            .build();
+
+        Instance stringTest = configuration.get("string-test");
+        assertEquals(ArrayHolder.class.getName(), stringTest.getType());
+        List<PropertySetter> setters =
+                new ArrayList<PropertySetter>(stringTest.getSetters());
+        assertEquals(1, setters.size());
+        PropertySetter strings = setters.get(0);
+        assertEquals("java.lang.String[]", strings.getType());
+    }
+
+    static class ArrayHolder {
+        void setStrings(String[] array) {
         }
     }
 
