@@ -51,6 +51,7 @@ import me.springframework.di.Instance;
 import me.springframework.di.Scope;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
+import me.springframework.di.base.AbstractSink;
 import me.springframework.di.base.MutableCollectionSource;
 import me.springframework.di.base.MutableConfiguration;
 import me.springframework.di.base.MutableConstructorArgument;
@@ -431,9 +432,7 @@ public class SpringConfigurationLoader {
         return new MutableInstanceReference(sink, name);
     }
 
-    private static class EntrySink implements Sink {
-
-        private MutableSource source;
+    private static class EntrySink extends AbstractSink {
 
         private Type type;
 
@@ -442,36 +441,20 @@ public class SpringConfigurationLoader {
         }
 
         public EntrySink(Type type, MutableSource source) {
+            setSource(source);
             this.type = type;
-            this.source = source;
-        }
-
-        public Instance getInstance() {
-            return null;
-        }
-
-        public Source getSource() {
-            return source;
         }
 
         public String getType() {
             return "java.lang.Object";
         }
 
-        public boolean isPrimitive() {
-            return false;
-        }
-
-        public String getCastTo() {
-            return null;
-        }
-
         public String toString() {
             switch (type) {
                 case Key:
-                    return "the key of an entry of " + source.toString();
+                    return "the key of an entry of " + getSource();
                 case Value:
-                    return "the value of an entry of " + source.toString();
+                    return "the value of an entry of " + getSource();
                 default:
                     return null; // Keep compiler happy
             }
@@ -488,17 +471,12 @@ public class SpringConfigurationLoader {
      * @author Wilfred Springer (wis)
      * 
      */
-    private static class ElementSink implements Sink {
+    private static class ElementSink extends AbstractSink {
 
         /**
          * The index of the element.
          */
         private int index;
-
-        /**
-         * The {@link Source} from which it will obtain its data.
-         */
-        private MutableSource source;
 
         /**
          * Constructs a new instance.
@@ -509,26 +487,8 @@ public class SpringConfigurationLoader {
          *            The {@link Source} producing the data.
          */
         public ElementSink(int index, MutableSource source) {
+            setSource(source);
             this.index = index;
-            this.source = source;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see me.springframework.di.Sink#getInstance()
-         */
-        public Instance getInstance() {
-            return null;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see me.springframework.di.Sink#getSource()
-         */
-        public Source getSource() {
-            return source;
         }
 
         /*
@@ -543,23 +503,10 @@ public class SpringConfigurationLoader {
         /*
          * (non-Javadoc)
          * 
-         * @see me.springframework.di.Typed#isPrimitive()
-         */
-        public boolean isPrimitive() {
-            return false;
-        }
-
-        public String getCastTo() {
-            return null;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
          * @see java.lang.Object#toString()
          */
         public String toString() {
-            return "the " + index + "th element of " + source.toString();
+            return "the " + index + "th element of " + getSource();
         }
 
     }
