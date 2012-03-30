@@ -177,6 +177,7 @@ private final <if(instance.factoryBean)>java.lang.Object<else><instance.type><en
 >>
 
 createLazilyBody(instance) ::= <<
+<instance.setters:createArrays()>
 <instance.name;format="fieldName"> = <instantiateInstance(it)>;
 <instance.setters:setter(name=instance.name);separator="\n">
 <if (it.initMethod)>
@@ -186,10 +187,19 @@ createLazilyBody(instance) ::= <<
 <endif> 
 >>
 
+createArrays(setter) ::= <<
+<if (setter.array)>
+<beanFactoryType.listImplementationName> <it.name> = <!
+  !><if (setter.castTo)>(<beanFactoryType.listImplementationName>) <endif><!
+  !><(sourceTemplate.(setter.source.sourceType))(type=setter.type,source=setter.source)>;
+<setter.type>[] <it.name>Array = new <setter.type>[<it.name>.size()];
+<it.name>.<beanFactoryType.listToArrayMethod>(<it.name>Array);
+<endif>
+>>
+
 list() ::= <<
  * \<li><it.name> : {@link <it.type>}\</li>
 >>
-
 
 dispatch() ::= <<
 if ("<it.name>".equals(name)) return get<it.name;format="className">();
@@ -250,9 +260,12 @@ setter(name) ::= <<
 <name;format="fieldName">.set<it.name;format="className">(<source(sink=it,source=it.source)>);
 >>
 
-
 source(sink,source) ::= <<
+<if (!sink.array)>
 <if (sink.castTo)>(<sink.castTo>) <endif><(sourceTemplate.(sink.source.sourceType))(type=sink.type,source=source)>
+<else>
+<sink.name>Array
+<endif>
 >>
 
 

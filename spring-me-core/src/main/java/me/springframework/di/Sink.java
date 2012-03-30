@@ -71,4 +71,13 @@ public interface Sink extends Typed {
      */
     String getCastTo();
 
+    /**
+     * Returns true if this sink requires an array value. Spring allows lists
+     * to be injected into locations that require an array, which requires the
+     * list to be copied into an array before it can be injected.
+     *
+     * @return True if this sink requires an array value.
+     */
+    boolean isArray();
+
 }

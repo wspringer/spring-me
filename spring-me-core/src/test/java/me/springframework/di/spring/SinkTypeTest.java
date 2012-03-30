@@ -38,6 +38,7 @@
 package me.springframework.di.spring;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +47,6 @@ import me.springframework.di.Configuration;
 import me.springframework.di.ConstructorArgument;
 import me.springframework.di.Instance;
 import me.springframework.di.PropertySetter;
-import me.springframework.di.gen.factory.BeanFactoryGenerator;
-import me.springframework.di.gen.factory.BeanFactoryTypes;
 import me.springframework.test.Paths;
 
 import org.junit.Test;
@@ -62,14 +61,11 @@ public class SinkTypeTest {
     public void typesOfSinksThatReferenceOtherBeansShouldBeKnown() {
         Resource resource = new ClassPathResource("/sinktypes.xml", getClass());
         Configuration configuration = readConfiguration(resource);
-        InMemoryDestination dest = new InMemoryDestination("test");
-        BeanFactoryGenerator.generate(dest, configuration, BeanFactoryTypes.JAVA_SE);
 
         Instance course = configuration.get("x");
         List<? extends ConstructorArgument> ctrArgs = course.getConstructorArguments();
         assertEquals(1, ctrArgs.size());
         assertEquals("java.util.List", ctrArgs.get(0).getType());
-        System.out.println(dest.getAsText());
     }
 
     private static Configuration readConfiguration(Resource resource) {
@@ -87,6 +83,7 @@ public class SinkTypeTest {
     }
 
 
+    @Test
     public void testArrayPropertyHasCorrectType() throws Exception {
         Resource resource = new ClassPathResource("/array.xml", getClass());
         Configuration configuration = new ConfigurationBuilder()
@@ -101,7 +98,8 @@ public class SinkTypeTest {
                 new ArrayList<PropertySetter>(stringTest.getSetters());
         assertEquals(1, setters.size());
         PropertySetter strings = setters.get(0);
-        assertEquals("java.lang.String[]", strings.getType());
+        assertEquals("java.lang.String", strings.getType());
+        assertTrue(strings.isArray());
     }
 
     static class ArrayHolder {

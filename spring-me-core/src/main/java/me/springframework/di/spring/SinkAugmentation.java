@@ -96,6 +96,14 @@ public class SinkAugmentation implements Augmentation {
         if (isFactoryBean(source, context)) {
             sink.setCastTo(sink.getType().replace('$', '.'));
         }
+        if (sink.getType() != null) {
+            String sinkType = sink.getType();
+            if (sinkType.endsWith("[]")) {
+                sink.setArray(true);
+                String elementType = sinkType.substring(0, sinkType.length() - 2);
+                sink.setType(elementType);
+            }
+        }
     }
 
     /**
