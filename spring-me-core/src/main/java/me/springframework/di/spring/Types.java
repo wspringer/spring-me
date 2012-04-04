@@ -43,6 +43,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.core.io.Resource;
+
 import com.thoughtworks.qdox.model.Type;
 
 /**
@@ -84,7 +86,7 @@ class Types {
         if (type.isPrimitive()) {
             return true;
         }
-        if (String.class.getName().equals(type)) {
+        if (Resource.class.getName().equals(type.getValue())) {
             return true;
         }
         return WRAPPER_NAMES.contains(type.getValue());
