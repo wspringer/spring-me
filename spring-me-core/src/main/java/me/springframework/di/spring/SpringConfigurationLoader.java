@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
@@ -74,6 +75,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.TypedStringValue;
@@ -196,13 +198,13 @@ public class SpringConfigurationLoader {
             instance.setInitMethod(((AbstractBeanDefinition) definition).getInitMethodName());
             instance.setDestroyMethod(((AbstractBeanDefinition) definition).getDestroyMethodName());
         }
-        if (!definition.getConstructorArgumentValues().isEmpty()) {
+
+        List<ValueHolder> ctrArgs = constructorArgumentValues(definition);
+        if (!ctrArgs.isEmpty()) {
             List<MutableConstructorArgument> arguments = new ArrayList<MutableConstructorArgument>();
-            for (Object object : definition.getConstructorArgumentValues()
-                    .getGenericArgumentValues()) {
+            for (ValueHolder holder : ctrArgs) {
                 MutableConstructorArgument argument = new MutableConstructorArgument(instance);
                 argument.setInstance(instance);
-                ValueHolder holder = (ValueHolder) object;
                 argument.setSource(loadSource(context, argument, holder.getValue()));
                 argument.setType(holder.getType());
                 arguments.add(argument);
@@ -230,6 +232,18 @@ public class SpringConfigurationLoader {
         } else {
             instance.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_NO);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ValueHolder> constructorArgumentValues(BeanDefinition definition) {
+        ConstructorArgumentValues ctrArgValues = definition.getConstructorArgumentValues();
+        List<ValueHolder> ctrArgs = ctrArgValues.getGenericArgumentValues();
+        if (ctrArgs.isEmpty()) {
+            Map<?, ValueHolder> indexedValues = ctrArgValues.getIndexedArgumentValues();
+            Map<?, ValueHolder> v = new TreeMap<Object, ValueHolder>(indexedValues);
+            ctrArgs = new ArrayList<ValueHolder>(v.values());
+        }
+        return ctrArgs;
     }
 
     /**
