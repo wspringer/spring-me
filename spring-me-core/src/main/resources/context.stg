@@ -383,7 +383,8 @@ private final <beanFactoryType.setImplementationName> create<instance.id;format=
 >>
 
 addSetElement(name) ::= <<
-result.add(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>)>>
+result.add(<(sourceTemplate.(it.sourceType))(type="java.lang.Object",source=it)>);
+>>
 
 mapCreate(instance) ::= <<
 /**
