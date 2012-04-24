@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Property inheritance -->
+    <bean id="parent"
+          class="me.springframework.di.spring.NestedBeanTest$Bean"
+          abstract="true">
+      <property name="name"><value>Martin</value></property>          
+    </bean>
+
+    <bean id="holder"
+          class="me.springframework.di.spring.NestedBeanTest$Holder">
+      <property name="bean">
+        <bean parent="parent">
+          <property name="number"><value>1</value></property>
+        </bean>
+      </property>
+    </bean>
+
+</beans>

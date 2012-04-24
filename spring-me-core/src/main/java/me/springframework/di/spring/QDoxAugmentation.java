@@ -146,7 +146,7 @@ public class QDoxAugmentation implements Augmentation {
                 logger.logNoSuchProperty(setter.getName(), cl.getName());
                 it.remove();
             } else {
-                setter.setType(property.getType().getValue());
+                setter.setType(property.getType().toString());
                 setter.setPrimitive(property.getType().isPrimitive());
                 attribute(setter.getSource(), context);
             }

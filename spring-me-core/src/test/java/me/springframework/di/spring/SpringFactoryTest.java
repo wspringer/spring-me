@@ -41,20 +41,21 @@ import junit.framework.TestCase;
 import me.springframework.di.Configuration;
 import me.springframework.di.Instance;
 import me.springframework.di.InstanceReference;
+import me.springframework.di.LiteralSource;
 import me.springframework.di.PropertySetter;
 import me.springframework.di.Source;
-import me.springframework.di.LiteralSource;
 
+import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
 
 public class SpringFactoryTest extends TestCase {
 
     public void testLoading() {
-        SpringConfigurationLoader loader = new SpringConfigurationLoader();
-        Resource resource = new ClassPathResource("/context1.xml", SpringFactoryTest.class);
-        Configuration configuration = loader.load(resource);
+        Resource resource = new ClassPathResource("/context1.xml", getClass());
+        XmlBeanFactory factory = new XmlBeanFactory(resource);
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(factory);
+        Configuration configuration = loader.load();
         assertEquals(3, configuration.getPublicInstances().size());
 
         assertEquals("object1", configuration.get("object1").getName());
@@ -107,9 +108,10 @@ public class SpringFactoryTest extends TestCase {
      * Some lames test for testing the {@link Object#toString()} operation.
      */
     public void testToString() {
-        SpringConfigurationLoader loader = new SpringConfigurationLoader();
         Resource resource = new ClassPathResource("/context1.xml", SpringFactoryTest.class);
-        Configuration configuration = loader.load(resource);
+        XmlBeanFactory beanFactory = new XmlBeanFactory(resource);
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(beanFactory);
+        Configuration configuration = loader.load();
         assertEquals(3, configuration.getPublicInstances().size());
         assertEquals("bean object1", configuration.get("object1").toString());
         PropertySetter setter = (PropertySetter) configuration.get("object1").getSetters().toArray()[0];

@@ -98,6 +98,14 @@ public interface BeanFactoryType {
     String getListAppendMethodName();
 
     /**
+     * Returns the name of the method used to convert a list into an array.
+     * This is the copyInto method for Vector, and the toArray method for List.
+     *
+     * @return The method name used to copy list elements into an array.
+     */
+    String getListToArrayMethod();
+
+    /**
      * Returns a list of interfaces to be implemented by the bean factory.
      * 
      * @return An array of fully qualified interface names to be implemented by the bean factory.

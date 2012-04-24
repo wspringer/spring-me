@@ -37,54 +37,61 @@
  */
 package me.springframework.di.spring;
 
-import static me.springframework.di.gen.factory.BeanFactoryTypes.MINIMAL_JAVA_SE;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
-import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import me.springframework.di.Configuration;
+import me.springframework.di.Instance;
+import me.springframework.di.LiteralSource;
+import me.springframework.di.PropertySetter;
+import me.springframework.di.Source;
+import me.springframework.di.base.MutableInstance;
 import me.springframework.di.gen.factory.BeanFactoryGenerator;
+import me.springframework.di.gen.factory.BeanFactoryTypes;
 import me.springframework.test.Paths;
 
 import org.junit.Test;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import com.thoughtworks.qdox.JavaDocBuilder;
-import com.thoughtworks.qdox.model.JavaClass;
-import com.thoughtworks.qdox.model.JavaMethod;
-import com.thoughtworks.qdox.model.Type;
-import com.thoughtworks.qdox.parser.ParseException;
-
-public class AnonymousBeansTest {
+public class NestedBeanTest {
 
     @Test
-    public void beanFactoryChecksForAnonymousNamesGeneratedBySpring() {
-        Resource resource = new ClassPathResource("/anonymous.xml", getClass());
+    public void nestedBeansInheritPropertiesFromParent() {
+        Resource resource = new ClassPathResource("/nestedbean.xml", getClass());
         Configuration configuration = readConfiguration(resource);
         InMemoryDestination dest = new InMemoryDestination("test");
-        BeanFactoryGenerator.generate(dest, configuration, MINIMAL_JAVA_SE);
+        BeanFactoryGenerator.generate(dest, configuration, BeanFactoryTypes.JAVA_SE);
 
-        try {
-            JavaDocBuilder builder = new JavaDocBuilder();
-            builder.addSource(new StringReader(dest.getAsText()));
-            JavaClass factory = builder.getClassByName("test.BeanFactory");
+        Instance holder = configuration.get("holder");
+        List<PropertySetter> holderSetters =
+                new ArrayList<PropertySetter>(holder.getSetters());
+        assertEquals(1, holderSetters.size());
+        PropertySetter beanSetter = holderSetters.get(0);
+        MutableInstance source = (MutableInstance) beanSetter.getSource();
 
-            Type[] args = new Type[] {new Type(String.class.getName()) };
-            JavaMethod getBean = factory.getMethodBySignature("getBean", args);
-            String source = getBean.getSourceCode().replaceAll("[\r\n]", " ");
+        List<PropertySetter> beanSetters =
+                new ArrayList<PropertySetter>(source.getSetters());
+        assertEquals(2, beanSetters.size());
+        LiteralSource name = (LiteralSource) sourceOf(beanSetters, "name");
+        LiteralSource number = (LiteralSource) sourceOf(beanSetters, "number");
+        assertEquals("Martin", name.getValue());
+        assertEquals(String.valueOf(1), number.getValue());
+    }
 
-            XmlBeanFactory beanFactory = new XmlBeanFactory(resource);
-            String[] beanNames = beanFactory.getBeanDefinitionNames();
-            for (String beanName : beanNames) {
-                assertTrue("getBean should check for " + beanName,
-                        source.contains(String.format("\"%s\".equals", beanName)));
+    /**
+     * Returns the source of the PropertySetter with the given name.
+     */
+    private Source sourceOf(Collection<PropertySetter> setters, String name) {
+        for (PropertySetter setter : setters) {
+            if (name.equals(setter.getName())) {
+                return setter.getSource();
             }
-        } catch (ParseException ex) {
-            reportParseFailure(dest, ex);
         }
+        return null;
     }
 
     private static Configuration readConfiguration(Resource resource) {
@@ -94,11 +101,32 @@ public class AnonymousBeansTest {
             .build();
     }
 
-    static void reportParseFailure(InMemoryDestination dest, ParseException ex) {
-        String message = "Invalid java at line " + ex.getLine()
-                + ", column " + ex.getColumn() + ": ";
-        String error = dest.getAsText().split("\n")[ex.getLine() - 1].trim();
-        fail(message + error);
+    @SuppressWarnings("unused")
+    public static class Bean {
+
+        private int number;
+
+        private String name;
+
+        public void setNumber(int number) {
+            this.number = number;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+    }
+
+    @SuppressWarnings("unused")
+    public static class Holder {
+
+        private Bean bean;
+
+        public void setBean(Bean bean) {
+            this.bean = bean;
+        }
+
     }
 
 }

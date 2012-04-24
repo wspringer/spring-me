@@ -37,17 +37,25 @@
  */
 package me.springframework.di.spring;
 
+import static java.util.Collections.singletonList;
+import static me.springframework.di.Source.SourceType.StringRepresentation;
+
 import java.util.Collection;
 import java.util.Map;
 
+import me.springframework.di.LiteralSource;
 import me.springframework.di.Sink;
 import me.springframework.di.Source;
 import me.springframework.di.base.AbstractSink;
+import me.springframework.di.base.MutableConstructorArgument;
 import me.springframework.di.base.MutableContext;
 import me.springframework.di.base.MutableInstance;
 import me.springframework.di.base.MutableInstanceReference;
+import me.springframework.di.base.MutableStringValueSource;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 /**
  * Augments sinks with information about any type casts required at that sink.
@@ -93,8 +101,23 @@ public class SinkAugmentation implements Augmentation {
 
     protected void attribute(MutableContext context, AbstractSink sink) {
         Source source = sink.getSource();
+        String type = sink.getType();
+
         if (isFactoryBean(source, context)) {
-            sink.setCastTo(sink.getType().replace('$', '.'));
+            sink.setCastTo(type.replace('$', '.'));
+        }
+
+        if (isImplicitResource(sink)) {
+            String file = ((LiteralSource) source).getValue();
+            convertStringToResource(sink, file);
+        }
+
+        if (type != null) {
+            if (type.endsWith("[]")) {
+                sink.setArray(true);
+                String elementType = type.substring(0, type.length() - 2);
+                sink.setType(elementType);
+            }
         }
     }
 
@@ -115,6 +138,54 @@ public class SinkAugmentation implements Augmentation {
             factoryBean = r.isFactoryBean();
         }
         return factoryBean;
+    }
+
+    /**
+     * Returns true if the sink expects a Resource instance, and its source is
+     * a string literal (the file name).
+     *
+     * @param sink The sink.
+     * @return True if the an implicit Resource should be created for the given
+     *         file name.
+     */
+    private boolean isImplicitResource(Sink sink) {
+        return Resource.class.getName().equals(sink.getType())
+                && StringRepresentation.equals(sink.getSource().getSourceType());
+    }
+
+    /**
+     * Sets the source for a sink to a {@link Resource} instance.
+     *
+     * @param sink The sink into which a Resource instance should be injected.
+     * @param file The file name that should be used for the injected resource.
+     */
+    private void convertStringToResource(AbstractSink sink, String file) {
+        MutableInstance resource = createResource(sink, file);
+        sink.setSource(resource);
+        sink.setType(Resource.class.getName());
+    }
+
+    /**
+     * Creates an instance for a {@link Resource}. The returned instance is a
+     * ClassPathResource with a single argument. The value of the argument is
+     * the given file name.
+     *
+     * @param sink The sink that requires a Resource type.
+     * @param id   The identifier of the instance to create.
+     * @param file The filename of the resource.
+     * @return An instance denoting the injected Resource.
+     */
+    private MutableInstance createResource(Sink sink, String file) {
+        MutableInstance resource = new MutableInstance(sink, null);
+        MutableConstructorArgument ctrArgSink =
+                new MutableConstructorArgument(resource);
+        MutableStringValueSource ctrArgSource =
+                new MutableStringValueSource(sink, file, String.class.getName());
+        ctrArgSink.setSource(ctrArgSource);
+        resource.setConstructorArguments(singletonList(ctrArgSink));
+        resource.setId(sink.getSource().getId());
+        resource.setType(ClassPathResource.class.getName());
+        return resource;
     }
 
 }

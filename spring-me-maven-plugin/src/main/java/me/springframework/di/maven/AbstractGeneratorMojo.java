@@ -37,12 +37,17 @@
  */
 package me.springframework.di.maven;
 
-import com.thoughtworks.qdox.JavaDocBuilder;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import me.springframework.di.Configuration;
-import me.springframework.di.spring.AutowiringAugmentation;
-import me.springframework.di.spring.QDoxAugmentation;
-import me.springframework.di.spring.SinkAugmentation;
-import me.springframework.di.spring.SpringConfigurationLoader;
+import me.springframework.di.spring.ConfigurationBuilder;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -56,13 +61,7 @@ import org.apache.maven.project.artifact.MavenMetadataSource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import com.thoughtworks.qdox.JavaDocBuilder;
 
 
 /**
@@ -141,13 +140,12 @@ public abstract class AbstractGeneratorMojo extends AbstractMojo {
     }
 
     private Configuration load(Resource resource) throws MojoExecutionException {
-        JavaDocBuilder builder = createJavaDocBuilder();
-        QDoxAugmentation augmentation = new QDoxAugmentation(builder);
-        augmentation.setLoggingKitAdapter(new MavenLoggingKitAdapter(getLog()));
-        AutowiringAugmentation autowire = new AutowiringAugmentation(builder);
-        SinkAugmentation sink = new SinkAugmentation();
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentation, autowire, sink);
-        return loader.load(resource);
+        return new ConfigurationBuilder(createJavaDocBuilder())
+            .withLoggingKitAdapter(new MavenLoggingKitAdapter(getLog()))
+            .withAutowiring()
+            .withConversions()
+            .withBeanFactoryOf(resource)
+            .build();
     }
 
     /**
