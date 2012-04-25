@@ -37,39 +37,57 @@
  */
 package me.springframework.di.spring;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import me.springframework.di.Configuration;
-import me.springframework.di.base.MutableInstance;
+import me.springframework.di.ConstructorArgument;
+import me.springframework.di.Instance;
+import me.springframework.di.InstanceReference;
+import me.springframework.di.LiteralSource;
+import me.springframework.test.Paths;
 
+import org.junit.Test;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
-public class AutowiringAttributorBugTest extends TestCase {
+public class IndexedConstructorArgTest {
 
-    public void testAttributionByName() throws FileNotFoundException, IOException {
-        Configuration config = new ConfigurationBuilder()
-            .addSourceTree(new File(getBaseDir(), "src/test/java"))
-            .withBeanFactoryOf(new ClassPathResource("/autowire/autowire-bug1.xml", getClass()))
-            .withAutowiring()
-            .build();
+    @Test
+    public void objectsCreatedByBeanFactoryImplAreCastToSinkType() {
+        Resource resource = new ClassPathResource("/indexed-ctr-arg.xml", getClass());
+        Configuration configuration = readConfiguration(resource);
 
-        MutableInstance anon = (MutableInstance) config.get("holder1")
-                .getConstructorArguments().get(0).getSource();
+        Instance three = configuration.get("three");
+        assertEquals(2, three.getConstructorArguments().size());
+        List<ConstructorArgument> args =
+                new ArrayList<ConstructorArgument>(three.getConstructorArguments());
+        LiteralSource arg1 = (LiteralSource) args.get(0).getSource();
+        assertEquals("3.1", arg1.getValue());
 
-        // test that nothing is assigned
-        assertNull(anon.getConstructorArguments());
-        assertTrue(anon.getSetters().isEmpty());
+        InstanceReference ref = (InstanceReference) args.get(1).getSource();
+        assertEquals("mc", ref.getName());
+        assertEquals("java.math.MathContext", ref.getType());
     }
 
-    private File getBaseDir() {
-        String basedir = System.getProperty("basedir");
-        if (basedir == null) {
-            basedir = System.getProperty("user.dir");
-        }
-        return new File(basedir);
+    static Configuration readConfiguration(Resource resource) {
+        return new ConfigurationBuilder()
+            .addSourceTree(Paths.getFile("src/test/java"))
+            .withBeanFactoryOf(resource)
+            .withConversions()
+            .build();
+    }
+
+    @Test
+    public void validateIndexedConstructorArgsConfigWorksInSpring() {
+        ClassPathResource xml = new ClassPathResource("/indexed-ctr-arg.xml");
+        XmlBeanFactory beanFactory = new XmlBeanFactory(xml);
+        BigDecimal three = (BigDecimal) beanFactory.getBean("three");
+        assertEquals("3", three.toString());
     }
 
 }

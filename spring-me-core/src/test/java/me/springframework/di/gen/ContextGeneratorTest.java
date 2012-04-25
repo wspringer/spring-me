@@ -44,27 +44,21 @@ import junit.framework.TestCase;
 import me.springframework.di.Configuration;
 import me.springframework.di.gen.factory.BeanFactoryGenerator;
 import me.springframework.di.gen.factory.BeanFactoryTypes;
+import me.springframework.di.spring.ConfigurationBuilder;
 import me.springframework.di.spring.InMemoryDestination;
-import me.springframework.di.spring.QDoxAugmentation;
-import me.springframework.di.spring.SpringConfigurationLoader;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import com.thoughtworks.qdox.JavaDocBuilder;
 
 public class ContextGeneratorTest extends TestCase {
 
     public void testIntegration() throws IOException {
-        Resource resource = new ClassPathResource("/context3.xml", ContextGeneratorTest.class);
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(getBaseDir(), "src/test/java"));
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(new QDoxAugmentation(
-                builder));
-        Configuration configuration = loader.load(resource);
+        Configuration config = new ConfigurationBuilder()
+            .addSourceTree(new File(getBaseDir(), "src/test/java"))
+            .withBeanFactoryOf(new ClassPathResource("/context3.xml", getClass()))
+            .build();
         InMemoryDestination dest = new InMemoryDestination("com.tomtom.test");
         BeanFactoryGenerator generator = new BeanFactoryGenerator();
-        generator.generate(dest, configuration, BeanFactoryTypes.MINIMAL_JAVA_SE);
+        generator.generate(dest, config, BeanFactoryTypes.MINIMAL_JAVA_SE);
         System.out.println(dest.getAsText());
     }
 

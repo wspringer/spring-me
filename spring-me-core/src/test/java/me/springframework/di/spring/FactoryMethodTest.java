@@ -114,16 +114,10 @@ public class FactoryMethodTest {
     }
 
     static Configuration readConfiguration(Resource resource) {
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(Paths.getFile("src/test/java"));
-        Augmentation[] augmentations = {
-                new QDoxAugmentation(builder),
-                new AutowiringAugmentation(builder),
-                new SinkAugmentation(),
-        };
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentations);
-        Configuration configuration = loader.load(resource);
-        return configuration;
+        return new ConfigurationBuilder()
+            .addSourceTree(Paths.getFile("src/test/java"))
+            .withBeanFactoryOf(resource)
+            .build();
     }
 
     public static class MyObjectFactory {

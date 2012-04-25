@@ -53,6 +53,7 @@ import me.springframework.di.Source;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -61,8 +62,9 @@ public class SpringConfigurationLoaderTest extends TestCase {
 
     public void testLoadMaps() {
         Resource resource = new FileSystemResource(getFile("src/test/resources/context3.xml"));
-        SpringConfigurationLoader loader = new SpringConfigurationLoader();
-        Configuration configuration = loader.load(resource);
+        XmlBeanFactory beanFactory = new XmlBeanFactory(resource);
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(beanFactory);
+        Configuration configuration = loader.load();
         assertNotNull(configuration.getMapSources());
         assertNotNull(configuration.getPublicInstances());
         assertEquals(1, configuration.getMapSources().size());
@@ -96,8 +98,8 @@ public class SpringConfigurationLoaderTest extends TestCase {
         RootBeanDefinition bd = new RootBeanDefinition(PropertyPlaceholderConfigurer.class);
         bd.getPropertyValues().addPropertyValue("order", 1);
         beanFactory.registerBeanDefinition("ppc", bd);
-        SpringConfigurationLoader loader = new SpringConfigurationLoader();
-        Configuration configuration = loader.load(beanFactory);
+        SpringConfigurationLoader loader = new SpringConfigurationLoader(beanFactory);
+        Configuration configuration = loader.load();
 
         Instance instance = configuration.get("ppc");
         List<PropertySetter> setters =

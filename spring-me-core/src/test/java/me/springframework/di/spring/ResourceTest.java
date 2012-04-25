@@ -39,71 +39,81 @@ package me.springframework.di.spring;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import me.springframework.di.Configuration;
 import me.springframework.di.ConstructorArgument;
 import me.springframework.di.Instance;
-import me.springframework.di.PropertySetter;
+import me.springframework.di.LiteralSource;
+import me.springframework.di.Source;
+import me.springframework.di.base.MutableConstructorArgument;
+import me.springframework.di.base.MutableInstance;
 import me.springframework.test.Paths;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-public class SinkTypeTest {
+/**
+ * Tests implicit conversion of string literals to Resource instances.
+ */
+public class ResourceTest {
 
+    private Resource resource;
+
+    @Before
+    public void setUp() {
+        this.resource = new ClassPathResource("/resources.xml", getClass());
+    }
+
+    /**
+     * Tests that a sink of type {@link Resource} with a literal string value
+     * will have a {@link ClassPathResource} for the resource named by the
+     * string literal.
+     */
     @Test
-    public void typesOfSinksThatReferenceOtherBeansShouldBeKnown() {
-        Resource resource = new ClassPathResource("/sinktypes.xml", getClass());
-        Configuration configuration = readConfiguration(resource);
-
-        Instance course = configuration.get("x");
-        List<? extends ConstructorArgument> ctrArgs = course.getConstructorArguments();
-        assertEquals(1, ctrArgs.size());
-        assertEquals("java.util.List", ctrArgs.get(0).getType());
-    }
-
-    private static Configuration readConfiguration(Resource resource) {
-        ConfigurableApplicationContext ctxt =
-                new ClassPathXmlApplicationContext(resource.getFilename());
-        return new ConfigurationBuilder()
-            .addSourceTree(Paths.getFile("src/test/java"))
-            .withContext(ctxt)
-            .build();
-    }
-
-    public static class TestBean {
-        public TestBean(List<Number> x) {
-        }
-    }
-
-
-    @Test
-    public void testArrayPropertyHasCorrectType() throws Exception {
-        Resource resource = new ClassPathResource("/array.xml", getClass());
-        Configuration configuration = new ConfigurationBuilder()
+    public void stringLiteralSourceForResourceSinkIsImplicitlyConverted() {
+        Configuration config = new ConfigurationBuilder()
             .addSourceTree(Paths.getFile("src/test/java"))
             .withBeanFactoryOf(resource)
             .withConversions()
             .build();
 
-        Instance stringTest = configuration.get("string-test");
-        assertEquals(ArrayHolder.class.getName(), stringTest.getType());
-        List<PropertySetter> setters =
-                new ArrayList<PropertySetter>(stringTest.getSetters());
-        assertEquals(1, setters.size());
-        PropertySetter strings = setters.get(0);
-        assertEquals("java.lang.String", strings.getType());
-        assertTrue(strings.isArray());
+        Instance holder = config.get("resourceHolder");
+        assertEquals(1, holder.getConstructorArguments().size());
+        ConstructorArgument argument = holder.getConstructorArguments().get(0);
+        assertEquals(Resource.class.getName(), argument.getType());
+
+        Source source = argument.getSource();
+        assertEquals(ClassPathResource.class.getName(), source.getType());
+        MutableInstance resource = (MutableInstance) source;
+        assertEquals(1, resource.getConstructorArguments().size());
+        MutableConstructorArgument ctrArg = resource.getConstructorArguments().get(0);
+        LiteralSource fileArg = (LiteralSource) ctrArg.getSource();
+        assertEquals("set.xml", fileArg.getValue());
     }
 
-    static class ArrayHolder {
-        void setStrings(String[] array) {
+    /**
+     * Checks that Spring will inject a {@link ClassPathResource} for a sink of
+     * type {@link Resource}.
+     */
+    @Test
+    public void validateSpringInjectsClassPathResourceForStringLiteral() {
+        XmlBeanFactory beanFactory = new XmlBeanFactory(resource);
+        ResourceHolder bean = (ResourceHolder) beanFactory.getBean("resourceHolder");
+        Resource r = bean.getResource();
+        assertTrue(r instanceof ClassPathResource);
+        assertTrue(r.isReadable());
+        assertEquals("set.xml", r.getFilename());
+    }
+
+    static class ResourceHolder {
+        private final Resource resource;
+        public ResourceHolder(Resource resource) {
+            this.resource = resource;
+        }
+        public Resource getResource() {
+            return resource;
         }
     }
 

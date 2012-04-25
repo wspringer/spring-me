@@ -49,6 +49,8 @@ public abstract class AbstractSink extends AbstractTyped implements Sink {
 
     private String castTo;
 
+    private boolean array;
+
     public Source getSource() {
         return source;
     }
@@ -71,6 +73,14 @@ public abstract class AbstractSink extends AbstractTyped implements Sink {
 
     public void setCastTo(String castTo) {
         this.castTo = castTo;
+    }
+
+    public boolean isArray() {
+        return array;
+    }
+
+    public void setArray(boolean array) {
+        this.array = array;
     }
 
 }

@@ -56,8 +56,6 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import com.thoughtworks.qdox.JavaDocBuilder;
-
 /**
  * Tests for managed properties.
  */
@@ -73,7 +71,7 @@ public class PropertiesTest {
         Instance bean = configuration.get("bean");
         List<PropertySetter> setters =
                 new ArrayList<PropertySetter>(bean.getSetters());
-        assertEquals(2, setters.size());
+        assertEquals(1, setters.size());
         PropertySetter setter = setters.get(0);
         Source source = setter.getSource();
         assertEquals(SourceType.Properties, source.getSourceType());
@@ -88,28 +86,16 @@ public class PropertiesTest {
     }
 
     private static Configuration readConfiguration(Resource resource) {
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(Paths.getFile("src/test/java"));
-        Augmentation[] augmentations = {
-                new QDoxAugmentation(builder),
-                new AutowiringAugmentation(builder),
-        };
-        SpringConfigurationLoader loader = new SpringConfigurationLoader(augmentations);
-        Configuration configuration = loader.load(resource);
-        return configuration;
+        return new ConfigurationBuilder()
+            .addSourceTree(Paths.getFile("src/test/java"))
+            .withBeanFactoryOf(resource)
+            .build();
     }
 
     public static class TestClass {
 
         @SuppressWarnings("unused")
-        private Properties values;
-
-        @SuppressWarnings("unused")
         private Properties properties;
-
-        public void setValues(Properties values) {
-            this.values = values;
-        }
 
         public void setProperties(Properties properties) {
             this.properties = properties;
